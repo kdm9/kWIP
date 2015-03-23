@@ -28,8 +28,11 @@
 
 using namespace std;
 using namespace khmer;
+using namespace kmerclust;
+
 static int hits = 0;
 static int misses = 0;
+
 std::shared_ptr<CountingHash>
 get_hash(lru_cache<const char *, std::shared_ptr<CountingHash>> &cache, const char *path)
 {
@@ -55,10 +58,16 @@ main (int argc, const char *argv[])
     CountingHashDistanceCalcD2pop distcalc;
     map<pair<int, int>, double> distances;
 
+    if (argc < 3) {
+        cerr << "USAGE: " << argv[0] << " <hashtable> ..." << endl;
+        return EXIT_FAILURE;
+    }
+
     CountingHash ht(1, 1);
     ht.load(argv[1]);
     distcalc.add_hashtable(ht);
     cerr << "Loaded " << argv[1] << endl;
+
     #pragma omp parallel for shared(distcalc)
     for (int i = 2; i < argc; i++) {
         CountingHash ht(1, 1);
@@ -82,14 +91,13 @@ main (int argc, const char *argv[])
                 continue;
             }
             ht2.load(argv[j]);
-            num_loaded++;
             dist = distcalc.distance(ht1, ht2);
             distances[ij] = dist;
 	    cerr << i << " x " << j << " done!" << endl;
         }
     }
 #else
-    lru_cache<const char *, std::shared_ptr<CountingHash>> cache(omp_get_num_procs() * 4);
+    lru_cache<const char *, std::shared_ptr<CountingHash>> cache(omp_get_num_procs() * 3);
 
     #pragma omp parallel for shared(distcalc, distances, cache) schedule(dynamic)
     for (int i = 1; i < argc; i++) {
