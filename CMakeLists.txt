@@ -1,0 +1,55 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(kmerclust)
+
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+ENABLE_TESTING()
+
+IF (NOT CMAKE_BUILD_TYPE)
+        SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
+
+IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version")
+        FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version" VERSION)
+ELSE()
+        # git describe as versioning
+        EXECUTE_PROCESS(COMMAND git describe --always
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        OUTPUT_VARIABLE VERSION
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+ENDIF()
+
+MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}")
+
+###############################
+## Find Packages and Headers ##
+###############################
+
+SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${KHMER_ROOT}/lib/libkhmer.a)
+
+##########################
+## Set Compiler Options ##
+##########################
+
+# Set CFLAGS
+SET(WRN "${WRN} -Wall")
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WRN}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WRN}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
+
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
+                    ${CMAKE_SOURCE_DIR}/src
+                    ${KHMER_ROOT}/include)
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
+
+INCLUDE_DIRECTORIES()
+
+#CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/config.h.in
+#               ${CMAKE_BINARY_DIR}/config.h)
+
+#ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(src)
