@@ -39,6 +39,7 @@
 using namespace std;
 using namespace khmer;
 using namespace kmerclust;
+using namespace refcounted_lru_cache;
 
 static int hits = 0;
 static int misses = 0;
