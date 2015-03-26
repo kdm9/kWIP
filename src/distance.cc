@@ -79,6 +79,29 @@ CountingHashDistanceCalcPopulation::add_hashtable(khmer::CountingHash &ht)
     }
 }
 
+double
+CountingHashDistanceCalcPopulation::fpr()
+{
+    size_t i, j;
+    double fpr = 1;
+    std::vector<double> tab_counts(_n_tables, 0);
+
+    #pragma omp parallel for num_threads(_n_threads)
+    for (i = 0; i < _n_tables; i++) {
+        uint64_t tab_count = 0;
+        for (j = 0; j < _tablesizes[i]; j++) {
+            tab_count += _pop_counts[i][j] > 0 ? 1 : 0;
+        }
+        tab_counts[i] = (double)tab_count / _tablesizes[i];
+        std::cerr << i << " " << tab_count << " " << tab_counts[i] << std::endl;
+    }
+
+    for (i = 0; i < _n_tables; i++) {
+        fpr *= tab_counts[i];
+    }
+    return fpr;
+}
+
 float
 CountingHashDistanceCalcD2pop::distance(khmer::CountingHash &a, khmer::CountingHash &b)
 {

@@ -90,6 +90,9 @@ main (int argc, const char *argv[])
         }
     }
 
+    cerr << "Finished loading!" << endl;
+    cerr << "FPR: " << distcalc.fpr() << endl;
+
 #if 0
     for (int i = 1; i < argc; i++) {
         CountingHash ht1(1, 1);

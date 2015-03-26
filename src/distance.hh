@@ -33,9 +33,12 @@ protected:
 public:
     virtual float distance(khmer::CountingHash &a, khmer::CountingHash &b)
     {
-	return 0.0;
+    	return 0.0;
     }
 
+	CountingHashDistanceCalc(): _n_threads(1) {}
+
+    int _n_threads;
 };
 
 class CountingHashDistanceCalcD2 : public CountingHashDistanceCalc
@@ -95,6 +98,8 @@ public:
     virtual void load(std::string filename) { }
 
     void add_hashtable(khmer::CountingHash &ht);
+
+    double fpr();
 };
 
 class CountingHashDistanceCalcD2pop : public CountingHashDistanceCalcPopulation
