@@ -18,7 +18,7 @@
 #ifndef DISTANCE_HH
 #define DISTANCE_HH
 
-#include "counting.hh"
+#include <counting.hh>
 #include <cmath>
 
 namespace kmerclust
@@ -28,7 +28,8 @@ class CountingHashDistanceCalc
 {
 
 protected:
-    void _check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b);
+    void _check_hash_dimensions(khmer::CountingHash &a,
+                                khmer::CountingHash &b);
 
 public:
     virtual float distance(khmer::CountingHash &a, khmer::CountingHash &b)
@@ -36,7 +37,7 @@ public:
     	return 0.0;
     }
 
-	CountingHashDistanceCalc(): _n_threads(1) {}
+    CountingHashDistanceCalc(): _n_threads(1) {}
 
     int _n_threads;
 };
