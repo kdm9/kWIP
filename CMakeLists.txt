@@ -28,7 +28,12 @@ MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}
 ## Find Packages and Headers ##
 ###############################
 
-SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${KHMER_ROOT}/lib/libkhmer.a)
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/FindKHMER.CMake)
+
+FIND_PACKAGE(khmer 1.3 REQUIRED)
+
+SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${KHMER_LIBRARIES})
+INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
 
 ##########################
 ## Set Compiler Options ##
