@@ -1,5 +1,9 @@
 # Libary
-ADD_LIBRARY(libkmerclust distance.cc)
+ADD_LIBRARY(libkmerclust distance.cc
+                         d2.cc
+                         d2pop.cc
+                         population.cc
+                         countmin.cc)
 SET_TARGET_PROPERTIES(libkmerclust PROPERTIES OUTPUT_NAME kmerclust)
 
 # Executable

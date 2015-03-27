@@ -15,27 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "distance.hh"
+
+#ifndef POPULATION_HH
+#define POPULATION_HH
 
 namespace kmerclust
 {
 
-void
-DistanceCalc::_check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b)
+class DistanceCalcPopulation : public DistanceCalc
 {
-    size_t i;
-    bool ok = true;
-    std::vector<khmer::HashIntoType> a_tsz = a.get_tablesizes();
-    std::vector<khmer::HashIntoType> b_tsz = b.get_tablesizes();
 
-    if (a.ksize() != b.ksize()) ok = false;
-    if (a.n_tables() != b.n_tables()) ok = false;
-    for (i = 0; i <a.n_tables(); i++) {
-        if (a_tsz[i] != b_tsz[i]) ok = false;
-    }
-    if (!ok) {
-        throw "Hash dimensions and k-size not equal";
-    }
-}
+protected:
+    uint16_t **_pop_counts;
+    size_t _n_tables;
+    std::vector<khmer::HashIntoType> _tablesizes;
+    std::vector<uint64_t> _table_sums;
 
-} // namespace kmerclust
+    bool _have_tables()
+    {
+        return (_pop_counts != NULL);
+    }
+
+    void _make_tables(std::vector<khmer::HashIntoType> &tablesizes);
+
+public:
+    DistanceCalcPopulation()
+    {
+        _pop_counts = NULL;
+        _n_tables = 0;
+    }
+
+    ~DistanceCalcPopulation();
+
+    virtual void save(std::string filename) { }
+
+    virtual void load(std::string filename) { }
+
+    void add_hashtable(khmer::CountingHash &ht);
+
+    double fpr();
+};
+
+} // end namespace kmerclust
+
+#endif /* POPULATION_HH */

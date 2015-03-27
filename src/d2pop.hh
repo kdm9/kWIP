@@ -15,27 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "distance.hh"
+#ifndef D2POP_HH
+#define D2POP_HH
+
+
+#include "population.hh"
 
 namespace kmerclust
 {
-
-void
-DistanceCalc::_check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b)
+namespace metrics
 {
-    size_t i;
-    bool ok = true;
-    std::vector<khmer::HashIntoType> a_tsz = a.get_tablesizes();
-    std::vector<khmer::HashIntoType> b_tsz = b.get_tablesizes();
 
-    if (a.ksize() != b.ksize()) ok = false;
-    if (a.n_tables() != b.n_tables()) ok = false;
-    for (i = 0; i <a.n_tables(); i++) {
-        if (a_tsz[i] != b_tsz[i]) ok = false;
-    }
-    if (!ok) {
-        throw "Hash dimensions and k-size not equal";
-    }
-}
+class DistanceCalcD2pop : public DistanceCalcPopulation
+{
 
-} // namespace kmerclust
+public:
+
+    float distance(khmer::CountingHash &a, khmer::CountingHash &b);
+};
+
+}} // end namespace kmerclust::metrics
+
+
+#endif /* D2POP_HH */

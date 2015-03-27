@@ -15,27 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "distance.hh"
+#ifndef KLUST_HH
+#define KLUST_HH
 
-namespace kmerclust
-{
 
-void
-DistanceCalc::_check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b)
-{
-    size_t i;
-    bool ok = true;
-    std::vector<khmer::HashIntoType> a_tsz = a.get_tablesizes();
-    std::vector<khmer::HashIntoType> b_tsz = b.get_tablesizes();
+#include <countmin.hh>
+#include <distance.hh>
+#include <population.hh>
+#include <d2.hh>
+#include <d2pop.hh>
 
-    if (a.ksize() != b.ksize()) ok = false;
-    if (a.n_tables() != b.n_tables()) ok = false;
-    for (i = 0; i <a.n_tables(); i++) {
-        if (a_tsz[i] != b_tsz[i]) ok = false;
-    }
-    if (!ok) {
-        throw "Hash dimensions and k-size not equal";
-    }
-}
-
-} // namespace kmerclust
+#endif /* KLUST_HH */

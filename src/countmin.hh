@@ -15,33 +15,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DISTANCE_HH
-#define DISTANCE_HH
+#ifndef COUNTMIN_HH
+#define COUNTMIN_HH
 
-#include <counting.hh>
-#include <cmath>
+
+#include <array>
+#include <vector>
 
 namespace kmerclust
 {
 
-class DistanceCalc
+template<typename val_tp, typename hash_tp=size_t>
+class CountMinSketch
 {
-
 protected:
-    void _check_hash_dimensions(khmer::CountingHash &a,
-                                khmer::CountingHash &b);
+    val_tp **_table;
+    std::vector<hash_tp> _tablesizes;
+    size_t _n_tables;
 
 public:
-    virtual float distance(khmer::CountingHash &a, khmer::CountingHash &b)
-    {
-    	return 0.0;
-    }
+    CountMinSketch             (std::vector<hash_tp> tablesizes);
+    CountMinSketch             ();
+    ~CountMinSketch            ();
 
-    DistanceCalc(): _n_threads(1) {}
-
-    int _n_threads;
+    val_tp get                 (hash_tp hash);
+    void set                   (hash_tp hash,
+                                val_tp val);
+    void increment             (hash_tp hash,
+                                val_tp by);
+    void decrement             (hash_tp hash,
+                                val_tp by);
 };
 
 } // end namespace kmerclust
 
-#endif /* DISTANCE_HH */
+
+#endif /* COUNTMIN_HH */

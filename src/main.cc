@@ -15,20 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "khmer.hh"
-#include "counting.hh"
-#include "distance.hh"
-#include "kmer_hash.hh"
-#include "hashtable.hh"
-#include "hashbits.hh"
-#include "labelhash.hh"
-#include "khmer_exception.hh"
+
+#include <klust.hh>
 
 #include "lrucache.hh"
 
 #include <vector>
 #include <queue>
 
+#include <utility>
+#include <memory>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -39,6 +35,7 @@
 using namespace std;
 using namespace khmer;
 using namespace kmerclust;
+using namespace kmerclust::metrics;
 using namespace refcounted_lru_cache;
 
 static int hits = 0;
@@ -66,7 +63,7 @@ get_hash(lru_cache<const char *, std::shared_ptr<CountingHash>> &cache, const ch
 int
 main (int argc, const char *argv[])
 {
-    CountingHashDistanceCalcD2pop distcalc;
+    DistanceCalcD2pop distcalc;
     map<pair<int, int>, double> distances;
 
     if (argc < 3) {

@@ -15,27 +15,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "distance.hh"
+#include "d2.hh"
 
 namespace kmerclust
 {
-
-void
-DistanceCalc::_check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b)
+namespace metrics
 {
-    size_t i;
-    bool ok = true;
-    std::vector<khmer::HashIntoType> a_tsz = a.get_tablesizes();
-    std::vector<khmer::HashIntoType> b_tsz = b.get_tablesizes();
 
-    if (a.ksize() != b.ksize()) ok = false;
-    if (a.n_tables() != b.n_tables()) ok = false;
-    for (i = 0; i <a.n_tables(); i++) {
-        if (a_tsz[i] != b_tsz[i]) ok = false;
+float
+DistanceCalcD2::distance(khmer::CountingHash &a, khmer::CountingHash &b)
+{
+    size_t tab;
+    size_t bin;
+    std::vector<float> tab_scores;
+    khmer::Byte **a_counts = a.get_raw_tables();
+    khmer::Byte **b_counts = b.get_raw_tables();
+
+    _check_hash_dimensions(a, b);
+
+    for (tab = 0; tab < a.n_tables(); tab++) {
+        float tab_dist = 0.0;
+        for (bin = 0; bin < a.get_tablesizes()[tab]; bin++) {
+            tab_dist += a_counts[tab][bin] * b_counts[tab][bin];
+        }
+        tab_scores.push_back(tab_dist);
     }
-    if (!ok) {
-        throw "Hash dimensions and k-size not equal";
-    }
+    return tab_scores[0];
 }
 
-} // namespace kmerclust
+}} // end namespace kmerclust::metrics
