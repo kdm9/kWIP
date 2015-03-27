@@ -93,7 +93,6 @@ CountingHashDistanceCalcPopulation::fpr()
             tab_count += _pop_counts[i][j] > 0 ? 1 : 0;
         }
         tab_counts[i] = (double)tab_count / _tablesizes[i];
-        std::cerr << i << " " << tab_count << " " << tab_counts[i] << std::endl;
     }
 
     for (i = 0; i < _n_tables; i++) {
