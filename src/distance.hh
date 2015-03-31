@@ -18,28 +18,75 @@
 #ifndef DISTANCE_HH
 #define DISTANCE_HH
 
-#include <counting.hh>
 #include <cmath>
+#include <memory>
+
+#ifdef _OPENMP
+    #include <omp.h>
+#else
+    #define omp_lock_t int
+    #define omp_init_lock (void)
+    #define omp_set_lock (void)
+    #define omp_unset_lock (void)
+    #define omp_destroy_lock (void)
+#endif
+
+#include <counting.hh>
+
+#include "lrucache.hpp"
 
 namespace kmerclust
 {
+
+typedef std::shared_ptr<khmer::CountingHash> CountingHashShrPtr;
+typedef cache::lru_cache<std::string, CountingHashShrPtr> CountingHashCache;
 
 class DistanceCalc
 {
 
 protected:
-    void _check_hash_dimensions(khmer::CountingHash &a,
-                                khmer::CountingHash &b);
+    int _n_threads;
+    size_t _n_samples;
+    float **_dist_mat;
+    omp_lock_t _dist_mat_lock;
+    std::vector<std::string> _sample_names;
+    CountingHashCache _hash_cache;
+    omp_lock_t _hash_cache_lock;
+    //int loads, gets;
+
+    // Ensure `a` and `b` have the same counting hash dimensions. Throws an
+    // exception if they are not.
+    virtual void
+    _check_hash_dimensions     (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
+    CountingHashShrPtr
+    _get_hash                  (std::string                &filename);
 
 public:
-    virtual float distance(khmer::CountingHash &a, khmer::CountingHash &b)
-    {
-    	return 0.0;
-    }
+    DistanceCalc               ();
+    ~DistanceCalc              ();
 
-    DistanceCalc(): _n_threads(1) {}
+    // Caclulate the distance between two counting hashes
+    virtual float
+    distance                   (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
 
-    int _n_threads;
+    virtual void
+    calculate_pairwise         (std::vector<std::string>   &hash_fnames);
+
+    virtual void
+    set_sample_names           (std::vector<std::string>   &sample_names);
+
+    virtual void
+    set_num_threads            (int                         n_threads);
+
+    virtual void
+    print_dist_mat             (std::ostream               &outstream);
+
+    virtual void
+    print_dist_mat             ()
+    { print_dist_mat(std::cout); }
+
 };
 
 } // end namespace kmerclust

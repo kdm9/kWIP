@@ -18,7 +18,7 @@
 
 #include <klust.hh>
 
-#include "lrucache.hh"
+#include "lrucache-refcnt.hh"
 
 #include <vector>
 #include <queue>
@@ -60,16 +60,13 @@ get_hash(lru_cache<const char *, std::shared_ptr<CountingHash>> &cache, const ch
     }
 }
 
+template<typename DistMeasure>
 int
-main (int argc, const char *argv[])
+run_main (int argc, const char *argv[])
 {
-    DistanceCalcD2pop distcalc;
+    DistMeasure distcalc;
     map<pair<int, int>, double> distances;
 
-    if (argc < 3) {
-        cerr << "USAGE: " << argv[0] << " <hashtable> ..." << endl;
-        return EXIT_FAILURE;
-    }
 
     CountingHash ht(1, 1);
     ht.load(argv[1]);
@@ -89,78 +86,44 @@ main (int argc, const char *argv[])
 
     cerr << "Finished loading!" << endl;
     cerr << "FPR: " << distcalc.fpr() << endl;
+}
+
+int
+main (int argc, char *argv[])
+{
+    if (argc < 4) {
+        cerr << "USAGE: " << argv[0] << " " << argv[1] << \
+            " <hashtable> ..." << endl;
+        return EXIT_FAILURE;
+    }
+
+    DistanceCalcD2 distcalc;
+    std::vector<std::string> filenames;
+
+    for (int i = 1; i < argc; i++) {
+        filenames.push_back(std::string(argv[i]));
+    }
 
 #if 0
-    for (int i = 1; i < argc; i++) {
-        CountingHash ht1(1, 1);
-        CountingHash ht2(1, 1);
-        ht1.load(argv[i]);
-        for (int j = 1; j < argc; j++) {
-            double dist = 0.0;
-            const pair<ssize_t, ssize_t> ij(i, j);
-            if (i > j) {
-                continue;
-            }
-            ht2.load(argv[j]);
-            dist = distcalc.distance(ht1, ht2);
-            distances[ij] = dist;
-	    cerr << i << " x " << j << " done!" << endl;
+    CountingHash ht(1, 1);
+    ht.load(argv[1]);
+    distcalc.add_hashtable(ht);
+    cerr << "Loaded " << argv[1] << endl;
+    #pragma omp parallel for shared(distcalc)
+    for (int i = 2; i < argc; i++) {
+        CountingHash ht(1, 1);
+    	ht.load(argv[i]);
+        distcalc.add_hashtable(ht);
+        #pragma omp critical
+        {
+            cerr << "Loaded " << argv[i] << endl;
         }
     }
-#else
-    lru_cache<const char *, std::shared_ptr<CountingHash>> cache(omp_get_num_procs() * 3);
 
-    #pragma omp parallel for shared(distcalc, distances, cache) schedule(dynamic)
-    for (int i = 1; i < argc; i++) {
-        std::shared_ptr<CountingHash> ht1;
-        std::shared_ptr<CountingHash> ht2;
-        #pragma omp critical
-        {
-            ht1 = get_hash(cache, argv[i]);
-        }
-        for (int j = 1; j < argc; j++) {
-            double dist = 0.0;
-            pair<int, int> ij(i, j);
-            if (i > j) {
-                // Skip the bottom half of the distance matrix.
-                continue;
-            }
-            #pragma omp critical
-            {
-                ht2 = get_hash(cache, argv[j]);
-            }
-            dist = distcalc.distance(*ht1, *ht2);
-            #pragma omp critical
-            {
-                distances[ij] = dist;
-                cerr << i << " x " << j << endl;
-                cache.unget(argv[j]);
-            }
-        }
-        #pragma omp critical
-        {
-            cache.unget(argv[i]);
-        }
-    }
+    cerr << "Finished loading!" << endl;
+    cerr << "FPR: " << distcalc.fpr() << endl;
 #endif
-
-    for (ssize_t i = 1; i < argc; i++) {
-        cout << "\t" << basename(argv[i]);
-    }
-    cout << endl;
-    for (ssize_t i = 1; i < argc; i++) {
-        cout << basename(argv[i]);
-        for (ssize_t j = 1; j < argc; j++) {
-            if (i > j) {
-                pair<ssize_t, ssize_t> ij(j, i);
-                cout << "\t" << distances[ij];
-            } else {
-                pair<ssize_t, ssize_t> ij(i, j);
-                cout << "\t" << distances[ij];
-            }
-        }
-        cout << endl;
-    }
-    cerr << "Done! " << hits << " hits, " << misses << " misses in cache." << endl;
+    distcalc.calculate_pairwise(filenames);
+    distcalc.print_dist_mat();
     return EXIT_SUCCESS;
-} /* ----------  end of function main  ---------- */
+}

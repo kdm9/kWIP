@@ -33,12 +33,15 @@ DistanceCalcD2::distance(khmer::CountingHash &a, khmer::CountingHash &b)
 
     _check_hash_dimensions(a, b);
 
-    for (tab = 0; tab < a.n_tables(); tab++) {
-        float tab_dist = 0.0;
+    //for (tab = 0; tab < a.n_tables(); tab++) {
+    for (tab = 0; tab < 1; tab++) {
+        uint64_t tab_dist = 0;
+        khmer::Byte *A = a_counts[tab];
+        khmer::Byte *B = b_counts[tab];
         for (bin = 0; bin < a.get_tablesizes()[tab]; bin++) {
-            tab_dist += a_counts[tab][bin] * b_counts[tab][bin];
+            tab_dist += A[bin] * B[bin];
         }
-        tab_scores.push_back(tab_dist);
+        tab_scores.push_back((float)tab_dist);
     }
     return tab_scores[0];
 }
