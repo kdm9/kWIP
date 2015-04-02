@@ -95,7 +95,6 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
     std::cerr << "Done all!" << std::endl;
-    //std::cerr << "Got " << gets - loads << " from cache, loaded " << loads << std::endl;
 }
 
 void
@@ -147,20 +146,17 @@ DistanceCalc::
 _get_hash(std::string &filename)
 {
     CountingHashShrPtr ret;
+    omp_set_lock(&_hash_cache_lock);
     while (1) {
         try {
             ret = _hash_cache.get(filename);
-            //__sync_fetch_and_add(&gets, 1);
+            omp_unset_lock(&_hash_cache_lock);
             return ret;
         } catch (std::range_error &err) {
-            omp_set_lock(&_hash_cache_lock);
-            //loads++;
             CountingHashShrPtr ht = \
                     std::make_shared<khmer::CountingHash>(1, 1);
             ht->load(filename);
             _hash_cache.put(filename, ht);
-            //std::cerr << "Loaded " << filename << std::endl;
-            omp_unset_lock(&_hash_cache_lock);
         }
     }
 }

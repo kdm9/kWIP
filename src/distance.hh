@@ -52,7 +52,6 @@ protected:
     std::vector<std::string> _sample_names;
     CountingHashCache _hash_cache;
     omp_lock_t _hash_cache_lock;
-    //int loads, gets;
 
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
