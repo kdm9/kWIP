@@ -66,8 +66,7 @@ main (int argc, const char *argv[])
     std::cerr << "ERROR: Invalid distance measure name " << argv[1]
               << std::endl << std::endl;
     std::cerr << "Valid measures are:" << std::endl;
-    std::cerr << "d2"
-              << "d2pop"
-              << std::endl;
+    std::cerr << "  d2" << std::endl
+              << "  d2pop" << std::endl;
     return EXIT_FAILURE;
 }
