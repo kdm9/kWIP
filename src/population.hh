@@ -34,9 +34,6 @@ protected:
     std::vector<uint64_t> _table_sums;
     omp_lock_t _pop_table_lock;
 
-    bool
-    _have_tables               ();
-
 public:
     DistanceCalcPopulation();
 
@@ -51,7 +48,7 @@ public:
 #endif
 
     void
-    add_hashtable              (khmer::CountingHash        &ht);
+    add_hashtable              (std::string                &hash_fname);
 
     virtual void
     calculate_pairwise         (std::vector<std::string>   &hash_fnames);

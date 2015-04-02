@@ -24,11 +24,13 @@
 #ifdef _OPENMP
     #include <omp.h>
 #else
+    #warning "All the data and no openmp makes Jack a dull boy"
     #define omp_lock_t int
     #define omp_init_lock (void)
     #define omp_set_lock (void)
     #define omp_unset_lock (void)
     #define omp_destroy_lock (void)
+    #define omp_get_max_threads(x) (1)
 #endif
 
 #include <counting.hh>

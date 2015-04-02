@@ -42,12 +42,16 @@ DistanceCalcPopulation::
 
 void
 DistanceCalcPopulation::
-add_hashtable(khmer::CountingHash &ht)
+add_hashtable(std::string &hash_fname)
 {
-    khmer::Byte **counts = ht.get_raw_tables();
+    khmer::CountingHash ht(1, 1);
+    khmer::Byte **counts;
+
+    ht.load(hash_fname);
+    counts = ht.get_raw_tables();
 
     omp_set_lock(&_pop_table_lock);
-    if (!_have_tables()) {
+    if (_pop_counts == NULL) {
         std::vector<khmer::HashIntoType> tablesizes = ht.get_tablesizes();
         _tablesizes = tablesizes;
         _n_tables = tablesizes.size();
@@ -58,8 +62,8 @@ add_hashtable(khmer::CountingHash &ht)
         _table_sums.push_back(0);
         }
     }
-    omp_unset_lock(&_pop_table_lock);
     // Below here is threadsafe, I think
+    omp_unset_lock(&_pop_table_lock);
 
     for (size_t i = 0; i < _n_tables; i++) {
         uint64_t tab_count = 0;
@@ -67,31 +71,22 @@ add_hashtable(khmer::CountingHash &ht)
         uint16_t *this_popcount = _pop_counts[i];
         khmer::Byte *this_count = counts[i];
         for (size_t j = 0; j < _tablesizes[i]; j++) {
-            __sync_fetch_and_add(&this_popcount[j], this_count[j]);
+            __sync_fetch_and_add(&(this_popcount[j]), this_count[j]);
             tab_count += this_count[j];
         }
         __sync_fetch_and_add(&_table_sums[i], tab_count);
     }
 }
 
-bool
-DistanceCalcPopulation::
-_have_tables()
-{
-    return (_pop_counts != NULL);
-}
 
 void
 DistanceCalcPopulation::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
-    _n_samples = hash_fnames.size();
-
+    //add_hashtable(hash_fnames[0]);
     #pragma omp parallel for num_threads(_n_threads)
-    for (size_t i = 0; i < _n_samples; i++) {
-        khmer::CountingHash ht(1, 1);
-        ht.load(hash_fnames[i]);
-        add_hashtable(ht);
+    for (size_t i = 0; i < hash_fnames.size(); i++) {
+        add_hashtable(hash_fnames[i]);
         #pragma omp critical
         {
             std::cerr << "Loaded " << hash_fnames[i] << std::endl;
