@@ -30,8 +30,6 @@ DistanceCalc() :
     omp_init_lock(&_hash_cache_lock);
     _n_threads = omp_get_max_threads();
     _hash_cache = CountingHashCache(_n_threads*2 + 1);
-    // gets = 0;
-    // loads = 0;
 }
 
 DistanceCalc::
@@ -57,13 +55,18 @@ distance(khmer::CountingHash &a, khmer::CountingHash &b)
     return 0.0;
 }
 
-
 void
 DistanceCalc::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     // Create the distance matrix
     omp_set_lock(&_dist_mat_lock);
+    if (_dist_mat != NULL) {
+        for (size_t i = 0; i < _n_samples; i++) {
+            delete[] _dist_mat[i];
+        }
+        delete[] _dist_mat;
+    }
     _n_samples = hash_fnames.size();
     _dist_mat = new float *[_n_samples];
     for (size_t i = 0; i < _n_samples; i++) {
