@@ -18,7 +18,6 @@
 #ifndef KLUST_HH
 #define KLUST_HH
 
-
 #include <countmin.hh>
 #include <distance.hh>
 #include <population.hh>
