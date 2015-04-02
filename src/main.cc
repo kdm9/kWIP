@@ -16,114 +16,58 @@
  */
 
 
-#include <klust.hh>
-
-#include "lrucache-refcnt.hh"
-
-#include <vector>
-#include <queue>
 
 #include <utility>
 #include <memory>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-
-#include <omp.h>
 #include <string.h>
+
+#include <klust.hh>
 
 using namespace std;
 using namespace khmer;
 using namespace kmerclust;
 using namespace kmerclust::metrics;
-using namespace refcounted_lru_cache;
-
-static int hits = 0;
-static int misses = 0;
-
-std::shared_ptr<CountingHash>
-get_hash(lru_cache<const char *, std::shared_ptr<CountingHash>> &cache, const char *path)
-{
-    std::shared_ptr<CountingHash> ret;
-    while (1) {
-        try {
-            ret = cache.get(path);
-            __sync_fetch_and_add(&hits, 1);
-            return ret;
-        } catch (std::range_error &err) {
-            __sync_fetch_and_add(&misses, 1);
-            std::shared_ptr<CountingHash> ht = std::make_shared<CountingHash>(1, 1);
-            ht->load(path);
-            cache.put(path, ht);
-
-        }
-    }
-}
 
 template<typename DistMeasure>
 int
-run_main (int argc, const char *argv[])
+run_main(DistMeasure &distcalc, int argc, const char *argv[])
 {
-    DistMeasure distcalc;
-    map<pair<int, int>, double> distances;
-
-
-    CountingHash ht(1, 1);
-    ht.load(argv[1]);
-    distcalc.add_hashtable(ht);
-    cerr << "Loaded " << argv[1] << endl;
-
-    #pragma omp parallel for shared(distcalc)
-    for (int i = 2; i < argc; i++) {
-        CountingHash ht(1, 1);
-    	ht.load(argv[i]);
-        distcalc.add_hashtable(ht);
-        #pragma omp critical
-        {
-            cerr << "Loaded " << argv[i] << endl;
-        }
-    }
-
-    cerr << "Finished loading!" << endl;
-    cerr << "FPR: " << distcalc.fpr() << endl;
-}
-
-int
-main (int argc, char *argv[])
-{
-    if (argc < 4) {
-        cerr << "USAGE: " << argv[0] << " " << argv[1] << \
-            " <hashtable> ..." << endl;
-        return EXIT_FAILURE;
-    }
-
-    DistanceCalcD2 distcalc;
     std::vector<std::string> filenames;
 
     for (int i = 1; i < argc; i++) {
         filenames.push_back(std::string(argv[i]));
     }
 
-#if 0
-    CountingHash ht(1, 1);
-    ht.load(argv[1]);
-    distcalc.add_hashtable(ht);
-    cerr << "Loaded " << argv[1] << endl;
-    #pragma omp parallel for shared(distcalc)
-    for (int i = 2; i < argc; i++) {
-        CountingHash ht(1, 1);
-    	ht.load(argv[i]);
-        distcalc.add_hashtable(ht);
-        #pragma omp critical
-        {
-            cerr << "Loaded " << argv[i] << endl;
-        }
-    }
-
-    cerr << "Finished loading!" << endl;
-    cerr << "FPR: " << distcalc.fpr() << endl;
-#endif
     distcalc.calculate_pairwise(filenames);
     distcalc.print_dist_mat();
     return EXIT_SUCCESS;
+}
+
+int
+main (int argc, const char *argv[])
+{
+    if (argc < 3) {
+        std::cerr << "USAGE: " << argv[0] << " <distmeasure> <hashtable> ..."
+                  << std::endl;
+        return EXIT_FAILURE;
+    } else if (argc < 4) {
+        std::cerr << "USAGE: " << argv[0] << " " << argv[1]
+                  << " <hashtable> ..." << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    if (strcmp(argv[1], "d2") == 0) {
+        DistanceCalcD2 dist;
+        return run_main<DistanceCalcD2>(dist, argc - 1, argv + 1);
+    } else if (strcmp(argv[1], "d2pop") == 0) {
+        DistanceCalcD2pop dist;
+        return run_main<DistanceCalcD2pop>(dist, argc - 1, argv + 1);
+    }
+    std::cerr << "ERROR: Invalid distance measure name " << argv[1]
+              << std::endl << std::endl;
+    std::cerr << "Valid measures are:" << std::endl;
+    std::cerr << "d2"
+              << "d2pop"
+              << std::endl;
+    return EXIT_FAILURE;
 }
