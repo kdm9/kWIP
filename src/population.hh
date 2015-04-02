@@ -32,30 +32,32 @@ protected:
     size_t _n_tables;
     std::vector<khmer::HashIntoType> _tablesizes;
     std::vector<uint64_t> _table_sums;
+    omp_lock_t _pop_table_lock;
 
-    bool _have_tables()
-    {
-        return (_pop_counts != NULL);
-    }
-
-    void _make_tables(std::vector<khmer::HashIntoType> &tablesizes);
+    bool
+    _have_tables               ();
 
 public:
-    DistanceCalcPopulation()
-    {
-        _pop_counts = NULL;
-        _n_tables = 0;
-    }
+    DistanceCalcPopulation();
 
     ~DistanceCalcPopulation();
 
-    virtual void save(std::string filename) { }
+#if 0
+    virtual void
+    save                       (std::string                 filename);
 
-    virtual void load(std::string filename) { }
+    virtual void
+    load                       (std::string                 filename);
+#endif
 
-    void add_hashtable(khmer::CountingHash &ht);
+    void
+    add_hashtable              (khmer::CountingHash        &ht);
 
-    double fpr();
+    virtual void
+    calculate_pairwise         (std::vector<std::string>   &hash_fnames);
+
+    double
+    fpr                        ();
 };
 
 } // end namespace kmerclust

@@ -21,30 +21,22 @@ namespace kmerclust
 {
 
 DistanceCalcPopulation::
-~DistanceCalcPopulation()
+DistanceCalcPopulation():
+    _pop_counts(NULL),
+    _n_tables(0)
 {
-    size_t i;
-
-    if (_pop_counts == NULL) return;
-    for (i = 0; i < _n_tables; i++) {
-        delete[] _pop_counts[i];
-    }
-    delete[] _pop_counts;
+    omp_init_lock(&_pop_table_lock);
 }
 
-void
 DistanceCalcPopulation::
-_make_tables(std::vector<khmer::HashIntoType> &tablesizes)
+~DistanceCalcPopulation()
 {
-    size_t i;
-
-    _tablesizes = tablesizes;
-    _n_tables = tablesizes.size();
-    _pop_counts = new uint16_t*[_n_tables];
-    for (i = 0; i < _n_tables; i++) {
-        _pop_counts[i] = new uint16_t[tablesizes[i]];
-        memset(_pop_counts[i], 0, tablesizes[i] * sizeof(uint16_t));
-    _table_sums.push_back(0);
+    omp_destroy_lock(&_pop_table_lock);
+    if (_pop_counts != NULL) {
+        for (size_t i = 0; i < _n_tables; i++) {
+            delete[] _pop_counts[i];
+        }
+        delete[] _pop_counts;
     }
 }
 
@@ -52,41 +44,84 @@ void
 DistanceCalcPopulation::
 add_hashtable(khmer::CountingHash &ht)
 {
-    size_t i, j;
     khmer::Byte **counts = ht.get_raw_tables();
 
+    omp_set_lock(&_pop_table_lock);
     if (!_have_tables()) {
         std::vector<khmer::HashIntoType> tablesizes = ht.get_tablesizes();
-        _make_tables(tablesizes);
+        _tablesizes = tablesizes;
+        _n_tables = tablesizes.size();
+        _pop_counts = new uint16_t*[_n_tables];
+        for (size_t i = 0; i < _n_tables; i++) {
+            _pop_counts[i] = new uint16_t[tablesizes[i]];
+            memset(_pop_counts[i], 0, tablesizes[i] * sizeof(uint16_t));
+        _table_sums.push_back(0);
+        }
     }
-    for (i = 0; i < _n_tables; i++) {
+    omp_unset_lock(&_pop_table_lock);
+    // Below here is threadsafe, I think
+
+    for (size_t i = 0; i < _n_tables; i++) {
         uint64_t tab_count = 0;
-        for (j = 0; j < _tablesizes[i]; j++) {
-            __sync_fetch_and_add(&_pop_counts[i][j], counts[i][j]);
-            tab_count += counts[i][j];
+        // Save these here to avoid dereferencing twice below.
+        uint16_t *this_popcount = _pop_counts[i];
+        khmer::Byte *this_count = counts[i];
+        for (size_t j = 0; j < _tablesizes[i]; j++) {
+            __sync_fetch_and_add(&this_popcount[j], this_count[j]);
+            tab_count += this_count[j];
         }
         __sync_fetch_and_add(&_table_sums[i], tab_count);
     }
+}
+
+bool
+DistanceCalcPopulation::
+_have_tables()
+{
+    return (_pop_counts != NULL);
+}
+
+void
+DistanceCalcPopulation::
+calculate_pairwise(std::vector<std::string> &hash_fnames)
+{
+    _n_samples = hash_fnames.size();
+
+    #pragma omp parallel for num_threads(_n_threads)
+    for (size_t i = 0; i < _n_samples; i++) {
+        khmer::CountingHash ht(1, 1);
+        ht.load(hash_fnames[i]);
+        add_hashtable(ht);
+        #pragma omp critical
+        {
+            std::cerr << "Loaded " << hash_fnames[i] << std::endl;
+        }
+    }
+
+    std::cerr << "Finished loading!" << std::endl;
+    std::cerr << "FPR: " << this->fpr() << std::endl;
+
+    // Do the distance calculation per DistanceCalc's implementation
+    DistanceCalc::calculate_pairwise(hash_fnames);
 }
 
 double
 DistanceCalcPopulation::
 fpr()
 {
-    size_t i, j;
     double fpr = 1;
     std::vector<double> tab_counts(_n_tables, 0);
 
-    #pragma omp parallel for num_threads(_n_threads)
-    for (i = 0; i < _n_tables; i++) {
+    for (size_t i = 0; i < _n_tables; i++) {
         uint64_t tab_count = 0;
-        for (j = 0; j < _tablesizes[i]; j++) {
+        #pragma omp parallel for num_threads(_n_threads)
+        for (size_t j = 0; j < _tablesizes[i]; j++) {
             tab_count += _pop_counts[i][j] > 0 ? 1 : 0;
         }
         tab_counts[i] = (double)tab_count / _tablesizes[i];
     }
 
-    for (i = 0; i < _n_tables; i++) {
+    for (size_t i = 0; i < _n_tables; i++) {
         fpr *= tab_counts[i];
     }
     return fpr;
