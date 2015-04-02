@@ -32,7 +32,7 @@ list(APPEND _KHMER_SEARCHES _KHMER_SEARCH_NORMAL)
 
 # Try each search configuration.
 foreach(search ${_KHMER_SEARCHES})
-  find_path(KHMER_INCLUDE_DIR NAMES khmer/khmer.hh ${${search}} PATH_SUFFIXES include)
+  find_path(KHMER_INCLUDE_DIR NAMES khmer.hh ${${search}} PATH_SUFFIXES include)
   find_library(KHMER_LIBRARY NAMES libkhmer.a ${${search}} PATH_SUFFIXES lib)
 endforeach()
 
