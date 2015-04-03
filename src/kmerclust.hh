@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KLUST_HH
-#define KLUST_HH
+#ifndef KMERCLUST_HH
+#define KMERCLUST_HH
 
 #include <countmin.hh>
 #include <distance.hh>
@@ -24,4 +24,4 @@
 #include <d2.hh>
 #include <d2pop.hh>
 
-#endif /* KLUST_HH */
+#endif /* KMERCLUST_HH */

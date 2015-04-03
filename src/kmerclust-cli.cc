@@ -21,7 +21,7 @@
 #include <memory>
 #include <string.h>
 
-#include <klust.hh>
+#include <kmerclust.hh>
 
 using namespace std;
 using namespace khmer;

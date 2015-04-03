@@ -1,13 +1,17 @@
 # Libary
-ADD_LIBRARY(libkmerclust distance.cc
-                         d2.cc
-                         d2pop.cc
-                         population.cc
-                         countmin.cc)
+ADD_LIBRARY(libkmerclust
+            countmin.cc
+            distance.cc
+            d2.cc
+            d2pop.cc
+            population.cc
+            shannonjenson.cc
+            )
+
 SET_TARGET_PROPERTIES(libkmerclust PROPERTIES OUTPUT_NAME kmerclust)
 TARGET_LINK_LIBRARIES(libkmerclust ${DEPENDS_LIBS})
 
 # Executable
-ADD_EXECUTABLE(klust main.cc)
-TARGET_LINK_LIBRARIES(klust ${DEPENDS_LIBS} libkmerclust)
-INSTALL(TARGETS klust DESTINATION "bin")
+ADD_EXECUTABLE(kmerclust kmerclust-cli.cc)
+TARGET_LINK_LIBRARIES(kmerclust ${DEPENDS_LIBS} libkmerclust)
+INSTALL(TARGETS kmerclust DESTINATION "bin")
