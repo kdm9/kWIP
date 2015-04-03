@@ -62,11 +62,15 @@ main (int argc, const char *argv[])
     } else if (strcmp(argv[1], "d2pop") == 0) {
         DistanceCalcD2pop dist;
         return run_main<DistanceCalcD2pop>(dist, argc - 1, argv + 1);
+    } else if (strcmp(argv[1], "js") == 0) {
+        DistanceCalcSJ dist;
+        return run_main<DistanceCalcJS>(dist, argc - 1, argv + 1);
     }
     std::cerr << "ERROR: Invalid distance measure name " << argv[1]
               << std::endl << std::endl;
     std::cerr << "Valid measures are:" << std::endl;
     std::cerr << "  d2" << std::endl
-              << "  d2pop" << std::endl;
+              << "  d2pop" << std::endl
+              << "  js" << std::endl;
     return EXIT_FAILURE;
 }

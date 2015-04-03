@@ -23,5 +23,6 @@
 #include <population.hh>
 #include <d2.hh>
 #include <d2pop.hh>
+#include <jensenshannon.hh>
 
 #endif /* KMERCLUST_HH */
