@@ -37,8 +37,6 @@ class DistanceCalcJS : public DistanceCalc
 public:
     DistanceCalcJS();
     float distance(khmer::CountingHash &a, khmer::CountingHash &b);
-protected:
-    float _small_log_offset;
 };
 
 }} // end namespace kmerclust::metrics
