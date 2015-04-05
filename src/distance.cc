@@ -148,6 +148,27 @@ print_dist_mat()
     print_dist_mat(std::cout);
 }
 
+void
+DistanceCalc::
+normalise_dist_mat_diag()
+{
+    std::vector<float> diag(_n_samples);
+
+    for (size_t i = 0; i < _n_samples; i++) {
+        diag[i] = _dist_mat[i][i];
+    }
+
+    for (size_t i = 0; i < _n_samples; i++) {
+        for (size_t j = 0; j < _n_samples; j++) {
+            float this_val = _dist_mat[i][j];
+            float norm_factor = sqrt(diag[i] * diag[j]);
+            std::cerr << i << ' ' << j << std::endl;
+            std::cerr << diag[i] << ' ' << diag[j] << ' ' << norm_factor << std::endl;
+            _dist_mat[i][j] = this_val / norm_factor;
+        }
+    }
+}
+
 CountingHashShrPtr
 DistanceCalc::
 _get_hash(std::string &filename)

@@ -85,6 +85,9 @@ public:
     print_dist_mat             (std::ostream               &outstream);
 
     virtual void
+    normalise_dist_mat_diag    ();
+
+    virtual void
     print_dist_mat             ();
 
 };
