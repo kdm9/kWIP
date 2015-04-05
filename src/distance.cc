@@ -141,6 +141,13 @@ print_dist_mat(std::ostream &outstream)
     }
 }
 
+void
+DistanceCalc::
+print_dist_mat()
+{
+    print_dist_mat(std::cout);
+}
+
 CountingHashShrPtr
 DistanceCalc::
 _get_hash(std::string &filename)

@@ -85,8 +85,7 @@ public:
     print_dist_mat             (std::ostream               &outstream);
 
     virtual void
-    print_dist_mat             ()
-    { print_dist_mat(std::cout); }
+    print_dist_mat             ();
 
 };
 
