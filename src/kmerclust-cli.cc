@@ -41,6 +41,7 @@ print_valid_measures()
     std::cerr << "Valid measures are:" << std::endl;
     std::cerr << "  d2" << std::endl
               << "  d2pop" << std::endl
+              << "  d2thesh" << std::endl
               << "  js" << std::endl;
 }
 
@@ -60,6 +61,10 @@ main (int argc, const char *argv[])
     } else if (strcmp(argv[1], "d2pop") == 0) {
         DistanceCalcD2pop dist;
         return run_main<DistanceCalcD2pop>(dist, argc - 1, argv + 1);
+    } else if (strcmp(argv[1], "d2thresh") == 0) {
+        DistanceCalcD2Thresh dist;
+        dist.set_threshold(1);
+        return run_main<DistanceCalcD2Thresh>(dist, argc - 1, argv + 1);
     } else if (strcmp(argv[1], "js") == 0) {
         DistanceCalcJS dist;
         return run_main<DistanceCalcJS>(dist, argc - 1, argv + 1);

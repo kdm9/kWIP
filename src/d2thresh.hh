@@ -15,15 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KMERCLUST_HH
-#define KMERCLUST_HH
+#ifndef D2THRESH_HH
+#define D2THRESH_HH
 
-#include <countmin.hh>
-#include <distance.hh>
-#include <population.hh>
-#include <d2.hh>
-#include <d2pop.hh>
-#include <d2thresh.hh>
-#include <js.hh>
 
-#endif /* KMERCLUST_HH */
+#include "distance.hh"
+
+namespace kmerclust
+{
+namespace metrics
+{
+
+class DistanceCalcD2Thresh : public DistanceCalc
+{
+public:
+
+    DistanceCalcD2Thresh       ();
+
+    float
+    distance                   (khmer::CountingHash    &a,
+                                khmer::CountingHash    &b);
+    void
+    set_threshold              (unsigned int            threshold);
+
+protected:
+    unsigned int _threshold;
+};
+
+}} // end namespace kmerclust::metrics
+
+#endif /* D2THRESH_HH */

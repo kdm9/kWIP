@@ -3,6 +3,7 @@ ADD_LIBRARY(libkmerclust
             countmin.cc
             distance.cc
             d2.cc
+            d2thresh.cc
             d2pop.cc
             population.cc
             js.cc
