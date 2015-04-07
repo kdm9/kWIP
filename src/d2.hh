@@ -15,6 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef D2_HH
+#define D2_HH
+
+
 #include "distance.hh"
 
 namespace kmerclust
@@ -29,3 +33,5 @@ public:
 };
 
 }} // end namespace kmerclust::metrics
+
+#endif /* D2_HH */

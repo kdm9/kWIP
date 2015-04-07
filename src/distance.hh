@@ -18,6 +18,7 @@
 #ifndef DISTANCE_HH
 #define DISTANCE_HH
 
+
 #include <cmath>
 #include <memory>
 

@@ -24,8 +24,8 @@
 #ifndef JS_HH
 #define JS_HH
 
+
 #include "distance.hh"
-#include <cmath>
 
 namespace kmerclust
 {

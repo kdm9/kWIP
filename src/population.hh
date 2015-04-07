@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "distance.hh"
-
 #ifndef POPULATION_HH
 #define POPULATION_HH
+
+
+#include "distance.hh"
 
 namespace kmerclust
 {
