@@ -15,18 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "kmerclust.hh"
 
+using namespace kmerclust::metrics;  // Imports the DistanceCalcXXX classes
 
-#include <utility>
-#include <memory>
-#include <string.h>
-
-#include <kmerclust.hh>
-
-using namespace std;
-using namespace khmer;
-using namespace kmerclust;
-using namespace kmerclust::metrics;
 
 template<typename DistMeasure>
 int
@@ -43,16 +35,22 @@ run_main(DistMeasure &distcalc, int argc, const char *argv[])
     return EXIT_SUCCESS;
 }
 
+void
+print_valid_measures()
+{
+    std::cerr << "Valid measures are:" << std::endl;
+    std::cerr << "  d2" << std::endl
+              << "  d2pop" << std::endl
+              << "  js" << std::endl;
+}
+
 int
 main (int argc, const char *argv[])
 {
     if (argc < 3) {
         std::cerr << "USAGE: " << argv[0] << " <distmeasure> <hashtable> ..."
                   << std::endl;
-        return EXIT_FAILURE;
-    } else if (argc < 4) {
-        std::cerr << "USAGE: " << argv[0] << " " << argv[1]
-                  << " <hashtable> ..." << std::endl;
+        print_valid_measures();
         return EXIT_FAILURE;
     }
 
@@ -66,11 +64,10 @@ main (int argc, const char *argv[])
         DistanceCalcJS dist;
         return run_main<DistanceCalcJS>(dist, argc - 1, argv + 1);
     }
+
+    // If we get to here, we have an error
     std::cerr << "ERROR: Invalid distance measure name " << argv[1]
               << std::endl << std::endl;
-    std::cerr << "Valid measures are:" << std::endl;
-    std::cerr << "  d2" << std::endl
-              << "  d2pop" << std::endl
-              << "  js" << std::endl;
+    print_valid_measures();
     return EXIT_FAILURE;
 }

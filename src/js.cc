@@ -22,7 +22,6 @@ namespace kmerclust
 namespace metrics
 {
 
-
 float
 DistanceCalcJS::
 distance(khmer::CountingHash &a, khmer::CountingHash &b)
