@@ -21,8 +21,8 @@
  * Subcellular Localization" -- Cheng Soon Ong and Alexander Zien, WABI 2008
  *****************************************************************************/
 
-#ifndef JENSENSHANNON_HH
-#define JENSENSHANNON_HH
+#ifndef JS_HH
+#define JS_HH
 
 #include "distance.hh"
 #include <cmath>
@@ -39,4 +39,4 @@ public:
 };
 
 }} // end namespace kmerclust::metrics
-#endif /* JENSENSHANNON_HH */
+#endif /* JS_HH */

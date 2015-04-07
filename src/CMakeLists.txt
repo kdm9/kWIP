@@ -5,7 +5,7 @@ ADD_LIBRARY(libkmerclust
             d2.cc
             d2pop.cc
             population.cc
-            jensenshannon.cc
+            js.cc
             )
 
 SET_TARGET_PROPERTIES(libkmerclust PROPERTIES OUTPUT_NAME kmerclust)
