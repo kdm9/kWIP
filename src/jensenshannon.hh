@@ -35,7 +35,6 @@ namespace metrics
 class DistanceCalcJS : public DistanceCalc
 {
 public:
-    DistanceCalcJS();
     float distance(khmer::CountingHash &a, khmer::CountingHash &b);
 };
 

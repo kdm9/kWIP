@@ -23,12 +23,6 @@ namespace metrics
 {
 
 
-DistanceCalcJS::
-DistanceCalcJS()
-{
-
-}
-
 float
 DistanceCalcJS::
 distance(khmer::CountingHash &a, khmer::CountingHash &b)
