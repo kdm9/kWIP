@@ -50,7 +50,7 @@ public:
     load                       (std::string                 filename);
 #endif
 
-    void
+    virtual void
     add_hashtable              (std::string                &hash_fname);
 
     virtual void
