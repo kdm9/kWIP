@@ -3,6 +3,8 @@ kmerclust
 
 Work on clustering samples using kmer analysis
 
+[![Build Status](http://biojenkins.anu.edu.au/job/kmerclust/badge/icon)](http://biojenkins.anu.edu.au/job/kmerclust/)
+
 Installation
 ============
 
