@@ -15,7 +15,8 @@ pushd khmer-src
 popd
 
 
+rm -rf build
 mkdir build && cd build
 
-cmake .. -DKHMER_ROOT=$wdir/khmer-target/
+cmake $wdir -DKHMER_ROOT=$wdir/khmer-target/
 make
