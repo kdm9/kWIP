@@ -22,6 +22,21 @@ namespace kmerclust
 namespace metrics
 {
 
+inline float flog2 (float flt)
+{
+    /// Adapted from http://www.flipcode.com/archives/Fast_log_Function.shtml
+    int * const exponent_ptr = reinterpret_cast<int *>(&flt);
+    int exponent = *exponent_ptr;
+    const int log_2_exp = ((exponent >> 23) & 255) - 128;
+    exponent &= ~(255 << 23);
+    exponent += 127 << 23;
+    *exponent_ptr = exponent;
+
+    flt = ((-1.0f/3) * flt + 2) * flt - 2.0f/3;
+
+    return (flt + log_2_exp);
+}
+
 float
 DistanceCalcJS::
 distance(khmer::CountingHash &a, khmer::CountingHash &b)
@@ -59,8 +74,8 @@ distance(khmer::CountingHash &a, khmer::CountingHash &b)
 
             float total = a_freq + b_freq + small_log_offset;
 
-            float a_log = a_freq * log((a_freq + small_log_offset)/total);
-            float b_log = b_freq * log((b_freq + small_log_offset)/total);
+            float a_log = a_freq * flog2((a_freq + small_log_offset)/total);
+            float b_log = b_freq * flog2((b_freq + small_log_offset)/total);
 
             tab_dist += -(a_log + b_log);
         }
