@@ -26,12 +26,12 @@ namespace kmerclust
 namespace metrics
 {
 
-class DistanceCalcD2pop : public DistanceCalcPopulation
+class DistanceCalcD2pop : public DistanceCalcPopulation<uint16_t>
 {
 
 public:
-
-    float distance(khmer::CountingHash &a, khmer::CountingHash &b);
+    float distance             (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
 };
 
 }} // end namespace kmerclust::metrics

@@ -20,7 +20,8 @@
 namespace kmerclust
 {
 
-DistanceCalcPopulation::
+template<typename bin_tp>
+DistanceCalcPopulation<bin_tp>::
 DistanceCalcPopulation():
     _pop_counts(NULL),
     _n_tables(0)
@@ -28,7 +29,8 @@ DistanceCalcPopulation():
     omp_init_lock(&_pop_table_lock);
 }
 
-DistanceCalcPopulation::
+template<typename bin_tp>
+DistanceCalcPopulation<bin_tp>::
 ~DistanceCalcPopulation()
 {
     omp_destroy_lock(&_pop_table_lock);
@@ -40,35 +42,23 @@ DistanceCalcPopulation::
     }
 }
 
+template<typename bin_tp>
 void
-DistanceCalcPopulation::
+DistanceCalcPopulation<bin_tp>::
 add_hashtable(std::string &hash_fname)
 {
     khmer::CountingHash ht(1, 1);
     khmer::Byte **counts;
 
     ht.load(hash_fname);
-    counts = ht.get_raw_tables();
+    _check_pop_counts(ht);
 
-    omp_set_lock(&_pop_table_lock);
-    if (_pop_counts == NULL) {
-        std::vector<khmer::HashIntoType> tablesizes = ht.get_tablesizes();
-        _tablesizes = tablesizes;
-        _n_tables = tablesizes.size();
-        _pop_counts = new uint16_t*[_n_tables];
-        for (size_t i = 0; i < _n_tables; i++) {
-            _pop_counts[i] = new uint16_t[tablesizes[i]];
-            memset(_pop_counts[i], 0, tablesizes[i] * sizeof(uint16_t));
-        _table_sums.push_back(0);
-        }
-    }
-    // Below here is threadsafe, I think
-    omp_unset_lock(&_pop_table_lock);
+    counts = ht.get_raw_tables();
 
     for (size_t i = 0; i < _n_tables; i++) {
         uint64_t tab_count = 0;
         // Save these here to avoid dereferencing twice below.
-        uint16_t *this_popcount = _pop_counts[i];
+        bin_tp *this_popcount = _pop_counts[i];
         khmer::Byte *this_count = counts[i];
         for (size_t j = 0; j < _tablesizes[i]; j++) {
             __sync_fetch_and_add(&(this_popcount[j]), this_count[j]);
@@ -78,9 +68,30 @@ add_hashtable(std::string &hash_fname)
     }
 }
 
-
+template<typename bin_tp>
 void
-DistanceCalcPopulation::
+DistanceCalcPopulation<bin_tp>::
+_check_pop_counts(khmer::CountingHash &ht)
+{
+    omp_set_lock(&_pop_table_lock);
+    if (_pop_counts == NULL) {
+        std::vector<khmer::HashIntoType> tablesizes = ht.get_tablesizes();
+        _tablesizes = tablesizes;
+        _n_tables = tablesizes.size();
+        _pop_counts = new bin_tp*[_n_tables];
+        for (size_t i = 0; i < _n_tables; i++) {
+            _pop_counts[i] = new bin_tp[tablesizes[i]];
+            memset(_pop_counts[i], 0, tablesizes[i] * sizeof(bin_tp));
+        _table_sums.push_back(0);
+        }
+    }
+    // Below here is threadsafe, I think
+    omp_unset_lock(&_pop_table_lock);
+}
+
+template<typename bin_tp>
+void
+DistanceCalcPopulation<bin_tp>::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     //add_hashtable(hash_fnames[0]);
@@ -100,8 +111,9 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     DistanceCalc::calculate_pairwise(hash_fnames);
 }
 
+template<typename bin_tp>
 double
-DistanceCalcPopulation::
+DistanceCalcPopulation<bin_tp>::
 fpr()
 {
     double fpr = 1;
@@ -113,7 +125,7 @@ fpr()
         for (size_t j = 0; j < _tablesizes[i]; j++) {
             tab_count += _pop_counts[i][j] > 0 ? 1 : 0;
         }
-        tab_counts[i] = (double)tab_count / _tablesizes[i];
+        tab_counts[i] = (double)tab_count / (double)_tablesizes[i];
     }
 
     for (size_t i = 0; i < _n_tables; i++) {
@@ -121,6 +133,13 @@ fpr()
     }
     return fpr;
 }
+
+// Explicit compilation of standard types
+
+template class DistanceCalcPopulation<uint8_t>;
+template class DistanceCalcPopulation<uint16_t>;
+template class DistanceCalcPopulation<uint32_t>;
+template class DistanceCalcPopulation<uint64_t>;
 
 } // end namespace kmerclust
 
