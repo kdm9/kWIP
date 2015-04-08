@@ -4,6 +4,7 @@ kmerclust
 Work on clustering samples using kmer analysis
 
 [![Build Status](http://biojenkins.anu.edu.au/job/kmerclust/badge/icon)](http://biojenkins.anu.edu.au/job/kmerclust/)
+[![gplv3+](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl.html)
 
 Installation
 ============
