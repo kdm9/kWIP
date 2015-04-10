@@ -1,7 +1,7 @@
 # Libary
 ADD_LIBRARY(libkmerclust
             countmin.cc
-            distance.cc
+            kernel.cc
             d2.cc
             d2thresh.cc
             d2pop.cc

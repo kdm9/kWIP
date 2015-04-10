@@ -19,7 +19,7 @@
 #define D2_HH
 
 
-#include "distance.hh"
+#include "kernel.hh"
 
 namespace kmerclust
 {
@@ -29,7 +29,8 @@ namespace metrics
 class DistanceCalcD2 : public DistanceCalc
 {
 public:
-    float distance(khmer::CountingHash &a, khmer::CountingHash &b);
+    float kernel               (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
 };
 
 }} // end namespace kmerclust::metrics

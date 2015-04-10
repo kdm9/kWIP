@@ -68,9 +68,9 @@ public:
     DistanceCalc               ();
     ~DistanceCalc              ();
 
-    // Caclulate the distance between two counting hashes
+    // Caclulate the kernel between two counting hashes
     virtual float
-    distance                   (khmer::CountingHash        &a,
+    kernel                     (khmer::CountingHash        &a,
                                 khmer::CountingHash        &b);
 
     virtual void
@@ -90,6 +90,10 @@ public:
 
     virtual void
     print_dist_mat             ();
+
+    int
+    run_main                   (int                         argc,
+                                const char                 *argv[]);
 
 };
 

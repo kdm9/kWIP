@@ -30,7 +30,7 @@ class DistanceCalcD2pop : public DistanceCalcPopulation<uint16_t>
 {
 
 public:
-    float distance             (khmer::CountingHash        &a,
+    float kernel               (khmer::CountingHash        &a,
                                 khmer::CountingHash        &b);
 };
 

@@ -19,7 +19,7 @@
 #define D2THRESH_HH
 
 
-#include "distance.hh"
+#include "kernel.hh"
 
 namespace kmerclust
 {
@@ -33,10 +33,10 @@ public:
     DistanceCalcD2Thresh       ();
 
     float
-    distance                   (khmer::CountingHash    &a,
-                                khmer::CountingHash    &b);
+    kernel                     (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
     void
-    set_threshold              (unsigned int            threshold);
+    set_threshold              (unsigned int                threshold);
 
 protected:
     unsigned int _threshold;

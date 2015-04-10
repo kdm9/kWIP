@@ -25,7 +25,7 @@
 #define JS_HH
 
 
-#include "distance.hh"
+#include "kernel.hh"
 
 namespace kmerclust
 {
@@ -35,7 +35,8 @@ namespace metrics
 class DistanceCalcJS : public DistanceCalc
 {
 public:
-    float distance(khmer::CountingHash &a, khmer::CountingHash &b);
+    float kernel               (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
 };
 
 }} // end namespace kmerclust::metrics

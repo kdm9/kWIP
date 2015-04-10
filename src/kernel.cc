@@ -151,6 +151,13 @@ print_dist_mat(std::ostream &outstream)
     }
 }
 
+int
+DistanceCalc::
+run_main(int argc, const char  *argv[])
+{
+
+}
+
 void
 DistanceCalc::
 print_dist_mat()

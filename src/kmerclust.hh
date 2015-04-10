@@ -19,7 +19,7 @@
 #define KMERCLUST_HH
 
 #include <countmin.hh>
-#include <distance.hh>
+#include <kernel.hh>
 #include <population.hh>
 #include <d2.hh>
 #include <d2pop.hh>

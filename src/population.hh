@@ -19,7 +19,7 @@
 #define POPULATION_HH
 
 
-#include "distance.hh"
+#include "kernel.hh"
 
 namespace kmerclust
 {
