@@ -74,6 +74,16 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     }
     omp_unset_lock(&_dist_mat_lock);
 
+    if (_sample_names.empty()) {
+        for (size_t i = 0; i < _n_samples; i++) {
+            char *fname = strdup(hash_fnames[i].c_str());
+            std::string base(basename(fname));
+            base = base.substr(0, base.find_first_of("."));
+            _sample_names.push_back(std::string(base));
+            free(fname);
+        }
+    }
+
     #pragma omp parallel for schedule(dynamic) num_threads(_n_threads)
     for (size_t i = 0; i < _n_samples; i++) {
         CountingHashShrPtr ht1 = _get_hash(hash_fnames[i]);
