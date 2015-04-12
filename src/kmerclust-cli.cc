@@ -52,7 +52,7 @@ main (int argc, const char *argv[])
     if (argc < 3) {
         std::cerr << "USAGE: " << argv[0] << " <kernel> <hashtable> ..."
                   << std::endl;
-        print_valid_measures();
+        print_valid_kernels();
         return EXIT_FAILURE;
     }
 
@@ -74,6 +74,6 @@ main (int argc, const char *argv[])
     // If we get to here, we have an error
     std::cerr << "ERROR: Invalid kernel name " << argv[1] << std::endl
               << std::endl;
-    print_valid_measures();
+    print_valid_kernels();
     return EXIT_FAILURE;
 }
