@@ -26,7 +26,7 @@ namespace kmerclust
 namespace metrics
 {
 
-class DistanceCalcD2pop : public DistanceCalcPopulation<uint16_t>
+class KernelD2pop : public KernelPopulation<uint16_t>
 {
 
 public:

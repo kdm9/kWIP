@@ -17,12 +17,12 @@
 
 #include "kmerclust.hh"
 
-using namespace kmerclust::metrics;  // Imports the DistanceCalcXXX classes
+using namespace kmerclust::metrics;  // Imports the KernelXXX classes
 
 
-template<typename DistMeasure>
+template<typename KernelImpl>
 int
-run_main(DistMeasure &distcalc, int argc, const char *argv[])
+run_main(KernelImpl &kernel, int argc, const char *argv[])
 {
     std::vector<std::string> filenames;
 
@@ -30,15 +30,16 @@ run_main(DistMeasure &distcalc, int argc, const char *argv[])
         filenames.push_back(std::string(argv[i]));
     }
 
-    distcalc.calculate_pairwise(filenames);
-    distcalc.print_dist_mat();
+    kernel.calculate_pairwise(filenames);
+    kernel.print_kernel_mat();
+    kernel.print_distance_mat();
     return EXIT_SUCCESS;
 }
 
 void
-print_valid_measures()
+print_valid_kernels()
 {
-    std::cerr << "Valid measures are:" << std::endl;
+    std::cerr << "Valid kernels are:" << std::endl;
     std::cerr << "  d2" << std::endl
               << "  d2pop" << std::endl
               << "  d2thesh" << std::endl
@@ -49,30 +50,30 @@ int
 main (int argc, const char *argv[])
 {
     if (argc < 3) {
-        std::cerr << "USAGE: " << argv[0] << " <distmeasure> <hashtable> ..."
+        std::cerr << "USAGE: " << argv[0] << " <kernel> <hashtable> ..."
                   << std::endl;
         print_valid_measures();
         return EXIT_FAILURE;
     }
 
     if (strcmp(argv[1], "d2") == 0) {
-        DistanceCalcD2 dist;
-        return run_main<DistanceCalcD2>(dist, argc - 1, argv + 1);
+        KernelD2 kernel;
+        return run_main<KernelD2>(kernel, argc - 1, argv + 1);
     } else if (strcmp(argv[1], "d2pop") == 0) {
-        DistanceCalcD2pop dist;
-        return run_main<DistanceCalcD2pop>(dist, argc - 1, argv + 1);
+        KernelD2pop kernel;
+        return run_main<KernelD2pop>(kernel, argc - 1, argv + 1);
     } else if (strcmp(argv[1], "d2thresh") == 0) {
-        DistanceCalcD2Thresh dist;
-        dist.set_threshold(1);
-        return run_main<DistanceCalcD2Thresh>(dist, argc - 1, argv + 1);
+        KernelD2Thresh kernel;
+        kernel.set_threshold(1);
+        return run_main<KernelD2Thresh>(kernel, argc - 1, argv + 1);
     } else if (strcmp(argv[1], "js") == 0) {
-        DistanceCalcJS dist;
-        return run_main<DistanceCalcJS>(dist, argc - 1, argv + 1);
+        KernelJS kernel;
+        return run_main<KernelJS>(kernel, argc - 1, argv + 1);
     }
 
     // If we get to here, we have an error
-    std::cerr << "ERROR: Invalid distance measure name " << argv[1]
-              << std::endl << std::endl;
+    std::cerr << "ERROR: Invalid kernel name " << argv[1] << std::endl
+              << std::endl;
     print_valid_measures();
     return EXIT_FAILURE;
 }

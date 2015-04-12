@@ -44,17 +44,19 @@ namespace kmerclust
 typedef std::shared_ptr<khmer::CountingHash> CountingHashShrPtr;
 typedef cache::lru_cache<std::string, CountingHashShrPtr> CountingHashCache;
 
-class DistanceCalc
+class Kernel
 {
 
 protected:
-    int _n_threads;
-    size_t _n_samples;
-    float **_dist_mat;
-    omp_lock_t _dist_mat_lock;
-    std::vector<std::string> _sample_names;
-    CountingHashCache _hash_cache;
-    omp_lock_t _hash_cache_lock;
+    int                         _n_threads;
+    size_t                      _n_samples;
+    float                     **_kernel_mat;
+    float                     **_distance_mat;
+    omp_lock_t                  _kernel_mat_lock;
+    omp_lock_t                  _distance_mat_lock;
+    std::vector<std::string>    _sample_names;
+    CountingHashCache           _hash_cache;
+    omp_lock_t                  _hash_cache_lock;
 
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
@@ -64,18 +66,27 @@ protected:
     CountingHashShrPtr
     _get_hash                  (std::string                &filename);
 
-public:
-    DistanceCalc               ();
-    ~DistanceCalc              ();
+    void
+    _make_matrices             (size_t                      n_samples);
 
-    // Caclulate the kernel between two counting hashes
+    void
+    _print_mat                 (std::ostream               &outstream,
+                                float                     **matrix);
+
+public:
+    Kernel                     ();
+    ~Kernel                    ();
+
+    // Calculate the kernel between two counting hashes
     virtual float
     kernel                     (khmer::CountingHash        &a,
                                 khmer::CountingHash        &b);
 
+    // Calculate the kernel between all pairs of counting hashes in parallel
     virtual void
     calculate_pairwise         (std::vector<std::string>   &hash_fnames);
 
+    // Sets names of each sample in the hash
     virtual void
     set_sample_names           (std::vector<std::string>   &sample_names);
 
@@ -83,13 +94,17 @@ public:
     set_num_threads            (int                         n_threads);
 
     virtual void
-    print_dist_mat             (std::ostream               &outstream);
+    print_kernel_mat           (std::ostream               &outstream);
+    virtual void
+    print_kernel_mat           ();
 
     virtual void
-    normalise_dist_mat_diag    ();
+    print_distance_mat         (std::ostream               &outstream);
+    virtual void
+    print_distance_mat         ();
 
     virtual void
-    print_dist_mat             ();
+    kernel_to_distance         ();
 
     int
     run_main                   (int                         argc,

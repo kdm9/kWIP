@@ -25,7 +25,7 @@ namespace kmerclust
 {
 
 template<typename bin_tp>
-class DistanceCalcPopulation : public DistanceCalc
+class KernelPopulation : public Kernel
 {
 
 protected:
@@ -38,9 +38,9 @@ protected:
     void
     _check_pop_counts          (khmer::CountingHash        &ht);
 public:
-    DistanceCalcPopulation();
+    KernelPopulation();
 
-    ~DistanceCalcPopulation();
+    ~KernelPopulation();
 
 #if 0
     virtual void

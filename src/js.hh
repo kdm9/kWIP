@@ -32,7 +32,7 @@ namespace kmerclust
 namespace metrics
 {
 
-class DistanceCalcJS : public DistanceCalc
+class KernelJS : public Kernel
 {
 public:
     float kernel               (khmer::CountingHash        &a,

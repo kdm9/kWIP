@@ -21,8 +21,8 @@ namespace kmerclust
 {
 
 template<typename bin_tp>
-DistanceCalcPopulation<bin_tp>::
-DistanceCalcPopulation():
+KernelPopulation<bin_tp>::
+KernelPopulation():
     _pop_counts(NULL),
     _n_tables(0)
 {
@@ -30,8 +30,8 @@ DistanceCalcPopulation():
 }
 
 template<typename bin_tp>
-DistanceCalcPopulation<bin_tp>::
-~DistanceCalcPopulation()
+KernelPopulation<bin_tp>::
+~KernelPopulation()
 {
     omp_destroy_lock(&_pop_table_lock);
     if (_pop_counts != NULL) {
@@ -44,7 +44,7 @@ DistanceCalcPopulation<bin_tp>::
 
 template<typename bin_tp>
 void
-DistanceCalcPopulation<bin_tp>::
+KernelPopulation<bin_tp>::
 add_hashtable(std::string &hash_fname)
 {
     khmer::CountingHash ht(1, 1);
@@ -70,7 +70,7 @@ add_hashtable(std::string &hash_fname)
 
 template<typename bin_tp>
 void
-DistanceCalcPopulation<bin_tp>::
+KernelPopulation<bin_tp>::
 _check_pop_counts(khmer::CountingHash &ht)
 {
     omp_set_lock(&_pop_table_lock);
@@ -91,7 +91,7 @@ _check_pop_counts(khmer::CountingHash &ht)
 
 template<typename bin_tp>
 void
-DistanceCalcPopulation<bin_tp>::
+KernelPopulation<bin_tp>::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     //add_hashtable(hash_fnames[0]);
@@ -107,13 +107,13 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     std::cerr << "Finished loading!" << std::endl;
     std::cerr << "FPR: " << this->fpr() << std::endl;
 
-    // Do the distance calculation per DistanceCalc's implementation
-    DistanceCalc::calculate_pairwise(hash_fnames);
+    // Do the kernel calculation per Kernel's implementation
+    Kernel::calculate_pairwise(hash_fnames);
 }
 
 template<typename bin_tp>
 double
-DistanceCalcPopulation<bin_tp>::
+KernelPopulation<bin_tp>::
 fpr()
 {
     double fpr = 1;
@@ -136,10 +136,10 @@ fpr()
 
 // Explicit compilation of standard types
 
-template class DistanceCalcPopulation<uint8_t>;
-template class DistanceCalcPopulation<uint16_t>;
-template class DistanceCalcPopulation<uint32_t>;
-template class DistanceCalcPopulation<uint64_t>;
+template class KernelPopulation<uint8_t>;
+template class KernelPopulation<uint16_t>;
+template class KernelPopulation<uint32_t>;
+template class KernelPopulation<uint64_t>;
 
 } // end namespace kmerclust
 

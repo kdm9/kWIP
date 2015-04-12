@@ -23,18 +23,18 @@ namespace metrics
 {
 
 float
-DistanceCalcD2pop::distance(khmer::CountingHash &a, khmer::CountingHash &b)
+KernelD2pop::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
     size_t tab;
     size_t bin;
-    std::vector<float> tab_dists;
+    std::vector<float> tab_kernels;
     khmer::Byte **a_counts = a.get_raw_tables();
     khmer::Byte **b_counts = b.get_raw_tables();
 
     _check_hash_dimensions(a, b);
 
     for (tab = 0; tab < 1; tab++) {
-        float tab_dist = 0.0;
+        float tab_kernel = 0.0;
         uint64_t sum_a = 0, sum_b = 0;
 
         for (bin = 0; bin < _tablesizes[tab]; bin++) {
@@ -50,12 +50,12 @@ DistanceCalcD2pop::distance(khmer::CountingHash &a, khmer::CountingHash &b)
             cent_a = a_counts[tab][bin] - (sum_a * bin_freq);
             cent_b = b_counts[tab][bin] - (sum_b * bin_freq);
 
-            tab_dist += cent_a * cent_b;
+            tab_kernel += cent_a * cent_b;
         }
-        tab_dists.push_back(tab_dist);
+        tab_kernels.push_back(tab_kernel);
     }
 
-    return tab_dists[0];
+    return tab_kernels[0];
 }
 
 }} // end namespace kmerclust::metrics

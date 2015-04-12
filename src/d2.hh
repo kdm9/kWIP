@@ -26,7 +26,7 @@ namespace kmerclust
 namespace metrics
 {
 
-class DistanceCalcD2 : public DistanceCalc
+class KernelD2 : public Kernel
 {
 public:
     float kernel               (khmer::CountingHash        &a,

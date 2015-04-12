@@ -38,8 +38,8 @@ inline float flog2 (float flt)
 }
 
 float
-DistanceCalcJS::
-distance(khmer::CountingHash &a, khmer::CountingHash &b)
+KernelJS::
+kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
     std::vector<float> tab_scores;
     khmer::Byte **a_counts = a.get_raw_tables();
@@ -54,7 +54,7 @@ distance(khmer::CountingHash &a, khmer::CountingHash &b)
         uint64_t a_sum = 0;
         uint64_t b_sum = 0;
         uint64_t max_sum = 0;
-        float tab_dist = 0;
+        float tab_kernel = 0;
         khmer::Byte *A = a_counts[tab];
         khmer::Byte *B = b_counts[tab];
 
@@ -77,9 +77,9 @@ distance(khmer::CountingHash &a, khmer::CountingHash &b)
             float a_log = a_freq * flog2((a_freq + small_log_offset)/total);
             float b_log = b_freq * flog2((b_freq + small_log_offset)/total);
 
-            tab_dist += -(a_log + b_log);
+            tab_kernel += -(a_log + b_log);
         }
-        tab_scores.push_back((float)tab_dist);
+        tab_scores.push_back((float)tab_kernel);
     }
     return tab_scores[0];
 }
