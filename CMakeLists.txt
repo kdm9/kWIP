@@ -37,14 +37,29 @@ INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
 ## Set Compiler Options ##
 ##########################
 
+OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
+OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
+
 # Set CFLAGS
 SET(WRN "${WRN} -Wall")
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WRN}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WRN}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -msse4 -ffast-math")
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address")
-#SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=thread -fPIC -pie")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+
+IF(ENABLE_ASAN AND ENABLE_TSAN)
+	MESSAGE(FATAL_ERROR "Cannot enable both ThreadSanitizer and AddressSanitizer")
+ENDIF()
+
+IF(ENABLE_ASAN)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+ENDIF()
+
+IF(ENABLE_TSAN)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
+ENDIF()
+
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/src
