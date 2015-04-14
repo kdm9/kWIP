@@ -62,12 +62,5 @@ set_threshold(unsigned int threshold)
     _threshold = threshold;
 }
 
-int
-d2thresh_main(int argc, const char **argv)
-{
-
-    return EXIT_SUCCESS;
-}
-
 
 }} // end namespace kmerclust::metrics

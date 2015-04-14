@@ -15,16 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KMERCLUST_HH
-#define KMERCLUST_HH
+#ifndef VERSION_H_IN
+#define VERSION_H_IN
 
-#include <countmin.hh>
-#include <kernel.hh>
-#include <population.hh>
-#include <d2.hh>
-#include <d2pop.hh>
-#include <d2thresh.hh>
-#include <js.hh>
-#include <kmerclust-config.hh>
+#define KMERCLUST_VERSION "${VERSION}"
 
-#endif /* KMERCLUST_HH */
+#endif /* VERSION_H_IN */

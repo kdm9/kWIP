@@ -22,6 +22,7 @@ namespace kmerclust
 
 Kernel::
 Kernel() :
+    _verbosity(1),
     _n_samples(0),
     _kernel_mat(NULL),
     _distance_mat(NULL),
@@ -123,13 +124,17 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
             // Fill in both halves of the matrix
             _kernel_mat[i][j] = kernel;
             _kernel_mat[j][i] = kernel;
-            #pragma omp critical
-            {
-                std::cerr << i << " x " << j << " done!" << std::endl;
+            if (_verbosity > 0) {
+                #pragma omp critical
+                {
+                    std::cerr << i << " x " << j << " done!" << std::endl;
+                }
             }
         }
     }
-    std::cerr << "Done all!" << std::endl;
+    if (_verbosity > 0) {
+        std::cerr << "Done all!" << std::endl;
+    }
 }
 
 void
@@ -253,6 +258,20 @@ kernel_to_distance()
             _distance_mat[i][j] = dist;
         }
     }
+}
+
+void
+Kernel::
+set_n_threads(int n_threads)
+{
+    _n_threads = n_threads;
+}
+
+void
+Kernel::
+set_verbosity(int verbosity)
+{
+    _verbosity = verbosity;
 }
 
 CountingHashShrPtr

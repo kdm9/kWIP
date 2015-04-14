@@ -34,6 +34,8 @@
     #define omp_get_max_threads(x) (1)
 #endif
 
+#include <getopt.h>
+
 #include <counting.hh>
 
 #include "lrucache.hpp"
@@ -44,11 +46,16 @@ namespace kmerclust
 typedef std::shared_ptr<khmer::CountingHash> CountingHashShrPtr;
 typedef cache::lru_cache<std::string, CountingHashShrPtr> CountingHashCache;
 
+namespace metrics
+{
+class KernelD2Thresh;
+}
+
 class Kernel
 {
-
 protected:
     int                         _n_threads;
+    int                         _verbosity;
     size_t                      _n_samples;
     float                     **_kernel_mat;
     float                     **_distance_mat;
@@ -57,6 +64,7 @@ protected:
     std::vector<std::string>    _sample_names;
     CountingHashCache           _hash_cache;
     omp_lock_t                  _hash_cache_lock;
+    std::string                 _kernel_name = "Base class";
 
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
@@ -72,6 +80,7 @@ protected:
     void
     _print_mat                 (std::ostream               &outstream,
                                 float                     **matrix);
+
 
 public:
     Kernel                     ();
@@ -106,10 +115,13 @@ public:
     virtual void
     kernel_to_distance         ();
 
-    int
-    run_main                   (int                         argc,
-                                const char                 *argv[]);
+    void
+    set_n_threads              (int                         n_threads);
 
+    void
+    set_verbosity              (int                         verbosity);
+
+    const std::string           blurb = "Base class";
 };
 
 } // end namespace kmerclust

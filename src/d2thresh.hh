@@ -38,8 +38,14 @@ public:
     void
     set_threshold              (unsigned int                threshold);
 
+    const std::string           blurb =                                     \
+        "D2 Threshold Kernel\n\n"                                             \
+        "Computes the D2 (inner product) of bins, after setting any bin\n"  \
+        "less than `theshold` to 0.";
+
 protected:
-    unsigned int _threshold;
+    unsigned int                _threshold;
+
 };
 
 }} // end namespace kmerclust::metrics

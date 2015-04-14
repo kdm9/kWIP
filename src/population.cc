@@ -94,18 +94,21 @@ void
 KernelPopulation<bin_tp>::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
-    //add_hashtable(hash_fnames[0]);
     #pragma omp parallel for num_threads(_n_threads)
     for (size_t i = 0; i < hash_fnames.size(); i++) {
         add_hashtable(hash_fnames[i]);
-        #pragma omp critical
-        {
-            std::cerr << "Loaded " << hash_fnames[i] << std::endl;
+        if (_verbosity > 0) {
+            #pragma omp critical
+            {
+                std::cerr << "Loaded " << hash_fnames[i] << std::endl;
+            }
         }
     }
 
-    std::cerr << "Finished loading!" << std::endl;
-    std::cerr << "FPR: " << this->fpr() << std::endl;
+    if (_verbosity > 0) {
+        std::cerr << "Finished loading!" << std::endl;
+        std::cerr << "FPR: " << this->fpr() << std::endl;
+    }
 
     // Do the kernel calculation per Kernel's implementation
     Kernel::calculate_pairwise(hash_fnames);
