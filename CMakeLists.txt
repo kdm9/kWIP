@@ -68,8 +68,8 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
 
 INCLUDE_DIRECTORIES()
 
-#CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/config.h.in
-#               ${CMAKE_BINARY_DIR}/config.h)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kmerclust-config.hh.in
+               ${CMAKE_BINARY_DIR}/kmerclust-config.hh)
 
 #ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(src)
