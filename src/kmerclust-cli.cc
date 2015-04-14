@@ -17,6 +17,8 @@
 
 #include "kmerclust.hh"
 
+#include <getopt.h>
+
 using namespace kmerclust;  // Imports the base classes
 using namespace kmerclust::metrics;  // Imports the KernelXXX classes
 
@@ -88,6 +90,7 @@ run_main(int argc, char *argv[])
     struct option              *long_opts;
     size_t                      n_options       = cli_long_opts.size();
 
+    // Kernel-specific CLI options
     if (std::is_same<KernelImpl, KernelD2Thresh>()) {
         cli_opts += "T:";
         cli_long_opts.push_back({ "threshold", required_argument, NULL, 'T' });
@@ -95,11 +98,14 @@ run_main(int argc, char *argv[])
             "  -T, --threshold  Threshold for the inner product calculation.");
     }
 
+    // remove argv[0], which is just the binary name. This makes getopt think
+    // the kernel name is the binary name, and makes everything work nicely.
     argc--;
     argv++;
 
     // Create option C string
     opts = cli_opts.c_str();
+
     // Create long options array
     long_opts = new struct option[n_options + 1];
     for (size_t i = 0; i < n_options; i++) {
@@ -135,22 +141,26 @@ run_main(int argc, char *argv[])
                 break;
             case 'T':
                 if (std::is_same<KernelImpl, KernelD2Thresh>()) {
+                    // Cast to a d2pop
                     // Because fuck C++, that's why
-                    Kernel *base = dynamic_cast<Kernel *>(&kernel);
+                    Kernel         *base  = \
+                                    dynamic_cast<Kernel *>(&kernel);
                     KernelD2Thresh *d2pop = \
                                     dynamic_cast<KernelD2Thresh *>(base);
                     d2pop->set_threshold(atoi(optarg));
                 } else {
+                    // It's an error if any other kernel has '-T'
                     print_cli_help(prog, kernel_abbrev);
                     return EXIT_FAILURE;
                 }
             case '?':
-                /* Getopt long prints its own error msg */
+                // Getopt long prints its own error msg
                 print_cli_help(prog, kernel_abbrev);
                 return EXIT_FAILURE;
         }
     }
 
+    // Ensure we have at least two counting hashes to work with
     if (optind + 1 >= argc) {
         print_cli_help(prog, kernel_abbrev);
         return EXIT_FAILURE;
@@ -160,6 +170,7 @@ run_main(int argc, char *argv[])
         filenames.push_back(std::string(argv[i]));
     }
 
+    // Save matrices to files if we've been asked to
     if (dist_out_name.size() > 0) {
         dist_out.open(dist_out_name);
     }
@@ -167,15 +178,22 @@ run_main(int argc, char *argv[])
         kern_out.open(kern_out_name);
     }
 
+    // Do the pairwise distance calculation
     kernel.calculate_pairwise(filenames);
-    if (dist_out_name.size() > 0) {
+
+    // Only save the kernel distance if we have been given a file, or -
+    if (dist_out_name == "-") {
+        kernel.print_kernel_mat();
+    } else if (dist_out_name.size() > 0) {
         kernel.print_kernel_mat(kern_out);
     }
-    if (dist_out_name.size() > 0) {
+    // Always save the distance matrix, to stdout if we don't have a file
+    if (dist_out_name.size() > 0 && dist_out_name != "-") {
         kernel.print_distance_mat(dist_out);
     } else {
         kernel.print_distance_mat();
     }
+
     kern_out.close();
     dist_out.close();
     return EXIT_SUCCESS;

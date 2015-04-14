@@ -34,8 +34,6 @@
     #define omp_get_max_threads(x) (1)
 #endif
 
-#include <getopt.h>
-
 #include <counting.hh>
 
 #include "lrucache.hpp"

@@ -18,6 +18,7 @@
 #ifndef KMERCLUST_HH
 #define KMERCLUST_HH
 
+#include <kmerclust-config.hh>
 #include <countmin.hh>
 #include <kernel.hh>
 #include <population.hh>
@@ -25,6 +26,5 @@
 #include <d2pop.hh>
 #include <d2thresh.hh>
 #include <js.hh>
-#include <kmerclust-config.hh>
 
 #endif /* KMERCLUST_HH */
