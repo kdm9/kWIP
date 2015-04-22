@@ -60,6 +60,9 @@ IF(ENABLE_TSAN)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
 ENDIF()
 
+# Use only the last table of a CMS?
+OPTION(ENABLE_MULTITABLE "Run over all tables of the CMS" OFF)
+
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/src
