@@ -214,7 +214,7 @@ main (int argc, char *argv[])
 {
     if (argc < 2) {
         std::cerr << "USAGE: " << argv[0]
-                  << " <kernel> <outbase> <hashtable> ..." << std::endl;
+                  << " <kernel> [options] <hashtable> ..." << std::endl;
         print_valid_kernels();
         std::cerr << "See " << argv[0] << " <kernel> -h for further help."
                   << std::endl;
