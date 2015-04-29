@@ -205,6 +205,7 @@ print_valid_kernels()
     std::cerr << "Valid kernels are:" << std::endl;
     std::cerr << "  d2" << std::endl
               << "  d2pop" << std::endl
+              << "  d2ent" << std::endl
               << "  d2thesh" << std::endl
               << "  js" << std::endl;
 }
@@ -225,6 +226,8 @@ main (int argc, char *argv[])
         return run_main<KernelD2>(argc, argv);
     } else if (strcmp(argv[1], "d2pop") == 0) {
         return run_main<KernelD2pop>(argc, argv);
+    } else if (strcmp(argv[1], "d2ent") == 0) {
+        return run_main<KernelD2Ent>(argc, argv);
     } else if (strcmp(argv[1], "d2thresh") == 0) {
         return run_main<KernelD2Thresh>(argc, argv);
     } else if (strcmp(argv[1], "js") == 0) {

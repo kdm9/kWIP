@@ -15,17 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KMERCLUST_HH
-#define KMERCLUST_HH
+#ifndef D2ENT_HH
+#define D2ENT_HH
 
-#include <kmerclust-config.hh>
-#include <countmin.hh>
-#include <kernel.hh>
-#include <population.hh>
-#include <d2.hh>
-#include <d2pop.hh>
-#include <d2ent.hh>
-#include <d2thresh.hh>
-#include <js.hh>
 
-#endif /* KMERCLUST_HH */
+#include "population.hh"
+
+namespace kmerclust
+{
+namespace metrics
+{
+
+class KernelD2Ent : public KernelPopulation<uint16_t>
+{
+
+public:
+    void
+    add_hashtable              (std::string                &hash_fname);
+
+    float kernel               (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
+};
+
+}} // end namespace kmerclust::metrics
+
+
+#endif /* D2ENT_HH */

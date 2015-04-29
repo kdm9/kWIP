@@ -5,6 +5,7 @@ ADD_LIBRARY(libkmerclust
             d2.cc
             d2thresh.cc
             d2pop.cc
+            d2ent.cc
             population.cc
             js.cc
             )
