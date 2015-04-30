@@ -54,18 +54,16 @@ float
 KernelD2Ent::
 kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
-    size_t tab;
-    size_t bin;
     std::vector<float> tab_kernels;
     khmer::Byte **a_counts = a.get_raw_tables();
     khmer::Byte **b_counts = b.get_raw_tables();
 
     _check_hash_dimensions(a, b);
 
-    for (tab = 0; tab < 1; tab++) {
+    for (size_t tab = 0; tab < 1; tab++) {
         float tab_kernel = 0.0;
 
-        for (bin = 0; bin < _tablesizes[tab]; bin++) {
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             unsigned int bin_n_samples = _pop_counts[tab][bin];
             if (bin_n_samples == 0 || bin_n_samples == _n_samples) {
                 // Kmer not found in the population, or in all samples.
