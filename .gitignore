@@ -30,4 +30,7 @@
 # Editor temps
 *.swp
 
+*.RData
+*.Rhistory
+
 build/
