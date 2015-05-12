@@ -45,7 +45,7 @@ KernelPopulation<bin_tp>::
 template<typename bin_tp>
 void
 KernelPopulation<bin_tp>::
-add_hashtable(std::string &hash_fname)
+add_hashtable(const std::string &hash_fname)
 {
     khmer::CountingHash ht(1, 1);
     khmer::Byte **counts;

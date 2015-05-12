@@ -51,7 +51,7 @@ public:
 #endif
 
     virtual void
-    add_hashtable              (std::string                &hash_fname);
+    add_hashtable              (const std::string          &hash_fname);
 
     virtual void
     calculate_pairwise         (std::vector<std::string>   &hash_fnames);

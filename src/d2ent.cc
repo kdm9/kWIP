@@ -24,7 +24,7 @@ namespace metrics
 
 void
 KernelD2Ent::
-add_hashtable(std::string &hash_fname)
+add_hashtable(const std::string &hash_fname)
 {
     khmer::CountingHash ht(1, 1);
     khmer::Byte **counts;

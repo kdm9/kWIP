@@ -31,7 +31,7 @@ class KernelD2Ent : public KernelPopulation<uint16_t>
 
 public:
     void
-    add_hashtable              (std::string                &hash_fname);
+    add_hashtable              (const std::string                &hash_fname);
 
     float kernel               (khmer::CountingHash        &a,
                                 khmer::CountingHash        &b);
