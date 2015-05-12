@@ -30,21 +30,16 @@ class KernelD2Thresh : public Kernel
 {
 public:
 
-    KernelD2Thresh       ();
+    KernelD2Thresh              ();
 
     float
-    kernel                     (khmer::CountingHash        &a,
-                                khmer::CountingHash        &b);
+    kernel                      (khmer::CountingHash   &a,
+                                 khmer::CountingHash   &b);
     void
-    set_threshold              (unsigned int                threshold);
-
-    const std::string           blurb =                                     \
-        "D2 Threshold Kernel\n\n"                                             \
-        "Computes the D2 (inner product) of bins, after setting any bin\n"  \
-        "less than `theshold` to 0.";
+    set_threshold               (unsigned int          threshold);
 
 protected:
-    unsigned int                _threshold;
+    unsigned int            _threshold;
 
 };
 
