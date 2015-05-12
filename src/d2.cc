@@ -25,23 +25,22 @@ namespace metrics
 float
 KernelD2::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
-    size_t tab;
-    size_t bin;
     std::vector<float> tab_scores;
     khmer::Byte **a_counts = a.get_raw_tables();
     khmer::Byte **b_counts = b.get_raw_tables();
+    std::vector<khmer::HashIntoType> tablesizes = a.get_tablesizes();
 
     _check_hash_dimensions(a, b);
 
-    //for (tab = 0; tab < a.n_tables(); tab++) {
-    for (tab = 0; tab < 1; tab++) {
+    for (size_t tab = 0; tab < 1; tab++) {
         uint64_t tab_kernel = 0;
+        uint64_t tabsz = tablesizes[tab];
         khmer::Byte *A = a_counts[tab];
         khmer::Byte *B = b_counts[tab];
-        for (bin = 0; bin < a.get_tablesizes()[tab]; bin++) {
+        for (size_t bin = 0; bin < tabsz; bin++) {
             tab_kernel += A[bin] * B[bin];
         }
-        tab_scores.push_back((float)tab_kernel);
+        tab_scores.push_back(tab_kernel);
     }
     return tab_scores[0];
 }
