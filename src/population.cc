@@ -137,6 +137,20 @@ fpr()
     return fpr;
 }
 
+template<typename bin_tp>
+void
+KernelPopulation<bin_tp>::
+save(const std::string &filename)
+{
+}
+
+template<typename bin_tp>
+void
+KernelPopulation<bin_tp>::
+load(const std::string &filename)
+{
+}
+
 // Explicit compilation of standard types
 
 template class KernelPopulation<uint8_t>;
