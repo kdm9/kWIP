@@ -53,6 +53,11 @@ FIND_PACKAGE(khmer 1.3 REQUIRED)
 SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${KHMER_LIBRARIES})
 INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
 
+IF(NOT KHMER_FOUND)
+	MESSAGE(FATAL_ERROR "Khmer's C++ libary must be installed. "
+	                    "See github.com/kdmurray91/kmerclust for instructions")
+ENDIF()
+
 IF(USE_OPENMP)
   FIND_PACKAGE(OpenMP)
   IF(OPENMP_FOUND)
@@ -92,8 +97,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${REL_OPT_FLAGS}")
 
 # Headers occur in these dirs
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
-                    ${CMAKE_SOURCE_DIR}/src
-                    ${KHMER_ROOT}/include)
+                    ${CMAKE_SOURCE_DIR}/src)
 
 # Finally, configure the config header
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kmerclust-config.hh.in
