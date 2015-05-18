@@ -93,36 +93,19 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     for (size_t tab = 0; tab < 1; tab++) {
         float tab_kernel = 0.0;
-//#undef NEW_ALG
-#define NEW_ALG
-#ifdef NEW_ALG
         double sum_a = 0, sum_b = 0;
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             sum_a += a_counts[tab][bin];
             sum_b += b_counts[tab][bin];
         }
-#endif
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             float bin_entropy = _bin_entropies[bin];
-#ifdef NEW_ALG
             float a_freq = a_counts[tab][bin] / sum_a;
             float b_freq = b_counts[tab][bin] / sum_b;
-#if 0
-            std::cerr << bin << " "
-                      << bin_entropy << " "
-                      << a_freq << " "
-                      << b_freq << " "
-                      << (a_freq * b_freq * bin_entropy) <<  "\n";
-#endif
             tab_kernel += a_freq * b_freq * bin_entropy;
-#else
-            tab_kernel += a_counts[tab][bin] * b_counts[tab][bin] * bin_entropy;
-#endif
-
         }
         tab_kernels.push_back(tab_kernel);
     }
-
     return tab_kernels[0];
 }
 
