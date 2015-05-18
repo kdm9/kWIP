@@ -22,6 +22,19 @@ namespace kmerclust
 namespace metrics
 {
 
+KernelD2Ent::
+KernelD2Ent():
+    KernelPopulation()
+{
+    omp_init_lock(&_bin_entropy_vec_lock);
+}
+
+KernelD2Ent::
+~KernelD2Ent()
+{
+    omp_destroy_lock(&_bin_entropy_vec_lock);
+}
+
 void
 KernelD2Ent::
 add_hashtable(const std::string &hash_fname)
@@ -34,7 +47,7 @@ add_hashtable(const std::string &hash_fname)
 
     counts = ht.get_raw_tables();
 
-    for (size_t i = 0; i < _n_tables; i++) {
+    for (size_t i = 0; i < 1; i++) {
         uint64_t tab_count = 0;
         // Save these here to avoid dereferencing twice below.
         uint16_t *this_popcount = _pop_counts[i];
@@ -60,20 +73,52 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     _check_hash_dimensions(a, b);
 
-    for (size_t tab = 0; tab < 1; tab++) {
-        float tab_kernel = 0.0;
-
-        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            unsigned int bin_n_samples = _pop_counts[tab][bin];
+    omp_set_lock(&_bin_entropy_vec_lock);
+    if (_bin_entropies.size() == 0) {
+        _bin_entropies.assign(_tablesizes[0], 0.0);
+        for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
+            unsigned int bin_n_samples = _pop_counts[0][bin];
+            float bin_entropy = 0.0;
             if (bin_n_samples == 0 || bin_n_samples == _n_samples) {
                 // Kmer not found in the population, or in all samples.
-                // Score will be 0, so bail out here
-                continue;
+                // entropy will be 0, so bail out here
+            } else {
+                float pop_freq = (float)bin_n_samples / (float)_n_samples;
+                bin_entropy = pop_freq * -log2(pop_freq);
             }
-            float pop_freq = (float)bin_n_samples / (float)_n_samples;
-            float bin_entropy = pop_freq * -log2(pop_freq);
-            tab_kernel += a_counts[tab][bin] * b_counts[tab][bin] * \
-                          bin_entropy;
+            _bin_entropies[bin] = bin_entropy;
+        }
+    }
+    omp_unset_lock(&_bin_entropy_vec_lock);
+
+    for (size_t tab = 0; tab < 1; tab++) {
+        float tab_kernel = 0.0;
+//#undef NEW_ALG
+#define NEW_ALG
+#ifdef NEW_ALG
+        double sum_a = 0, sum_b = 0;
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            sum_a += a_counts[tab][bin];
+            sum_b += b_counts[tab][bin];
+        }
+#endif
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            float bin_entropy = _bin_entropies[bin];
+#ifdef NEW_ALG
+            float a_freq = a_counts[tab][bin] / sum_a;
+            float b_freq = b_counts[tab][bin] / sum_b;
+#if 0
+            std::cerr << bin << " "
+                      << bin_entropy << " "
+                      << a_freq << " "
+                      << b_freq << " "
+                      << (a_freq * b_freq * bin_entropy) <<  "\n";
+#endif
+            tab_kernel += a_freq * b_freq * bin_entropy;
+#else
+            tab_kernel += a_counts[tab][bin] * b_counts[tab][bin] * bin_entropy;
+#endif
+
         }
         tab_kernels.push_back(tab_kernel);
     }

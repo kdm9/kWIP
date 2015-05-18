@@ -30,11 +30,17 @@ class KernelD2Ent : public KernelPopulation<uint16_t>
 {
 
 public:
-    void
-    add_hashtable              (const std::string                &hash_fname);
+    KernelD2Ent                 ();
+    ~KernelD2Ent                ();
 
-    float kernel               (khmer::CountingHash        &a,
-                                khmer::CountingHash        &b);
+    void
+    add_hashtable               (const std::string     &hash_fname);
+
+    float kernel                (khmer::CountingHash   &a,
+                                 khmer::CountingHash   &b);
+private:
+    std::vector<float>      _bin_entropies;
+    omp_lock_t              _bin_entropy_vec_lock;
 };
 
 }} // end namespace kmerclust::metrics
