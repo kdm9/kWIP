@@ -73,23 +73,26 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     _check_hash_dimensions(a, b);
 
-    omp_set_lock(&_bin_entropy_vec_lock);
     if (_bin_entropies.size() == 0) {
-        _bin_entropies.assign(_tablesizes[0], 0.0);
-        for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
-            unsigned int bin_n_samples = _pop_counts[0][bin];
-            float bin_entropy = 0.0;
-            if (bin_n_samples == 0 || bin_n_samples == _n_samples) {
-                // Kmer not found in the population, or in all samples.
-                // entropy will be 0, so bail out here
-            } else {
-                float pop_freq = (float)bin_n_samples / (float)_n_samples;
-                bin_entropy = pop_freq * -log2(pop_freq);
+        // Don't lock except on the first comparison
+        omp_set_lock(&_bin_entropy_vec_lock);
+        if (_bin_entropies.size() == 0) {
+            _bin_entropies.assign(_tablesizes[0], 0.0);
+            for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
+                unsigned int bin_n_samples = _pop_counts[0][bin];
+                float bin_entropy = 0.0;
+                if (bin_n_samples == 0 || bin_n_samples == _n_samples) {
+                    // Kmer not found in the population, or in all samples.
+                    // entropy will be 0, so bail out here
+                } else {
+                    float pop_freq = (float)bin_n_samples / (float)_n_samples;
+                    bin_entropy = pop_freq * -log2(pop_freq);
+                }
+                _bin_entropies[bin] = bin_entropy;
             }
-            _bin_entropies[bin] = bin_entropy;
         }
+        omp_unset_lock(&_bin_entropy_vec_lock);
     }
-    omp_unset_lock(&_bin_entropy_vec_lock);
 
     for (size_t tab = 0; tab < 1; tab++) {
         float tab_kernel = 0.0;
