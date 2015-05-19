@@ -38,6 +38,21 @@ public:
 
     float kernel                (khmer::CountingHash   &a,
                                  khmer::CountingHash   &b);
+
+    const std::string       blurb =
+            "D2Ent Kernel\n"
+            "\n"
+            "This kernel calculates the D2 Entropy kernel, the inner product\n"
+            "bin frequencies (bin value / total number of kmers) weighted by\n"
+            "the Shannon entropy of presence/absence over all samples (i.e.\n"
+            "the proportion of all samples with a non-zero count of a bin).\n"
+            "\n"
+            "D2ent = sum (A_f * B_f * P_ent)\n"
+            "Where:\n"
+            "A_f, B_f = A[i] / sum A\n"
+            "P_ent = (P[i] / sum P) * - log2(P[i] / sum P)\n"
+            " where P is a vector of bin occurance across all samples\n";
+
 private:
     std::vector<float>      _bin_entropies;
     omp_lock_t              _bin_entropy_vec_lock;
