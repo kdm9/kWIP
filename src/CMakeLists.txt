@@ -1,5 +1,6 @@
 # Libary
 ADD_LIBRARY(libkmerclust
+            kmerclust.cc
             countmin.cc
             kernel.cc
             d2.cc
