@@ -1,5 +1,6 @@
 ADD_EXECUTABLE(test_kmerclust
                tests.cc
+               test-lrucache.cc
                )
 
 TARGET_LINK_LIBRARIES(test_kmerclust ${KMERCLUST_DEPENDS_LIBRARIES} libkmerclust)
