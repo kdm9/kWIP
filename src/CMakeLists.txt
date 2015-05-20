@@ -12,9 +12,9 @@ ADD_LIBRARY(libkmerclust
             )
 
 SET_TARGET_PROPERTIES(libkmerclust PROPERTIES OUTPUT_NAME kmerclust)
-TARGET_LINK_LIBRARIES(libkmerclust ${DEPENDS_LIBS})
+TARGET_LINK_LIBRARIES(libkmerclust ${KMERCLUST_DEPENDS_LIBS})
 
 # Executable
 ADD_EXECUTABLE(kmerclust kmerclust-cli.cc)
-TARGET_LINK_LIBRARIES(kmerclust ${DEPENDS_LIBS} libkmerclust)
+TARGET_LINK_LIBRARIES(kmerclust ${KMERCLUST_DEPENDS_LIBS} libkmerclust)
 INSTALL(TARGETS kmerclust DESTINATION "bin")

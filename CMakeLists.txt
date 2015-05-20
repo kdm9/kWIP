@@ -50,7 +50,7 @@ OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
 ###############################
 
 FIND_PACKAGE(khmer 1.3 REQUIRED)
-SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${KHMER_LIBRARIES})
+SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${KHMER_LIBRARIES})
 INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
 
 IF(NOT KHMER_FOUND)
@@ -97,7 +97,9 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${REL_OPT_FLAGS}")
 
 # Headers occur in these dirs
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
-                    ${CMAKE_SOURCE_DIR}/src)
+                    ${CMAKE_SOURCE_DIR}/src
+                    ${CMAKE_SOURCE_DIR}/tests
+                    ${CMAKE_SOURCE_DIR}/tests/ext)
 
 # Finally, configure the config header
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kmerclust-config.hh.in
@@ -105,4 +107,4 @@ CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kmerclust-config.hh.in
 
 # Libary sources
 ADD_SUBDIRECTORY(src)
-#ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(tests)
