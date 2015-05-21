@@ -225,10 +225,6 @@ Kernel::
 kernel_to_distance()
 {
     std::vector<float> diag(_n_samples);
-    float **tmp_mat = new float *[_n_samples];
-    for (size_t i = 0; i < _n_samples; i++) {
-        tmp_mat[i] = new float[_n_samples];
-    }
 
     if (_distance_mat == NULL) {
         throw std::runtime_error("No distance matrix exists");
@@ -237,6 +233,12 @@ kernel_to_distance()
         throw std::runtime_error("No kernel matrix exists");
     }
 
+    float **tmp_mat = new float *[_n_samples];
+    for (size_t i = 0; i < _n_samples; i++) {
+        tmp_mat[i] = new float[_n_samples];
+    }
+
+    // Store the diagonal of the matrix
     for (size_t i = 0; i < _n_samples; i++) {
         diag[i] = _kernel_mat[i][i];
     }
@@ -258,6 +260,12 @@ kernel_to_distance()
             _distance_mat[i][j] = dist;
         }
     }
+
+    // Free the temporay matrix
+    for (size_t i = 0; i < n_samples; i++) {
+        delete [] tmp_mat[i];
+    }
+    delete [] tmp_mat;
 }
 
 void
