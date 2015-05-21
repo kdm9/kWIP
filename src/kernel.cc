@@ -262,7 +262,7 @@ kernel_to_distance()
     }
 
     // Free the temporay matrix
-    for (size_t i = 0; i < n_samples; i++) {
+    for (size_t i = 0; i < _n_samples; i++) {
         delete [] tmp_mat[i];
     }
     delete [] tmp_mat;
