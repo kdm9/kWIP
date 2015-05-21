@@ -19,14 +19,13 @@ version 1.4 or greater of Khmer:
     git checkout v1.4
     # Build the library and install it
     cd lib
-    make install PREFIX=$HOME/
-    # Go back to the kmerclust source directory
-    cd ../../
+    make install PREFIX=$HOME
 
 Then, to compile `kmerclust`:
 
-    # Out-of-source build for sanity
-    mkdir build && cd build
+    git clone https://github.com/kdmurray91/kmerclust.git
+    cd kmerclust
+    mkdir build && cd build # Out-of-source build for sanity
     cmake .. -DKHMER_ROOT=$HOME
     make
 
