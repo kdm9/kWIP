@@ -20,3 +20,9 @@ mkdir build && cd build
 
 cmake $wdir -DKHMER_ROOT=$wdir/khmer-target/
 make
+
+# check that we can follow the instructions provided for installation
+mkdir $wdir/not_home
+# Process: extract commands, change home directory to above, run
+grep '^    ' README.md |sed 's,$HOME,$wdir/not_home,g' | bash -xe
+rm -rf $wdir/not_home
