@@ -22,21 +22,6 @@ namespace kmerclust
 namespace metrics
 {
 
-inline float flog2 (float flt)
-{
-    /// Adapted from http://www.flipcode.com/archives/Fast_log_Function.shtml
-    int * const exponent_ptr = reinterpret_cast<int *>(&flt);
-    int exponent = *exponent_ptr;
-    const int log_2_exp = ((exponent >> 23) & 255) - 128;
-    exponent &= ~(255 << 23);
-    exponent += 127 << 23;
-    *exponent_ptr = exponent;
-
-    flt = ((-1.0f/3) * flt + 2) * flt - 2.0f/3;
-
-    return (flt + log_2_exp);
-}
-
 float
 KernelJS::
 kernel(khmer::CountingHash &a, khmer::CountingHash &b)
@@ -45,15 +30,14 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     khmer::Byte **a_counts = a.get_raw_tables();
     khmer::Byte **b_counts = b.get_raw_tables();
     std::vector<khmer::HashIntoType> tablesizes = a.get_tablesizes();
-    float small_log_offset = 0.0;
 
     _check_hash_dimensions(a, b);
 
     //for (size_t tab = 0; tab < a.n_tables(); tab++) {
     for (size_t tab = 0; tab < 1; tab++) {
+        float small_log_offset = 0.0;
         uint64_t a_sum = 0;
         uint64_t b_sum = 0;
-        uint64_t max_sum = 0;
         float tab_kernel = 0;
         khmer::Byte *A = a_counts[tab];
         khmer::Byte *B = b_counts[tab];
@@ -65,17 +49,17 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
             a_sum += A[bin];
             b_sum += B[bin];
         }
-        max_sum = a_sum > b_sum ? a_sum : b_sum;
+        const uint64_t max_sum = a_sum > b_sum ? a_sum : b_sum;
         small_log_offset = 1.0 / (float)max_sum;
 
         for (size_t bin = 0; bin < tablesizes[tab]; bin++) {
-            float a_freq = (float)A[bin] / (float)a_sum;
-            float b_freq = (float)B[bin] / (float)b_sum;
+            const float a_freq = (float)A[bin] / (float)a_sum;
+            const float b_freq = (float)B[bin] / (float)b_sum;
 
-            float total = a_freq + b_freq + small_log_offset;
+            const float total = a_freq + b_freq + small_log_offset;
 
-            float a_log = a_freq * flog2((a_freq + small_log_offset)/total);
-            float b_log = b_freq * flog2((b_freq + small_log_offset)/total);
+            const float a_log = a_freq * log2((a_freq + small_log_offset)/total);
+            const float b_log = b_freq * log2((b_freq + small_log_offset)/total);
 
             tab_kernel += -(a_log + b_log);
         }
