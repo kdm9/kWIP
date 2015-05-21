@@ -14,12 +14,18 @@ You need `libkhmer.a` and the Khmer C++ headers. These can be compiled from
 version 1.4 or greater of Khmer:
 
     git clone https://github.com/dib-lab/khmer.git
+    # Check out version 1.4 of khmer
+    cd khmer
     git checkout v1.4
-    cd khmer/lib
+    # Build the library and install it
+    cd lib
     make install PREFIX=$HOME/
+    # Go back to the kmerclust source directory
+    cd ../../
 
 Then, to compile `kmerclust`:
 
+    # Out-of-source build for sanity
     mkdir build && cd build
     cmake .. -DKHMER_ROOT=$HOME
     make
