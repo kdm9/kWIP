@@ -26,7 +26,7 @@ pushd build
 popd
 
 # check that we can follow the instructions provided for installation
+rm -rf $wdir/not_home
 mkdir $wdir/not_home
 # Process: extract commands, change home directory to above, run
 grep '^    ' $wdir/README.md |sed 's,$HOME,$wdir/not_home,g' | bash -xe
-rm -rf $wdir/not_home
