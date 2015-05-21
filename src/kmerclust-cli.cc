@@ -129,9 +129,11 @@ run_main(int argc, char *argv[])
                 std::cerr << std::endl << "---- Kernel Details ----"
                           << std::endl;
                 std::cerr << std::endl << kernel.blurb << std::endl;
+                delete [] long_opts;
                 return EXIT_SUCCESS;
             case 'V':
                 print_version();
+                delete [] long_opts;
                 return EXIT_SUCCESS;
             case 'v':
                 kernel.set_verbosity(2);
@@ -151,19 +153,21 @@ run_main(int argc, char *argv[])
                 } else {
                     // It's an error if any other kernel has '-T'
                     print_cli_help(prog, kernel_abbrev);
+                    delete [] long_opts;
                     return EXIT_FAILURE;
                 }
             case '?':
                 // Getopt long prints its own error msg
                 print_cli_help(prog, kernel_abbrev);
+                delete [] long_opts;
                 return EXIT_FAILURE;
         }
     }
+    delete [] long_opts;
 
     // Ensure we have at least two counting hashes to work with
     if (optind + 1 >= argc) {
         print_cli_help(prog, kernel_abbrev);
-        return EXIT_FAILURE;
     }
 
     for (int i = optind; i < argc; i++) {
