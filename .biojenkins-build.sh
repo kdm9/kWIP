@@ -1,4 +1,6 @@
 
+set -xe
+
 wdir=`pwd`
 
 test -d khmer-src || git clone https://github.com/ged-lab/khmer khmer-src
