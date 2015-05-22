@@ -15,18 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KMERCLUST_HH
-#define KMERCLUST_HH
+#ifndef D2FREQ_HH
+#define D2FREQ_HH
 
-#include <kmerclust-config.hh>
-#include <countmin.hh>
-#include <kernel.hh>
-#include <population.hh>
-#include <kernels/d2.hh>
-#include <kernels/d2pop.hh>
-#include <kernels/d2ent.hh>
-#include <kernels/d2freq.hh>
-#include <kernels/d2thresh.hh>
-#include <kernels/js.hh>
 
-#endif /* KMERCLUST_HH */
+#include "kernel.hh"
+
+namespace kmerclust
+{
+namespace metrics
+{
+
+class KernelD2freq : public Kernel
+{
+public:
+    float kernel               (khmer::CountingHash        &a,
+                                khmer::CountingHash        &b);
+
+    const std::string       blurb =
+            "D2Freq Kernel\n"
+            "\n"
+            "This kernel calculates the D2 Frequency kernel, the inner\n"
+            "product of bin frequencies (bin value / total number of kmers).\n"
+            "\n"
+            "D2freq = sum (A_f * B_f)\n"
+            "Where:\n"
+            "A_f, B_f = X / sum X, X=A,B\n";
+};
+
+}} // end namespace kmerclust::metrics
+
+#endif /* D2FREQ_HH */

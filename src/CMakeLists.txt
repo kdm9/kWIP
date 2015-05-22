@@ -8,6 +8,7 @@ ADD_LIBRARY(libkmerclust
             kernels/d2thresh.cc
             kernels/d2pop.cc
             kernels/d2ent.cc
+            kernels/d2freq.cc
             kernels/js.cc
             )
 

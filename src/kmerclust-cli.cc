@@ -210,7 +210,8 @@ print_valid_kernels()
     std::cerr << "  d2" << std::endl
               << "  d2pop" << std::endl
               << "  d2ent" << std::endl
-              << "  d2thesh" << std::endl
+              << "  d2thresh" << std::endl
+              << "  d2freq" << std::endl
               << "  js" << std::endl;
 }
 
@@ -234,6 +235,8 @@ main (int argc, char *argv[])
         return run_main<KernelD2Ent>(argc, argv);
     } else if (strcmp(argv[1], "d2thresh") == 0) {
         return run_main<KernelD2Thresh>(argc, argv);
+    } else if (strcmp(argv[1], "d2freq") == 0) {
+        return run_main<KernelD2freq>(argc, argv);
     } else if (strcmp(argv[1], "js") == 0) {
         return run_main<KernelJS>(argc, argv);
     }
