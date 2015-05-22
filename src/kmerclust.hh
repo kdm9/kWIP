@@ -22,10 +22,10 @@
 #include <countmin.hh>
 #include <kernel.hh>
 #include <population.hh>
-#include <d2.hh>
-#include <d2pop.hh>
-#include <d2ent.hh>
-#include <d2thresh.hh>
-#include <js.hh>
+#include <kernels/d2.hh>
+#include <kernels/d2pop.hh>
+#include <kernels/d2ent.hh>
+#include <kernels/d2thresh.hh>
+#include <kernels/js.hh>
 
 #endif /* KMERCLUST_HH */

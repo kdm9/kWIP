@@ -3,12 +3,12 @@ ADD_LIBRARY(libkmerclust
             kmerclust.cc
             countmin.cc
             kernel.cc
-            d2.cc
-            d2thresh.cc
-            d2pop.cc
-            d2ent.cc
             population.cc
-            js.cc
+            kernels/d2.cc
+            kernels/d2thresh.cc
+            kernels/d2pop.cc
+            kernels/d2ent.cc
+            kernels/js.cc
             )
 
 SET_TARGET_PROPERTIES(libkmerclust PROPERTIES OUTPUT_NAME kmerclust)
