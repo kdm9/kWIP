@@ -86,7 +86,8 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
                     // entropy will be 0, so bail out here
                 } else {
                     float pop_freq = (float)bin_n_samples / (float)_n_samples;
-                    bin_entropy = pop_freq * -log2(pop_freq);
+                    bin_entropy = (pop_freq * -log2(pop_freq)) +
+                                  ((1 - pop_freq) * -log2(1 - pop_freq));
                 }
                 _bin_entropies[bin] = bin_entropy;
             }
