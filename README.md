@@ -20,6 +20,7 @@ version 1.4 or greater of Khmer:
     # Build the library and install it
     cd lib
     make install PREFIX=$HOME
+    cd ../..
 
 Then, to compile `kmerclust`:
 

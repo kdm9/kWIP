@@ -5,3 +5,5 @@ of following colleagues:
 - Cheng-Soon Ong
 - Christfried Webers
 - Norman Warthmann
+- Conrad Burden
+- Terry Neeman
