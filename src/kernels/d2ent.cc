@@ -53,7 +53,6 @@ add_hashtable(const std::string &hash_fname)
         uint16_t *this_popcount = _pop_counts[i];
         khmer::Byte *this_count = counts[i];
         for (size_t j = 0; j < _tablesizes[i]; j++) {
-            // __sync_fetch_and_add(&(this_popcount[j]), this_count[j]);
             if (this_count[j] > 0) {
                 __sync_fetch_and_add(&(this_popcount[j]), 1);
             }
