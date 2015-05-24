@@ -124,7 +124,6 @@ fpr()
 
     for (size_t i = 0; i < _n_tables; i++) {
         uint64_t tab_count = 0;
-        #pragma omp parallel for num_threads(_n_threads)
         for (size_t j = 0; j < _tablesizes[i]; j++) {
             tab_count += _pop_counts[i][j] > 0 ? 1 : 0;
         }
