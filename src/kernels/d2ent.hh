@@ -38,6 +38,8 @@ public:
 
     float kernel                (khmer::CountingHash   &a,
                                  khmer::CountingHash   &b);
+    void
+    calculate_pairwise          (std::vector<std::string> &hash_fnames);
 
     const std::string       blurb =
             "D2Ent Kernel\n"

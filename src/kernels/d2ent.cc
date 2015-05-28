@@ -61,6 +61,50 @@ add_hashtable(const std::string &hash_fname)
         __sync_fetch_and_add(&_table_sums[i], tab_count);
     }
 }
+void
+KernelD2Ent::
+calculate_pairwise(std::vector<std::string> &hash_fnames)
+{
+    _n_samples = hash_fnames.size();
+    #pragma omp parallel for num_threads(_n_threads)
+    for (size_t i = 0; i < _n_samples; i++) {
+        add_hashtable(hash_fnames[i]);
+        if (_verbosity > 0) {
+            #pragma omp critical
+            {
+                std::cerr << "Loaded " << hash_fnames[i] << std::endl;
+            }
+        }
+    }
+
+    if (_verbosity > 0) {
+        std::cerr << "Finished loading!" << std::endl;
+        std::cerr << "FPR: " << this->fpr() << std::endl;
+    }
+
+    double sum_bin_entropy = 0.0;
+    _bin_entropies.clear();
+    _bin_entropies.assign(_tablesizes[0], 0.0);
+    for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
+        unsigned int bin_n_samples = _pop_counts[0][bin];
+        if (bin_n_samples == 0 || bin_n_samples == _n_samples) {
+            // Kmer not found in the population, or in all samples.
+            // entropy will be 0, so bail out here
+            _bin_entropies[bin] = 0.0;
+        } else {
+            const float pop_freq = (float)bin_n_samples / (float)_n_samples;
+            _bin_entropies[bin] = (pop_freq * -log2(pop_freq)) +
+                                  ((1 - pop_freq) * -log2(1 - pop_freq));
+        }
+        sum_bin_entropy += _bin_entropies[bin];
+    }
+    if (_verbosity > 0) {
+        std::cerr << "Finished loading!" << std::endl;
+        std::cerr << "FPR: " << this->fpr() << std::endl;
+    }
+    // Do the kernel calculation per Kernel's implementation
+    Kernel::calculate_pairwise(hash_fnames);
+}
 
 float
 KernelD2Ent::
@@ -72,27 +116,6 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     _check_hash_dimensions(a, b);
 
-    if (_bin_entropies.size() == 0) {
-        // Don't lock except on the first comparison
-        omp_set_lock(&_bin_entropy_vec_lock);
-        if (_bin_entropies.size() == 0) {
-            _bin_entropies.assign(_tablesizes[0], 0.0);
-            for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
-                unsigned int bin_n_samples = _pop_counts[0][bin];
-                float bin_entropy = 0.0;
-                if (bin_n_samples == 0 || bin_n_samples == _n_samples) {
-                    // Kmer not found in the population, or in all samples.
-                    // entropy will be 0, so bail out here
-                } else {
-                    float pop_freq = (float)bin_n_samples / (float)_n_samples;
-                    bin_entropy = (pop_freq * -log2(pop_freq)) +
-                                  ((1 - pop_freq) * -log2(1 - pop_freq));
-                }
-                _bin_entropies[bin] = bin_entropy;
-            }
-        }
-        omp_unset_lock(&_bin_entropy_vec_lock);
-    }
 
     for (size_t tab = 0; tab < 1; tab++) {
         float tab_kernel = 0.0;
