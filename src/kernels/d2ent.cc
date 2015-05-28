@@ -22,19 +22,6 @@ namespace kmerclust
 namespace metrics
 {
 
-KernelD2Ent::
-KernelD2Ent():
-    KernelPopulation()
-{
-    omp_init_lock(&_bin_entropy_vec_lock);
-}
-
-KernelD2Ent::
-~KernelD2Ent()
-{
-    omp_destroy_lock(&_bin_entropy_vec_lock);
-}
-
 void
 KernelD2Ent::
 add_hashtable(const std::string &hash_fname)
@@ -115,7 +102,6 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     khmer::Byte **b_counts = b.get_raw_tables();
 
     _check_hash_dimensions(a, b);
-
 
     for (size_t tab = 0; tab < 1; tab++) {
         float tab_kernel = 0.0;

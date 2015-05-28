@@ -30,13 +30,11 @@ class KernelD2Ent : public KernelPopulation<uint16_t>
 {
 
 public:
-    KernelD2Ent                 ();
-    ~KernelD2Ent                ();
-
     void
     add_hashtable               (const std::string     &hash_fname);
 
-    float kernel                (khmer::CountingHash   &a,
+    float
+    kernel                      (khmer::CountingHash   &a,
                                  khmer::CountingHash   &b);
     void
     calculate_pairwise          (std::vector<std::string> &hash_fnames);
@@ -57,7 +55,6 @@ public:
 
 private:
     std::vector<float>      _bin_entropies;
-    omp_lock_t              _bin_entropy_vec_lock;
 };
 
 }} // end namespace kmerclust::metrics
