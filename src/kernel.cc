@@ -170,7 +170,8 @@ _print_mat(std::ostream &outstream, float **matrix)
     // Use numerals as indices if there's no names provided
     if (_sample_names.empty()) {
         for (size_t i = 0; i < _n_samples; i++) {
-            _sample_names.push_back(std::to_string(i));
+            // This cast is required to fix an error with Intel compilers
+            _sample_names.push_back(std::to_string((unsigned long long)i));
         }
     }
 

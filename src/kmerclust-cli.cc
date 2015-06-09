@@ -91,7 +91,7 @@ run_main(int argc, char *argv[])
     size_t                      n_options       = cli_long_opts.size();
 
     // Kernel-specific CLI options
-    if (std::is_same<KernelImpl, KernelD2Thresh>()) {
+    if (std::is_same<KernelImpl, KernelD2Thresh>::value) {
         cli_opts += "T:";
         cli_long_opts.push_back({ "threshold", required_argument, NULL, 'T' });
         cli_help.push_back(
