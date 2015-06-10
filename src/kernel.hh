@@ -73,7 +73,7 @@ protected:
     _get_hash                  (std::string                &filename);
 
     void
-    _make_matrices             (size_t                      n_samples);
+    _make_matrices             ();
 
     void
     _print_mat                 (std::ostream               &outstream,

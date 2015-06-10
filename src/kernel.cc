@@ -56,12 +56,14 @@ float
 Kernel::
 kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
+    (void) a;
+    (void) b;
     return 0.0;
 }
 
 void
 Kernel::
-_make_matrices(size_t n_samples)
+_make_matrices()
 {
     // Create the kernel matrix
     omp_set_lock(&_kernel_mat_lock);
@@ -98,7 +100,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     _n_samples = hash_fnames.size();
 
-    _make_matrices(_n_samples);
+    _make_matrices();
 
     if (_sample_names.empty()) {
         for (size_t i = 0; i < _n_samples; i++) {
