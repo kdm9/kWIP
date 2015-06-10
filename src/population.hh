@@ -41,11 +41,13 @@ public:
     KernelPopulation();
     ~KernelPopulation();
 
+#if 0
     virtual void
     save                       (const std::string          &filename);
 
     virtual void
     load                       (const std::string          &filename);
+#endif
 
     virtual void
     add_hashtable              (const std::string          &hash_fname);

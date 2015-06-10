@@ -136,6 +136,7 @@ fpr()
     return fpr;
 }
 
+#if 0
 template<typename bin_tp>
 void
 KernelPopulation<bin_tp>::
@@ -149,9 +150,9 @@ KernelPopulation<bin_tp>::
 load(const std::string &filename)
 {
 }
+#endif
 
 // Explicit compilation of standard types
-
 template class KernelPopulation<uint8_t>;
 template class KernelPopulation<uint16_t>;
 template class KernelPopulation<uint32_t>;
