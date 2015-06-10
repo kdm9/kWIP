@@ -56,8 +56,7 @@ float
 Kernel::
 kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
-    (void) a;
-    (void) b;
+    _check_hash_dimensions(a, b);
     return 0.0;
 }
 
@@ -235,9 +234,9 @@ kernel_to_distance()
 
     // Free the temporay matrix
     for (size_t i = 0; i < num_samples; i++) {
-        delete [] tmp_mat[i];
+        delete[] tmp_mat[i];
     }
-    delete [] tmp_mat;
+    delete[] tmp_mat;
 }
 
 CountingHashShrPtr

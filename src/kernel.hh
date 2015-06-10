@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DISTANCE_HH
-#define DISTANCE_HH
+#ifndef KERNEL_HH
+#define KERNEL_HH
 
 
 #include <cmath>
@@ -44,11 +44,6 @@ namespace kmerclust
 typedef std::shared_ptr<khmer::CountingHash> CountingHashShrPtr;
 typedef cache::lru_cache<std::string, CountingHashShrPtr> CountingHashCache;
 
-namespace metrics
-{
-class KernelD2Thresh;
-}
-
 class Kernel
 {
 protected:
@@ -58,7 +53,6 @@ protected:
     omp_lock_t                  _distance_mat_lock;
     CountingHashCache           _hash_cache;
     omp_lock_t                  _hash_cache_lock;
-    const std::string           _kernel_name = "Base class";
 
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
@@ -81,6 +75,8 @@ public:
     int                         verbosity;
     size_t                      num_samples;
     std::vector<std::string>    sample_names;
+    const std::string           name = "Base Class";
+    const std::string           blurb = "A generic base class for kernels.";
 
     Kernel                     ();
     ~Kernel                    ();
@@ -103,9 +99,8 @@ public:
     virtual void
     kernel_to_distance         ();
 
-    const std::string           blurb = "Base class";
 };
 
 } // end namespace kmerclust
 
-#endif /* DISTANCE_HH */
+#endif /* KERNEL_HH */
