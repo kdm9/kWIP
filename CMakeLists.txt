@@ -71,7 +71,7 @@ ENDIF()
 ##########################
 
 # Set CFLAGS
-SET(WARN_FLAGS "${WARN_FLAGS} -Wall")
+SET(WARN_FLAGS "${WARN_FLAGS} -Wall -Wextra -Wno-ignored-qualifiers")
 SET(OPT_FLAGS "${OPT_FLAGS} -march=native")
 
 SET(REL_OPT_FLAGS "-O3")
