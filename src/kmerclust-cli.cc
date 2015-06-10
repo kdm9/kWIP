@@ -116,7 +116,7 @@ run_main(int argc, char *argv[])
     while ((c = getopt_long(argc, argv, opts, long_opts, &option_idx)) > 0) {
         switch (c) {
             case 't':
-                kernel.set_n_threads(atol(optarg));
+                kernel.num_threads = atol(optarg);
                 break;
             case 'k':
                 kern_out_name = optarg;
@@ -136,10 +136,10 @@ run_main(int argc, char *argv[])
                 delete [] long_opts;
                 return EXIT_SUCCESS;
             case 'v':
-                kernel.set_verbosity(2);
+                kernel.verbosity = 2;
                 break;
             case 'q':
-                kernel.set_verbosity(0);
+                kernel.verbosity = 0;
                 break;
             case 'T':
                 if (std::is_same<KernelImpl, KernelD2Thresh>()) {

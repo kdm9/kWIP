@@ -34,7 +34,7 @@
     #define omp_get_max_threads(x) (1)
 #endif
 
-#include <counting.hh>
+#include <counting.hh>  // Khmer
 
 #include "lrucache.hpp"
 
@@ -52,17 +52,13 @@ class KernelD2Thresh;
 class Kernel
 {
 protected:
-    int                         _n_threads;
-    int                         _verbosity;
-    size_t                      _n_samples;
     float                     **_kernel_mat;
     float                     **_distance_mat;
     omp_lock_t                  _kernel_mat_lock;
     omp_lock_t                  _distance_mat_lock;
-    std::vector<std::string>    _sample_names;
     CountingHashCache           _hash_cache;
     omp_lock_t                  _hash_cache_lock;
-    std::string                 _kernel_name = "Base class";
+    const std::string           _kernel_name = "Base class";
 
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
@@ -81,6 +77,11 @@ protected:
 
 
 public:
+    int                         num_threads;
+    int                         verbosity;
+    size_t                      num_samples;
+    std::vector<std::string>    sample_names;
+
     Kernel                     ();
     ~Kernel                    ();
 
@@ -93,31 +94,14 @@ public:
     virtual void
     calculate_pairwise         (std::vector<std::string>   &hash_fnames);
 
-    // Sets names of each sample in the hash
     virtual void
-    set_sample_names           (std::vector<std::string>   &sample_names);
+    print_kernel_mat           (std::ostream             &outstream=std::cout);
 
     virtual void
-    set_num_threads            (int                         n_threads);
-
-    virtual void
-    print_kernel_mat           (std::ostream               &outstream);
-    virtual void
-    print_kernel_mat           ();
-
-    virtual void
-    print_distance_mat         (std::ostream               &outstream);
-    virtual void
-    print_distance_mat         ();
+    print_distance_mat         (std::ostream             &outstream=std::cout);
 
     virtual void
     kernel_to_distance         ();
-
-    void
-    set_n_threads              (int                         n_threads);
-
-    void
-    set_verbosity              (int                         verbosity);
 
     const std::string           blurb = "Base class";
 };

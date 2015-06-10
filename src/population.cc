@@ -94,10 +94,10 @@ void
 KernelPopulation<bin_tp>::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
-    #pragma omp parallel for num_threads(_n_threads)
+    #pragma omp parallel for num_threads(num_threads)
     for (size_t i = 0; i < hash_fnames.size(); i++) {
         add_hashtable(hash_fnames[i]);
-        if (_verbosity > 0) {
+        if (verbosity > 0) {
             #pragma omp critical
             {
                 std::cerr << "Loaded " << hash_fnames[i] << std::endl;
@@ -105,7 +105,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
 
-    if (_verbosity > 0) {
+    if (verbosity > 0) {
         std::cerr << "Finished loading!" << std::endl;
         std::cerr << "FPR: " << this->fpr() << std::endl;
     }

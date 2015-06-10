@@ -29,8 +29,8 @@ class KernelPopulation : public Kernel
 {
 
 protected:
-    bin_tp **_pop_counts;
-    size_t _n_tables;
+    bin_tp        **_pop_counts;
+    size_t          _n_tables;
     std::vector<khmer::HashIntoType> _tablesizes;
     std::vector<uint64_t> _table_sums;
     omp_lock_t _pop_table_lock;
@@ -39,7 +39,6 @@ protected:
     _check_pop_counts          (khmer::CountingHash        &ht);
 public:
     KernelPopulation();
-
     ~KernelPopulation();
 
     virtual void
