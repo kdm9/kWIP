@@ -38,18 +38,28 @@ Kernel() :
 Kernel::
 ~Kernel()
 {
+    // Lock these to avoid a race. Very unlikely but doesn't hurt
     omp_set_lock(&_kernel_mat_lock);
-    if (_kernel_mat == NULL) {
-        omp_unset_lock(&_kernel_mat_lock);
-        return;
+    omp_set_lock(&_distance_mat_lock);
+    omp_set_lock(&_hash_cache_lock);
+    // Free the kernel matrix if it exists
+    if (_kernel_mat != NULL) {
+        for (size_t i = 0; i < num_samples; i++) {
+            delete[] _kernel_mat[i];
+        }
+        delete[] _kernel_mat;
     }
-    for (size_t i = 0; i < num_samples; i++) {
-        delete[] _kernel_mat[i];
-        delete[] _distance_mat[i];
+    // Free dist matrix if it exists
+    if (_distance_mat != NULL) {
+        for (size_t i = 0; i < num_samples; i++) {
+            delete[] _distance_mat[i];
+        }
+        delete[] _distance_mat;
     }
-    delete[] _kernel_mat;
-    omp_unset_lock(&_kernel_mat_lock);
+    // Destroy all locks
     omp_destroy_lock(&_kernel_mat_lock);
+    omp_destroy_lock(&_distance_mat_lock);
+    omp_destroy_lock(&_hash_cache_lock);
 }
 
 float
@@ -66,6 +76,7 @@ _make_matrices()
 {
     // Create the kernel matrix
     omp_set_lock(&_kernel_mat_lock);
+    omp_set_lock(&_distance_mat_lock);
     if (_kernel_mat != NULL) {
         for (size_t i = 0; i < num_samples; i++) {
             delete[] _kernel_mat[i];
@@ -76,10 +87,8 @@ _make_matrices()
     for (size_t i = 0; i < num_samples; i++) {
         _kernel_mat[i] = new float[num_samples];
     }
-    omp_unset_lock(&_kernel_mat_lock);
 
     // Create the distance matrix
-    omp_set_lock(&_distance_mat_lock);
     if (_distance_mat != NULL) {
         for (size_t i = 0; i < num_samples; i++) {
             delete[] _distance_mat[i];
@@ -90,6 +99,7 @@ _make_matrices()
     for (size_t i = 0; i < num_samples; i++) {
         _distance_mat[i] = new float[num_samples];
     }
+    omp_unset_lock(&_kernel_mat_lock);
     omp_unset_lock(&_distance_mat_lock);
 }
 
@@ -104,7 +114,8 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     if (sample_names.empty()) {
         for (size_t i = 0; i < num_samples; i++) {
             char *fname = strdup(hash_fnames[i].c_str());
-            std::string base(basename(fname));
+            assert(fname != NULL);
+            std::string base{basename(fname)};
             base = base.substr(0, base.find_first_of("."));
             sample_names.push_back(std::string(base));
             free(fname);
@@ -166,6 +177,7 @@ _print_mat(std::ostream &outstream, float **matrix)
         outstream << "\t" << sample;
     }
     outstream << std::endl;
+
     // The matrix itself
     for (size_t i = 0; i < num_samples; i++) {
         outstream << sample_names[i];
@@ -232,7 +244,7 @@ kernel_to_distance()
         }
     }
 
-    // Free the temporay matrix
+    // Free the temporary matrix
     for (size_t i = 0; i < num_samples; i++) {
         delete[] tmp_mat[i];
     }
