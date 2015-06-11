@@ -15,20 +15,20 @@ version 1.4 or greater of Khmer:
 
     git clone https://github.com/dib-lab/khmer.git
     # Check out version 1.4 of khmer
-    cd khmer
     git checkout v1.4
     # Build the library and install it
-    cd lib
+    cd khmer/lib
     make install PREFIX=$HOME
-    cd ../..
 
 Then, to compile `kmerclust`:
 
     git clone https://github.com/kdmurray91/kmerclust.git
     cd kmerclust
-    mkdir build && cd build # Out-of-source build for sanity
+    mkdir build && cd build  # Out-of-source build for sanity
     cmake .. -DKHMER_ROOT=$HOME
     make
+    make test
+    make install
 
 The commands above assume you want to install kmerclust and libkhmer to your
 home directory. This is probably required on clusters, and necessary without
