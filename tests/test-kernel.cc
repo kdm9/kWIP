@@ -14,6 +14,7 @@
 
 #include "kernel.hh"
 
+
 TEST_CASE("Test kernel before computation", "[kernel]") {
     kmerclust::Kernel kernel;
 
@@ -77,6 +78,14 @@ TEST_CASE("Test kernel.kernel method", "[kernel]") {
         REQUIRE_THROWS_AS(kernel.kernel(a, b), std::runtime_error);
     }
 
+    SECTION("Different number of tables") {
+        CountingHash a{10, 1000};
+        std::vector<khmer::HashIntoType> sizes{1000, 1000};
+        CountingHash b{10, sizes};
+
+        REQUIRE_THROWS_AS(kernel.kernel(a, b), std::runtime_error);
+    }
+
     SECTION("Different K") {
         CountingHash a{10, 10000};
         CountingHash b{12, 10000};
@@ -91,4 +100,3 @@ TEST_CASE("Test kernel.kernel method", "[kernel]") {
         REQUIRE_THROWS_AS(kernel.kernel(a, b), std::runtime_error);
     }
 }
-
