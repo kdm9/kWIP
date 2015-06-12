@@ -19,7 +19,8 @@ TEST_CASE("LRU Cache basic operations", "[lru-cache]") {
 
     SECTION("cache.put overwrites current value") {
         lru.put(1, 1);
-        REQUIRE_NOTHROW(lru.put(1, 4));
+        REQUIRE(lru.get(1) == 1);
+        lru.put(1, 4);
         REQUIRE(lru.get(1) == 4);
     }
 
@@ -63,7 +64,7 @@ TEST_CASE("LRU Cache basic operations", "[lru-cache]") {
     }
 
     SECTION("cache.size is accurate") {
-        for (int i = 1; i < 4; i++) {
+        for (const int &i: {1, 2, 3}) {
             lru.put(i, i);
             REQUIRE(lru.size() == i);
         }
