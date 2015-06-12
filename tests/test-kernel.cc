@@ -100,3 +100,47 @@ TEST_CASE("Test kernel.kernel method", "[kernel]") {
         REQUIRE_THROWS_AS(kernel.kernel(a, b), std::runtime_error);
     }
 }
+
+
+TEST_CASE("Test kernel.calculate_pairwise method", "[kernel]") {
+    kmerclust::Kernel kernel;
+    std::ostringstream output;
+    std::ostringstream kern;
+    std::ostringstream dist;
+    kernel.outstream = &output;
+    std::vector<std::string> filenames {
+        "data/empty-1.ct",
+        "data/empty-2.ct",
+        "data/empty-3.ct",
+    };
+
+    REQUIRE_NOTHROW(kernel.calculate_pairwise(filenames));
+
+    SECTION("Check output") {
+        CAPTURE(output.str());
+        REQUIRE(output.str().size() > 0);
+    }
+
+    SECTION("Check kernel matrix") {
+        std::string kern_matrix {
+            ".\tempty-1\tempty-2\tempty-3\n"
+            "empty-1\t0\t0\t0\n"
+            "empty-2\t0\t0\t0\n"
+            "empty-3\t0\t0\t0\n"
+        };
+        REQUIRE_NOTHROW(kernel.print_kernel_mat(kern));
+        REQUIRE(kern.str() == kern_matrix);
+    }
+
+    SECTION("Check distance matrix") {
+        // kernel2distance happens automatically here
+        std::string dist_matrix {
+            ".\tempty-1\tempty-2\tempty-3\n"
+            "empty-1\t-nan\t-nan\t-nan\n"
+            "empty-2\t-nan\t-nan\t-nan\n"
+            "empty-3\t-nan\t-nan\t-nan\n"
+        };
+        REQUIRE_NOTHROW(kernel.print_distance_mat(dist));
+        REQUIRE(dist.str() == dist_matrix);
+    }
+}
