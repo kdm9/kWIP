@@ -139,13 +139,13 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
             if (verbosity > 0) {
                 #pragma omp critical
                 {
-                    std::cerr << i << " x " << j << " done!" << std::endl;
+                    *outstream << i << " x " << j << " done!" << std::endl;
                 }
             }
         }
     }
     if (verbosity > 0) {
-        std::cerr << "Done all!" << std::endl;
+        *outstream << "Done all!" << std::endl;
     }
 }
 

@@ -22,6 +22,7 @@
 #include <cmath>
 #include <cassert>
 #include <memory>
+#include <ostream>
 
 #ifdef _OPENMP
     #include <omp.h>
@@ -78,6 +79,7 @@ public:
     std::vector<std::string>    sample_names;
     const std::string           name = "Base Class";
     const std::string           blurb = "A generic base class for kernels.";
+    std::ostream               *outstream = &std::cerr;
 
     Kernel                     ();
     ~Kernel                    ();
