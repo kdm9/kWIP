@@ -100,14 +100,14 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         if (verbosity > 0) {
             #pragma omp critical
             {
-                std::cerr << "Loaded " << hash_fnames[i] << std::endl;
+                *outstream << "Loaded " << hash_fnames[i] << std::endl;
             }
         }
     }
 
     if (verbosity > 0) {
-        std::cerr << "Finished loading!" << std::endl;
-        std::cerr << "FPR: " << this->fpr() << std::endl;
+        *outstream << "Finished loading!" << std::endl;
+        *outstream << "FPR: " << this->fpr() << std::endl;
     }
 
     // Do the kernel calculation per Kernel's implementation
