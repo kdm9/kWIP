@@ -15,7 +15,10 @@ ADD_CUSTOM_TARGET(setup_tests ALL
                    ${CMAKE_BINARY_DIR}/out)
 ADD_DEPENDENCIES(test_kmerclust setup_tests)
 
-ADD_TEST(NAME "UnitTests" COMMAND ${CMAKE_BINARY_DIR}/bin/test_kmerclust)
+ADD_TEST(NAME "UnitTests"
+         COMMAND ${CMAKE_BINARY_DIR}/bin/test_kmerclust
+         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	 )
 
 SET(COVERAGE_CMD test_kmerclust)
 SET(COVERAGE_OUT "${CMAKE_BINARY_DIR}/coverage_html")
