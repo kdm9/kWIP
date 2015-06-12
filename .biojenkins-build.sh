@@ -23,7 +23,7 @@ mkdir build
 pushd build
     cmake $wdir -DKHMER_ROOT=$wdir/khmer/
     make
-    make test
+    ctest --verbose
 popd
 
 # DISABLED: too hard to get the instructions working without messing up the readme
