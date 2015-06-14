@@ -142,7 +142,7 @@ run_main(int argc, char *argv[])
                 kernel.verbosity = 0;
                 break;
             case 'T':
-                if (std::is_same<KernelImpl, KernelD2Thresh>()) {
+                if (std::is_same<KernelImpl, KernelD2Thresh>::value) {
                     // Cast to a d2pop
                     // Because fuck C++, that's why
                     Kernel         *base  = \
