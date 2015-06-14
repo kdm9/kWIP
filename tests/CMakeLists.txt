@@ -20,7 +20,15 @@ ADD_TEST(NAME "UnitTests"
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
-SET(COVERAGE_CMD test_kmerclust)
+FILE(GLOB EMPTY_HASHES ${CMAKE_BINARY_DIR}/data/emtpy-*.ct)
+FOREACH(dist IN ITEMS d2 d2ent d2freq d2pop js d2thresh)
+    ADD_TEST(NAME "cli-${dist}"
+             COMMAND ${CMAKE_BINARY_DIR}/bin/kmerclust ${dist} ${EMPTY_HASHES}
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+             )
+ENDFOREACH()
+
+SET(COVERAGE_CMD ctest)
 SET(COVERAGE_OUT "${CMAKE_BINARY_DIR}/coverage_html")
 
 IF (CMAKE_BUILD_TYPE STREQUAL "Coverage")
