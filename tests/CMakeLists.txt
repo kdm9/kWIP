@@ -20,10 +20,9 @@ ADD_TEST(NAME "UnitTests"
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
-FILE(GLOB EMPTY_HASHES ${CMAKE_BINARY_DIR}/data/emtpy-*.ct)
 FOREACH(dist IN ITEMS d2 d2ent d2freq d2pop js d2thresh)
     ADD_TEST(NAME "cli-${dist}"
-             COMMAND ${CMAKE_BINARY_DIR}/bin/kmerclust ${dist} ${EMPTY_HASHES}
+             COMMAND ${CMAKE_BINARY_DIR}/bin/kmerclust ${dist} data/empty-1.ct data/empty-2.ct
              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
              )
 ENDFOREACH()
