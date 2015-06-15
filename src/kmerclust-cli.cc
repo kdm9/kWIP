@@ -168,6 +168,7 @@ run_main(int argc, char *argv[])
     // Ensure we have at least two counting hashes to work with
     if (optind + 1 >= argc) {
         print_cli_help(prog, kernel_abbrev);
+        return EXIT_FAILURE;
     }
 
     for (int i = optind; i < argc; i++) {
