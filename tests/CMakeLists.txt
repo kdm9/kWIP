@@ -8,6 +8,9 @@ TARGET_LINK_LIBRARIES(test_kmerclust ${KMERCLUST_DEPENDS_LIBRARIES} libkmerclust
 
 # Copy test files over to bin dir & make output
 ADD_CUSTOM_TARGET(setup_tests ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+           ${CMAKE_CURRENT_SOURCE_DIR}/test-cli.sh
+                   ${CMAKE_BINARY_DIR}/bin
     COMMAND ${CMAKE_COMMAND} -E copy_directory
            ${CMAKE_CURRENT_SOURCE_DIR}/data
                    ${CMAKE_BINARY_DIR}/data
@@ -17,6 +20,11 @@ ADD_DEPENDENCIES(test_kmerclust setup_tests)
 
 ADD_TEST(NAME "UnitTests"
          COMMAND ${CMAKE_BINARY_DIR}/bin/test_kmerclust
+         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	 )
+
+ADD_TEST(NAME "CLIScript"
+         COMMAND ${CMAKE_BINARY_DIR}/bin/test-cli.sh
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
