@@ -8,9 +8,7 @@ test -d khmer-src || git clone https://github.com/ged-lab/khmer khmer-src
 # update and install khmer
 pushd khmer-src
     git fetch --all
-    ## TEMPORARY FIX: use specific sha before file signature merge
-    # git reset --hard origin/master
-    git reset --hard 5b8e9b1
+    git reset --hard origin/master
     rm -rf $wdir/khmer
     mkdir $wdir/khmer
     pushd lib
