@@ -9,13 +9,18 @@
  * ============================================================================
  */
 
-#include <string>
-
-#include "kmerclust-config.hh"
+#include "kmerclust.hh"
 
 namespace kmerclust
 {
 
 const std::string kmerclust_version = KMERCLUST_VERSION;
+
+void
+print_version()
+{
+    using namespace std;
+    cerr << "kmerclust version " << kmerclust_version << endl;
+}
 
 } // end namespace kmerclust

@@ -46,14 +46,6 @@ cli_help = {
 };
 
 void
-print_version()
-{
-    using namespace std;
-
-    cerr << "kmerclust version " << KMERCLUST_VERSION << endl;
-}
-
-void
 print_cli_help(std::string prog, std::string kernel)
 {
     using namespace std;

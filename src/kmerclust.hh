@@ -18,6 +18,9 @@
 #ifndef KMERCLUST_HH
 #define KMERCLUST_HH
 
+#include <iostream>
+#include <string>
+
 #include <kmerclust-config.hh>
 #include <countmin.hh>
 #include <kernel.hh>
@@ -28,5 +31,12 @@
 #include <kernels/d2freq.hh>
 #include <kernels/d2thresh.hh>
 #include <kernels/js.hh>
+
+namespace kmerclust
+{
+
+void print_version();
+
+} // end namespace kmerclust
 
 #endif /* KMERCLUST_HH */
