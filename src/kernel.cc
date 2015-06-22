@@ -113,12 +113,15 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 
     if (sample_names.empty()) {
         for (size_t i = 0; i < num_samples; i++) {
-            char *fname = strdup(hash_fnames[i].c_str());
-            assert(fname != NULL);
-            std::string base{basename(fname)};
+            size_t idx = hash_fnames[i].find_last_of("/");
+            std::string base;
+            if (idx != std::string::npos) {
+                base = hash_fnames[i].substr(idx + 1);
+            } else {
+                base = hash_fnames[i];
+            }
             base = base.substr(0, base.find_first_of("."));
             sample_names.push_back(std::string(base));
-            free(fname);
         }
     }
 
