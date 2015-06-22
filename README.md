@@ -10,12 +10,11 @@ Installation
 ============
 
 
-You need `libkhmer.a` and the Khmer C++ headers. These can be compiled from
-version 1.4 or greater of Khmer:
+You need `libkhmer.a` and the khmer C++ headers. These should be compiled from
+the `master` branch of khmer, as bugs relevant to our use case exist in the
+latest released version v1.4.1.
 
     git clone https://github.com/dib-lab/khmer.git
-    # Check out version 1.4 of khmer
-    git checkout v1.4
     # Build the library and install it
     cd khmer/lib
     make install PREFIX=$HOME
