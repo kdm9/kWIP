@@ -131,16 +131,4 @@ TEST_CASE("Test kernel.calculate_pairwise method", "[kernel]") {
         REQUIRE_NOTHROW(kernel.print_kernel_mat(kern));
         REQUIRE(kern.str() == kern_matrix);
     }
-
-    SECTION("Check distance matrix") {
-        // kernel2distance happens automatically here
-        std::string dist_matrix {
-            ".\tempty-1\tempty-2\tempty-3\n"
-            "empty-1\t-nan\t-nan\t-nan\n"
-            "empty-2\t-nan\t-nan\t-nan\n"
-            "empty-3\t-nan\t-nan\t-nan\n"
-        };
-        REQUIRE_NOTHROW(kernel.print_distance_mat(dist));
-        REQUIRE(dist.str() == dist_matrix);
-    }
 }
