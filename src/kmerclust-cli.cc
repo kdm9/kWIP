@@ -179,9 +179,9 @@ run_main(int argc, char *argv[])
     kernel.calculate_pairwise(filenames);
 
     // Only save the kernel distance if we have been given a file, or -
-    if (dist_out_name == "-") {
+    if (kern_out_name == "-") {
         kernel.print_kernel_mat();
-    } else if (dist_out_name.size() > 0) {
+    } else if (kern_out_name.size() > 0) {
         kernel.print_kernel_mat(kern_out);
     }
     // Always save the distance matrix, to stdout if we don't have a file
