@@ -79,4 +79,3 @@ Miscellany
 
 - **Naming**: The working title of this software was `kmerclust`, any
   references to `kmerclust` are a result of my poor `sed` skills.
-

@@ -48,6 +48,8 @@ add_hashtable(const std::string &hash_fname)
         __sync_fetch_and_add(&_table_sums[i], tab_count);
     }
 }
+
+
 void
 KernelD2Ent::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
