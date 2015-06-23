@@ -1,10 +1,10 @@
-ADD_EXECUTABLE(test_kmerclust
+ADD_EXECUTABLE(test-kmerclust
                tests.cc
                test-lrucache.cc
                test-kernel.cc
                )
 
-TARGET_LINK_LIBRARIES(test_kmerclust ${KMERCLUST_DEPENDS_LIBRARIES} libkmerclust)
+TARGET_LINK_LIBRARIES(test-kmerclust ${KMERCLUST_DEPENDS_LIBRARIES} libkmerclust)
 
 # Copy test files over to bin dir & make output
 ADD_CUSTOM_TARGET(setup_tests ALL
@@ -16,10 +16,10 @@ ADD_CUSTOM_TARGET(setup_tests ALL
                    ${CMAKE_BINARY_DIR}/data
     COMMAND ${CMAKE_COMMAND} -E make_directory
                    ${CMAKE_BINARY_DIR}/out)
-ADD_DEPENDENCIES(test_kmerclust setup_tests)
+ADD_DEPENDENCIES(test-kmerclust setup_tests)
 
 ADD_TEST(NAME "UnitTests"
-         COMMAND ${CMAKE_BINARY_DIR}/bin/test_kmerclust
+         COMMAND ${CMAKE_BINARY_DIR}/bin/test-kmerclust
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
