@@ -1,14 +1,19 @@
-kmerclust
-=========
+kWIP
+====
 
-Work on clustering samples using kmer analysis
+The k-mer Weighted Inner Product.
+
+This software implements a *de novo*, *alignment free* measure of sample
+genetic dissimilarity which operates upon raw sequencing reads. It is able to
+calculate the genetic dissimilarity between samples without any reference
+genome, and without assembling one.
 
 [![Build Status](http://biojenkins.anu.edu.au/job/kmerclust/badge/icon)](http://biojenkins.anu.edu.au/job/kmerclust/)
 [![gplv3+](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl.html)
 
+
 Installation
 ============
-
 
 You need `libkhmer.a` and the khmer C++ headers. These should be compiled from
 the `master` branch of khmer, as bugs relevant to our use case exist in the
@@ -19,17 +24,50 @@ latest released version v1.4.1.
     cd khmer/lib
     make install PREFIX=$HOME
 
-Then, to compile `kmerclust`:
+Then, to compile `kWIP`:
 
-    git clone https://github.com/kdmurray91/kmerclust.git
-    cd kmerclust
+    git clone https://github.com/kdmurray91/kWIP.git
+    cd kWIP
     mkdir build && cd build  # Out-of-source build for sanity
     cmake .. -DKHMER_ROOT=$HOME
     make
     make test
     make install
 
-The commands above assume you want to install kmerclust and libkhmer to your
+The commands above assume you want to install kWIP and libkhmer to your
 home directory. This is probably required on clusters, and necessary without
 root privileges. To install to, e.g, `/usr/local/`, replace all occurrences of
 `$HOME` with your preferred installation prefix.
+
+
+How it works
+============
+
+kWIP works by decomposing sequencing reads to short
+[k-mers](https://en.wikipedia.org/wiki/K-mer),
+[hashing](https://en.wikipedia.org/wiki/Hash_function) these k-mers and
+performing pairwise distance calculation between these sample k-mer hashes. We
+use [`khmer`](https://github.com/dib-lab/khmer) from the DIB lab, UC Davis to
+hash sequencing reads. `KWIP` calculates the distance between samples, in an
+efficient manner, and generates a distance matrix which may be used by
+downstream tools.
+
+More detail will be added here soon.
+
+
+License
+=======
+
+kWIP is Copyright 2015 Kevin Murray, and released under the GNU General Public
+License version 3 (or any later version). See [THANKS.md](./THANKS.md) for a
+list of contributors.
+
+A publication describing kWIP is soon to be released publicly.
+
+
+Miscellany
+==========
+
+- **Naming**: The working title of this software was `kmerclust`, any
+  references to `kmerclust` are a result of my poor `sed` skills.
+
