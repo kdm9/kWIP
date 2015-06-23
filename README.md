@@ -15,9 +15,15 @@ genome, and without assembling one.
 Installation
 ============
 
-You need `libkhmer.a` and the khmer C++ headers. These should be compiled from
-the `master` branch of khmer, as bugs relevant to our use case exist in the
-latest released version v1.4.1.
+TL;DR:
+
+- `libkhmer.a`
+- `cmake>=2.8`
+- A C++11 compiler (gcc >=4.8, clang >=3.4).
+
+`kWIP` depends upon `libkhmer.a` and uses the khmer C++ headers during
+compilation. These should be compiled from the `master` branch of khmer, as
+bugs relevant to our use case exist in the latest released version (v1.4.1).
 
     git clone https://github.com/dib-lab/khmer.git
     # Build the library and install it
@@ -48,9 +54,12 @@ kWIP works by decomposing sequencing reads to short
 [hashing](https://en.wikipedia.org/wiki/Hash_function) these k-mers and
 performing pairwise distance calculation between these sample k-mer hashes. We
 use [`khmer`](https://github.com/dib-lab/khmer) from the DIB lab, UC Davis to
-hash sequencing reads. `KWIP` calculates the distance between samples, in an
-efficient manner, and generates a distance matrix which may be used by
-downstream tools.
+hash sequencing reads. `KWIP` calculates the distance between samples in a
+computationally efficient manner, and generates a distance matrix which may be
+used by downstream tools. The power of `kWIP` comes from the weighting applied
+across different hash values, which decreases the effect of erroneous, rare or
+over-abundant k-mers while focusing on k-mers which give the most insight into
+the similarity of samples.
 
 More detail will be added here soon.
 
