@@ -156,6 +156,7 @@ void
 Kernel::
 _print_mat(std::ostream &outstream, float **matrix)
 {
+    outstream.precision(std::numeric_limits<float>::digits10);
     // Avoid a segfault
     if (matrix == NULL) {
         throw std::runtime_error("Invalid matrix provided");

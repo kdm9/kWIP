@@ -23,6 +23,7 @@
 #include <cassert>
 #include <memory>
 #include <ostream>
+#include <limits>
 
 #ifdef _OPENMP
     #include <omp.h>
