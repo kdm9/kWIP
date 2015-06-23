@@ -17,7 +17,7 @@ pushd khmer-src
 popd
 
 
-# Build kmerclust
+# Build kwip
 rm -rf build
 mkdir build
 pushd build
@@ -25,12 +25,3 @@ pushd build
     make
     ctest --verbose
 popd
-
-# DISABLED: too hard to get the instructions working without messing up the readme
-# check that we can follow the instructions provided for installation
-# rm -rf $wdir/install_test
-# mkdir $wdir/install_test
-# pushd $wdir/install_test
-#     # Process: extract commands, change home directory to above, run
-#     grep '^    ' $wdir/README.md | sed 's,$HOME,$wdir/install_test,g' | bash -xe
-# popd
