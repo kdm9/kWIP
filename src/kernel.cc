@@ -220,8 +220,7 @@ float **
 Kernel::
 get_distance_matrix()
 {
-    kernel_to_distance();
-    return _kernel_mat;
+    return _distance_mat;
 }
 
 void
