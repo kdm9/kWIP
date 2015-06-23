@@ -17,11 +17,6 @@
 
 #include "kwip.hh"
 
-#include "kernels/js.hh"
-#include "kernels/d2freq.hh"
-#include "kernels/d2pop.hh"
-#include "kernels/d2thresh.hh"
-
 #include <getopt.h>
 
 using namespace kmerclust;  // Imports the base classes
@@ -88,12 +83,6 @@ run_main(int argc, char *argv[])
     size_t                      n_options       = cli_long_opts.size();
 
     // Kernel-specific CLI options
-    if (std::is_same<KernelImpl, KernelD2Thresh>::value) {
-        cli_opts += "T:";
-        cli_long_opts.push_back({ "threshold", required_argument, NULL, 'T' });
-        cli_help.push_back(
-            "  -T, --threshold  Threshold for the inner product calculation.");
-    }
 
     // remove argv[0], which is just the binary name. This makes getopt think
     // the kernel name is the binary name, and makes everything work nicely.
@@ -138,21 +127,6 @@ run_main(int argc, char *argv[])
             case 'q':
                 kernel.verbosity = 0;
                 break;
-            case 'T':
-                if (std::is_same<KernelImpl, KernelD2Thresh>::value) {
-                    // Cast to a d2pop
-                    // Because fuck C++, that's why
-                    Kernel         *base  = \
-                                    dynamic_cast<Kernel *>(&kernel);
-                    KernelD2Thresh *d2pop = \
-                                    dynamic_cast<KernelD2Thresh *>(base);
-                    d2pop->set_threshold(atoi(optarg));
-                } else {
-                    // It's an error if any other kernel has '-T'
-                    print_cli_help(prog, kernel_abbrev);
-                    delete [] long_opts;
-                    return EXIT_FAILURE;
-                }
             case '?':
                 // Getopt long prints its own error msg
                 print_cli_help(prog, kernel_abbrev);
@@ -225,18 +199,10 @@ main (int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (strcmp(argv[1], "d2") == 0) {
+    if (strcmp(argv[1], "ip") == 0) {
         return run_main<KernelD2>(argc, argv);
-    } else if (strcmp(argv[1], "d2pop") == 0) {
-        return run_main<KernelD2pop>(argc, argv);
-    } else if (strcmp(argv[1], "d2ent") == 0) {
+    } else if (strcmp(argv[1], "wip") == 0) {
         return run_main<KernelD2Ent>(argc, argv);
-    } else if (strcmp(argv[1], "d2thresh") == 0) {
-        return run_main<KernelD2Thresh>(argc, argv);
-    } else if (strcmp(argv[1], "d2freq") == 0) {
-        return run_main<KernelD2freq>(argc, argv);
-    } else if (strcmp(argv[1], "js") == 0) {
-        return run_main<KernelJS>(argc, argv);
     }
 
     // If we get to here, we have an error
