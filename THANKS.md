@@ -1,9 +1,7 @@
-This is academic software. As such, I recognise the intellectual contribution
-of following colleagues:
+I recognise the contribution of following colleagues:
 
-- Sylvain Foret
-- Cheng-Soon Ong
-- Christfried Webers
-- Norman Warthmann
-- Conrad Burden
-- Terry Neeman
+- Conrad Burden and Sylvain Foret: Discussion about D2
+- Cheng-Soon Ong and Christfried Webers: Discussion, proof of concepts and
+  assistance
+- Norman Warthmann: Dataset wrangling and co-authorship
+- Terry Neeman: Mathematical and statistical assistance

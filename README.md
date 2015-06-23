@@ -15,7 +15,7 @@ genome, and without assembling one.
 Installation
 ============
 
-TL;DR:
+Dependencies:
 
 - `libkhmer.a`
 - `cmake>=2.8`
