@@ -81,26 +81,32 @@ public:
     const std::string           blurb = "A generic base class for kernels.";
     std::ostream               *outstream = &std::cerr;
 
-    Kernel                     ();
-    ~Kernel                    ();
+    Kernel                      ();
+    ~Kernel                     ();
 
     // Calculate the kernel between two counting hashes
     virtual float
-    kernel                     (khmer::CountingHash        &a,
-                                khmer::CountingHash        &b);
+    kernel                      (khmer::CountingHash        &a,
+                                 khmer::CountingHash        &b);
 
     // Calculate the kernel between all pairs of counting hashes in parallel
     virtual void
-    calculate_pairwise         (std::vector<std::string>   &hash_fnames);
+    calculate_pairwise          (std::vector<std::string>   &hash_fnames);
 
     virtual void
-    print_kernel_mat           (std::ostream             &outstream=std::cout);
+    print_kernel_mat            (std::ostream            &outstream=std::cout);
 
     virtual void
-    print_distance_mat         (std::ostream             &outstream=std::cout);
+    print_distance_mat          (std::ostream            &outstream=std::cout);
 
     virtual void
-    kernel_to_distance         ();
+    kernel_to_distance          ();
+
+    virtual float **
+    get_kernel_matrix           ();
+
+    virtual float **
+    get_distance_matrix         ();
 
 };
 

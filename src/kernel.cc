@@ -206,6 +206,24 @@ print_distance_mat(std::ostream &outstream)
     _print_mat(outstream, _distance_mat);
 }
 
+float **
+Kernel::
+get_kernel_matrix()
+{
+    if (_kernel_mat == NULL) {
+        throw std::runtime_error("No kernel matrix exists");
+    }
+    return _kernel_mat;
+}
+
+float **
+Kernel::
+get_distance_matrix()
+{
+    kernel_to_distance();
+    return _kernel_mat;
+}
+
 void
 Kernel::
 kernel_to_distance()
