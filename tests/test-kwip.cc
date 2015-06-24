@@ -52,8 +52,11 @@ TEST_CASE("Test kwip.kernel method", "[kernel]") {
             for (size_t j = 0; j < 3; j++) {
                 CAPTURE(i);
                 CAPTURE(j);
-                REQUIRE(dmat[i][j] == dmat_expt[i][j]);
-                REQUIRE(kmat[i][j] == kmat_expt[i][j]);
+                CAPTURE(dmat[i][j]);
+                CAPTURE(kmat[i][j]);
+
+                CHECK(dmat[i][j] == Approx(dmat_expt[i][j]));
+                CHECK(kmat[i][j] == Approx(kmat_expt[i][j]));
             }
         }
     }
