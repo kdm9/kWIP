@@ -22,46 +22,49 @@
 using namespace kmerclust;  // Imports the base classes
 using namespace kmerclust::metrics;  // Imports the KernelXXX classes
 
-static std::string cli_opts = "t:k:d:hVvq";
+static std::string prog_name = "kwip";
+static std::string cli_opts = "t:k:d:hUVvq";
 
-static std::vector<struct option>
-cli_long_opts = {
+static const struct option cli_long_opts[] = {
     { "threads",    required_argument,  NULL,   't' },
     { "kernel",     required_argument,  NULL,   'k' },
     { "distance",   required_argument,  NULL,   'd' },
     { "help",       no_argument,        NULL,   'h' },
+    { "unweighted", no_argument,        NULL,   'U' },
     { "version",    no_argument,        NULL,   'V' },
     { "verbose",    no_argument,        NULL,   'v' },
     { "quiet",      no_argument,        NULL,   'q' },
 };
 
 static std::vector<std::string>
-cli_help = {
-    "  -t, --threads    Number of threads to utilise [default N_CPUS].",
-    "  -k, --kernel     Output file for the kernel matrix. [default None]",
-    "  -d, --distance   Output file for the distance matrix. [default stdout]",
-    "  -V, --version    Print the version string.",
-    "  -v, --verbose    Increase verbosity.",
-    "  -q, --quiet      Execute silently but for errors.",
+cli_help {
+" -t, --threads     Number of threads to utilise [default N_CPUS].",
+" -k, --kernel      Output file for the kernel matrix. [default None]",
+" -d, --distance    Output file for the distance matrix. [default stdout]",
+" -U, --unweighted  Use the unweighted inner proudct kernel. [default off]",
+" -V, --version     Print the version string.",
+" -v, --verbose     Increase verbosity. May or may not acutally do anything.",
+" -q, --quiet       Execute silently but for errors.",
 };
 
 void
-print_cli_help(std::string prog, std::string kernel)
+print_cli_help()
 {
     using namespace std;
 
     print_version();
     cerr << endl;
 
-    cerr << "USAGE: " << prog << " " << kernel << " [options] hashes" << endl
-         << endl;
+    cerr << "USAGE: " << prog_name << " [options] hashes" << endl << endl;
     cerr << "OPTIONS:"<< endl;
-    for (auto str: cli_help) {
+    for (const auto &str: cli_help) {
         cerr << str << endl;
     }
-    cerr << endl;
-    cerr << "Khmer CountingHashes should be specified as files after arguments, e.g:" << endl;
-    cerr << prog << " " << kernel << " *.kh" << endl;
+    cerr << endl
+         << "Each sample's oxli Countgraph should be specified after arguments:"
+         << endl
+         << prog_name << " [options] sample1.ct sample2.ct ... sampleN.ct"
+         << endl;
 }
 
 template<typename KernelImpl>
@@ -78,28 +81,9 @@ run_main(int argc, char *argv[])
     std::vector<std::string>    filenames;
     std::string                 prog            = argv[0];
     std::string                 kernel_abbrev   = argv[1];
-    const char                 *opts;
-    struct option              *long_opts;
-    size_t                      n_options       = cli_long_opts.size();
 
-    // Kernel-specific CLI options
-
-    // remove argv[0], which is just the binary name. This makes getopt think
-    // the kernel name is the binary name, and makes everything work nicely.
-    argc--;
-    argv++;
-
-    // Create option C string
-    opts = cli_opts.c_str();
-
-    // Create long options array
-    long_opts = new struct option[n_options + 1];
-    for (size_t i = 0; i < n_options; i++) {
-        long_opts[i] = cli_long_opts[i];
-    }
-    long_opts[n_options] = {NULL, 0, NULL, 0}; // Add sentinel
-
-    while ((c = getopt_long(argc, argv, opts, long_opts, &option_idx)) > 0) {
+    while ((c = getopt_long(argc, argv, cli_opts.c_str(), cli_long_opts,
+                            &option_idx)) > 0) {
         switch (c) {
             case 't':
                 kernel.num_threads = atol(optarg);
@@ -110,35 +94,26 @@ run_main(int argc, char *argv[])
             case 'd':
                 dist_out_name = optarg;
                 break;
-            case 'h':
-                print_cli_help(prog, kernel_abbrev);
-                std::cerr << std::endl << "---- Kernel Details ----"
-                          << std::endl;
-                std::cerr << std::endl << kernel.blurb << std::endl;
-                delete [] long_opts;
-                return EXIT_SUCCESS;
-            case 'V':
-                print_version();
-                delete [] long_opts;
-                return EXIT_SUCCESS;
             case 'v':
                 kernel.verbosity = 2;
                 break;
             case 'q':
                 kernel.verbosity = 0;
                 break;
+            // This section is for the global options
+            case 'h':
+            case 'V':
+            case 'U':
+                break;
             case '?':
-                // Getopt long prints its own error msg
-                print_cli_help(prog, kernel_abbrev);
-                delete [] long_opts;
+                print_cli_help();
                 return EXIT_FAILURE;
         }
     }
-    delete [] long_opts;
 
     // Ensure we have at least two counting hashes to work with
     if (optind + 1 >= argc) {
-        print_cli_help(prog, kernel_abbrev);
+        print_cli_help();
         return EXIT_FAILURE;
     }
 
@@ -175,39 +150,46 @@ run_main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void
-print_valid_kernels()
-{
-    std::cerr << "Valid kernels are:" << std::endl;
-    std::cerr << "  d2" << std::endl
-              << "  d2pop" << std::endl
-              << "  d2ent" << std::endl
-              << "  d2thresh" << std::endl
-              << "  d2freq" << std::endl
-              << "  js" << std::endl;
-}
-
 int
 main (int argc, char *argv[])
 {
+    bool unweighted = false;
+    prog_name = std::string(argv[0]);
+
     if (argc < 2) {
-        std::cerr << "USAGE: " << argv[0]
-                  << " <kernel> [options] <hashtable> ..." << std::endl;
-        print_valid_kernels();
-        std::cerr << "See " << argv[0] << " <kernel> -h for further help."
-                  << std::endl;
+        print_cli_help();
         return EXIT_FAILURE;
     }
 
-    if (strcmp(argv[1], "ip") == 0) {
-        return run_main<KernelD2>(argc, argv);
-    } else if (strcmp(argv[1], "wip") == 0) {
-        return run_main<KernelD2Ent>(argc, argv);
+    int c;
+    while ((c = getopt_long(argc, argv, cli_opts.c_str(), cli_long_opts,
+                            NULL)) > 0) {
+        switch (c) {
+            case 'h':
+                print_cli_help();
+                return EXIT_SUCCESS;
+            case 'V':
+                print_version();
+                return EXIT_SUCCESS;
+            case 'U':
+                unweighted = true;
+                break;
+            // This section is the kernel options, which we parse in the kernel
+            // main function above.
+            case 't':
+            case 'k':
+            case 'd':
+            case 'q':
+            case 'v':
+                break;
+            case '?':
+                print_cli_help();
+                return EXIT_FAILURE;
+        }
     }
 
-    // If we get to here, we have an error
-    std::cerr << "ERROR: Invalid kernel name " << argv[1] << std::endl
-              << std::endl;
-    print_valid_kernels();
-    return EXIT_FAILURE;
+    if (unweighted) {
+        return run_main<KernelD2>(argc, argv);
+    }
+    return run_main<KernelD2Ent>(argc, argv);
 }
