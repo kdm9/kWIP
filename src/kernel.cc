@@ -238,12 +238,12 @@ kernel_to_distance()
         throw std::runtime_error("No kernel matrix exists");
     }
 
-    float **tmp_mat = new float *[num_samples];
+    float **norm_kern_mat = new float *[num_samples];
     for (size_t i = 0; i < num_samples; i++) {
-        tmp_mat[i] = new float[num_samples];
+        norm_kern_mat[i] = new float[num_samples];
     }
 
-    // Store the diagonal of the matrix
+    // Normalise the diagonal of the matrix to 1
     for (size_t i = 0; i < num_samples; i++) {
         diag[i] = _kernel_mat[i][i];
     }
@@ -252,13 +252,15 @@ kernel_to_distance()
         for (size_t j = 0; j < num_samples; j++) {
             float this_val = _kernel_mat[i][j];
             float norm_factor = sqrt(diag[i] * diag[j]);
-            tmp_mat[i][j] = this_val / norm_factor;
+            norm_kern_mat[i][j] = this_val / norm_factor;
         }
     }
 
+    // Convert the normalised kernel matrix to distance matrix
     for (size_t i = 0; i < num_samples; i++) {
         for (size_t j = 0; j < num_samples; j++) {
-            float dist = tmp_mat[i][i] + tmp_mat[j][j] - 2 * tmp_mat[i][j];
+            float dist = norm_kern_mat[i][i] + norm_kern_mat[j][j] \
+                         - 2 * norm_kern_mat[i][j];
             if (dist > 0.0) {
                 dist = sqrt(dist);
             }
@@ -268,9 +270,9 @@ kernel_to_distance()
 
     // Free the temporary matrix
     for (size_t i = 0; i < num_samples; i++) {
-        delete[] tmp_mat[i];
+        delete[] norm_kern_mat[i];
     }
-    delete[] tmp_mat;
+    delete[] norm_kern_mat;
 }
 
 CountingHashShrPtr
