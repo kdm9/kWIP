@@ -17,10 +17,10 @@
 
 #include "kwip.hh"
 
-#include "kernels/js.hh"
-#include "kernels/d2freq.hh"
-#include "kernels/d2pop.hh"
-#include "kernels/d2thresh.hh"
+#include "kmerclust/js.hh"
+#include "kmerclust/d2freq.hh"
+#include "kmerclust/d2pop.hh"
+#include "kmerclust/d2thresh.hh"
 
 #include <getopt.h>
 
