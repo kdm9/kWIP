@@ -8,7 +8,7 @@ genetic dissimilarity which operates upon raw sequencing reads. It is able to
 calculate the genetic dissimilarity between samples without any reference
 genome, and without assembling one.
 
-[![Build Status](http://biojenkins.anu.edu.au/job/kmerclust/badge/icon)](http://biojenkins.anu.edu.au/job/kmerclust/)
+[![Build Status](http://biojenkins.anu.edu.au/job/kwip/badge/icon)](http://biojenkins.anu.edu.au/job/kwip/)
 [![gplv3+](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl.html)
 
 
