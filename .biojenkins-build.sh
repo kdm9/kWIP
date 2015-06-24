@@ -18,10 +18,13 @@ popd
 
 
 # Build kwip
-rm -rf build
+rm -rf build target
 mkdir build
+mkdir target
 pushd build
-    cmake $wdir -DKHMER_ROOT=$wdir/khmer/
+    cmake $wdir -DKHMER_ROOT=$wdir/khmer/ -DCMAKE_INSTALL_PREFIX=$wdir/target
     make
     ctest --verbose
+    make install
+    test -x $wdir/target/bin/kwip
 popd
