@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "d2ent.hh"
+#include "wip.hh"
 
 namespace kmerclust
 {

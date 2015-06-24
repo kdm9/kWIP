@@ -15,22 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KMERCLUST_HH
-#define KMERCLUST_HH
+#ifndef KWIP_HH
+#define KWIP_HH
 
 #include <iostream>
 #include <string>
 
-#include <kmerclust-config.hh>
+#include <kwip-config.hh>
 #include <countmin.hh>
 #include <kernel.hh>
 #include <population.hh>
-#include <kernels/d2.hh>
-#include <kernels/d2pop.hh>
-#include <kernels/d2ent.hh>
-#include <kernels/d2freq.hh>
-#include <kernels/d2thresh.hh>
-#include <kernels/js.hh>
+#include <kernels/ip.hh>
+#include <kernels/wip.hh>
 
 namespace kmerclust
 {
@@ -39,4 +35,4 @@ void print_version();
 
 } // end namespace kmerclust
 
-#endif /* KMERCLUST_HH */
+#endif /* KWIP_HH */

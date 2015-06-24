@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(kmerclust)
+PROJECT(kwip)
 
 ###############
 # Cmake Blerg #
@@ -19,12 +19,12 @@ ENABLE_TESTING()
 
 # Default to Release builds
 IF (NOT CMAKE_BUILD_TYPE)
-	SET(CMAKE_BUILD_TYPE Release)
+    SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
 # Version jiggery-pokery
 IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version")
-	# Use version string from ./version
+    # Use version string from ./version
         FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version" VERSION)
 ELSE()
         # git describe as versioning
@@ -54,8 +54,8 @@ SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${KHMER_LIBRARIES})
 INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
 
 IF(NOT KHMER_FOUND)
-	MESSAGE(FATAL_ERROR "Khmer's C++ libary must be installed. "
-	                    "See github.com/kdmurray91/kmerclust for instructions")
+    MESSAGE(FATAL_ERROR "Khmer's C++ libary must be installed. "
+                        "See https://github.com/kdmurray91/kwip for instructions")
 ENDIF()
 
 IF(USE_OPENMP)
@@ -76,19 +76,19 @@ SET(OPT_FLAGS "${OPT_FLAGS} -march=native")
 
 SET(REL_OPT_FLAGS "-O3")
 IF(UNSAFE_MATH)
-	SET(REL_OPT_FLAGS "-ffast-math -Ofast")
+    SET(REL_OPT_FLAGS "-ffast-math -Ofast")
 ENDIF()
 
 IF(ENABLE_ASAN AND ENABLE_TSAN)
-	MESSAGE(FATAL_ERROR "Cannot enable both ThreadSanitizer and AddressSanitizer")
+    MESSAGE(FATAL_ERROR "Cannot enable both ThreadSanitizer and AddressSanitizer")
 ENDIF()
 
 IF(ENABLE_ASAN)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 ENDIF()
 
 IF(ENABLE_TSAN)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
 ENDIF()
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 ${WARN_FLAGS} ${OPT_FLAGS}")
@@ -102,8 +102,8 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/tests/ext)
 
 # Finally, configure the config header
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kmerclust-config.hh.in
-               ${CMAKE_BINARY_DIR}/kmerclust-config.hh)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kwip-config.hh.in
+               ${CMAKE_BINARY_DIR}/kwip-config.hh)
 
 # Libary sources
 ADD_SUBDIRECTORY(src)

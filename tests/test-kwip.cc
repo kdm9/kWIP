@@ -11,7 +11,7 @@
 
 
 #include "helpers.hh"
-#include "kernels/d2ent.hh"
+#include "kernels/wip.hh"
 
 #include "catch.hpp"
 

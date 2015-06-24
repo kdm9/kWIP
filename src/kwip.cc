@@ -9,7 +9,7 @@
  * ============================================================================
  */
 
-#include "kmerclust.hh"
+#include "kwip.hh"
 
 namespace kmerclust
 {

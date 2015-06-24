@@ -15,7 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "kmerclust.hh"
+#include "kwip.hh"
+
+#include "kmerclust/js.hh"
+#include "kmerclust/d2freq.hh"
+#include "kmerclust/d2pop.hh"
+#include "kmerclust/d2thresh.hh"
 
 #include <getopt.h>
 

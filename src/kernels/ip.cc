@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "d2.hh"
+#include "ip.hh"
 
 namespace kmerclust
 {
