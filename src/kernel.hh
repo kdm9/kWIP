@@ -109,6 +109,12 @@ public:
     virtual float **
     get_distance_matrix         ();
 
+    virtual void
+    load                        (std::istream           &instream);
+
+    virtual void
+    save                        (std::ostream           &outstream);
+
 };
 
 } // end namespace kmerclust

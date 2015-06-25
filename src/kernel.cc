@@ -275,6 +275,21 @@ kernel_to_distance()
     delete[] norm_kern_mat;
 }
 
+
+void
+Kernel::
+load(std::istream &instream)
+{
+    (void)instream;
+}
+
+void
+Kernel::
+save(std::ostream &outstream)
+{
+    (void)outstream;
+}
+
 CountingHashShrPtr
 Kernel::
 _get_hash(std::string &filename)
