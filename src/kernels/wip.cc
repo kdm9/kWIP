@@ -134,4 +134,47 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     return tab_kernels[0];
 }
 
+void
+KernelD2Ent::
+load(std::istream &instream)
+{
+    std::string filesig;
+    int64_t      hashsize;
+
+    instream >> filesig;
+    instream >> hashsize;
+
+    if (filesig != _file_sig) {
+        std::runtime_error("Input is not a kWIP WIP bin entropy vector");
+    }
+    if (hashsize <= 0) {
+        std::ostringstream msg;
+        msg << "Invalid number of bins: " <<  hashsize;
+        std::runtime_error(msg.str());
+    }
+
+    _bin_entropies.clear();
+    _bin_entropies.resize(hashsize);
+    for (ssize_t i = 0; i < hashsize; i++) {
+        size_t idx;
+        instream >> idx;
+        instream >> _bin_entropies[i];
+    }
+}
+
+void
+KernelD2Ent::
+save(std::ostream &outstream)
+{
+    if (_bin_entropies.size() < 1) {
+        std::runtime_error("There is no bin entropy vector to save");
+    }
+
+    outstream.precision(std::numeric_limits<float>::digits10);
+    outstream << _file_sig << "\t" << _bin_entropies.size() << "\n";
+    for (size_t i = 0; i < _bin_entropies.size(); i++) {
+        outstream << i << "\t" << _bin_entropies[i] << "\n";
+    }
+}
+
 }} // end namespace kmerclust::metrics

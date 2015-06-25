@@ -61,8 +61,15 @@ public:
             "P_ent = (P[i] / sum P) * - log2(P[i] / sum P)\n"
             " where P is a vector of bin occurance across all samples\n";
 
+    void
+    load                        (std::istream       &instream);
+
+    void
+    save                        (std::ostream       &outstream);
+
 private:
     std::vector<float>      _bin_entropies;
+    const std::string       _file_sig="kWIP_BinEntVector";
 };
 
 }} // end namespace kmerclust::metrics
