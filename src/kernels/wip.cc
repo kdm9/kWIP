@@ -52,7 +52,7 @@ add_hashtable(const std::string &hash_fname)
 
 void
 KernelD2Ent::
-calculate_pairwise(std::vector<std::string> &hash_fnames)
+calculate_entropy_vector(std::vector<std::string> &hash_fnames)
 {
     num_samples = hash_fnames.size();
     #pragma omp parallel for num_threads(num_threads)
@@ -86,6 +86,20 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
                                   ((1 - pop_freq) * -log2(1 - pop_freq));
         }
         sum_bin_entropy += _bin_entropies[bin];
+    }
+}
+
+
+void
+KernelD2Ent::
+calculate_pairwise(std::vector<std::string> &hash_fnames)
+{
+    // Only load samples and calculate the bin entropy vector if we don't have
+    // it already
+    if (_bin_entropies.size() == 0) {
+        calculate_entropy_vector(hash_fnames);
+    } else {
+        num_samples = hash_fnames.size();
     }
 
     // Do the kernel calculation per Kernel's implementation

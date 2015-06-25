@@ -21,6 +21,10 @@
 
 #include "population.hh"
 
+#include <sstream>
+#include <iostream>
+#include <limits>
+
 namespace kmerclust
 {
 namespace metrics
@@ -39,6 +43,9 @@ public:
 
     void
     calculate_pairwise          (std::vector<std::string> &hash_fnames);
+
+    void
+    calculate_entropy_vector    (std::vector<std::string> &hash_fnames);
 
     const std::string       blurb =
             "D2Ent Kernel\n"
