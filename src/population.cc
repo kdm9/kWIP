@@ -85,9 +85,25 @@ _check_pop_counts(khmer::CountingHash &ht)
         _table_sums.push_back(0);
         }
     }
-    // Below here is threadsafe, I think
     omp_unset_lock(&_pop_table_lock);
 }
+
+
+template<typename bin_tp>
+void
+KernelPopulation<bin_tp>::
+_free_pop_counts()
+{
+    omp_set_lock(&_pop_table_lock);
+    if (_pop_counts != NULL) {
+        for (size_t i = 0; i < _n_tables; i++) {
+            delete[] _pop_counts[i];
+        }
+        delete[] _pop_counts;
+    }
+    omp_unset_lock(&_pop_table_lock);
+}
+
 
 template<typename bin_tp>
 void

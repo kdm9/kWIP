@@ -36,9 +36,14 @@ protected:
     omp_lock_t _pop_table_lock;
 
     void
-    _check_pop_counts          (khmer::CountingHash        &ht);
+    _check_pop_counts           (khmer::CountingHash        &ht);
+
+    void
+    _free_pop_counts            ();
+
 public:
     KernelPopulation();
+
     ~KernelPopulation();
 
 #if 0
