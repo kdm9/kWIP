@@ -23,13 +23,15 @@ using namespace kmerclust;  // Imports the base classes
 using namespace kmerclust::metrics;  // Imports the KernelXXX classes
 
 static std::string prog_name = "kwip";
-static std::string cli_opts = "t:k:d:hUVvq";
+static std::string cli_opts = "t:k:d:w:hCUVvq";
 
 static const struct option cli_long_opts[] = {
     { "threads",    required_argument,  NULL,   't' },
     { "kernel",     required_argument,  NULL,   'k' },
     { "distance",   required_argument,  NULL,   'd' },
+    { "weights",    required_argument,  NULL,   'w' },
     { "help",       no_argument,        NULL,   'h' },
+    { "calc-weights", no_argument,      NULL,   'C' },
     { "unweighted", no_argument,        NULL,   'U' },
     { "version",    no_argument,        NULL,   'V' },
     { "verbose",    no_argument,        NULL,   'v' },
@@ -38,13 +40,15 @@ static const struct option cli_long_opts[] = {
 
 static std::vector<std::string>
 cli_help {
-" -t, --threads     Number of threads to utilise [default N_CPUS].",
-" -k, --kernel      Output file for the kernel matrix. [default None]",
-" -d, --distance    Output file for the distance matrix. [default stdout]",
-" -U, --unweighted  Use the unweighted inner proudct kernel. [default off]",
-" -V, --version     Print the version string.",
-" -v, --verbose     Increase verbosity. May or may not acutally do anything.",
-" -q, --quiet       Execute silently but for errors.",
+"-t, --threads       Number of threads to utilise [default N_CPUS].",
+"-k, --kernel        Output file for the kernel matrix. [default None]",
+"-d, --distance      Output file for the distance matrix. [default stdout]",
+"-U, --unweighted    Use the unweighted inner proudct kernel. [default off]",
+"-w, --weights       Input file for bin weight vector.",
+"-C, --calc-weights  Calculate only the bin weight vector, not kernel matrix.",
+"-V, --version       Print the version string.",
+"-v, --verbose       Increase verbosity. May or may not acutally do anything.",
+"-q, --quiet         Execute silently but for errors.",
 };
 
 void
@@ -52,7 +56,6 @@ print_cli_help()
 {
     using namespace std;
 
-    print_version();
     cerr << endl;
 
     cerr << "USAGE: " << prog_name << " [options] hashes" << endl << endl;
@@ -69,7 +72,7 @@ print_cli_help()
 
 template<typename KernelImpl>
 int
-run_main(int argc, char *argv[])
+run_pwcalc(int argc, char *argv[])
 {
     KernelImpl                  kernel;
     int                         option_idx      = 0;
@@ -78,9 +81,8 @@ run_main(int argc, char *argv[])
     std::string                 kern_out_name   = "";
     std::ofstream               dist_out;
     std::ofstream               kern_out;
+    std::ifstream               weights_file;
     std::vector<std::string>    filenames;
-    std::string                 prog            = argv[0];
-    std::string                 kernel_abbrev   = argv[1];
 
     while ((c = getopt_long(argc, argv, cli_opts.c_str(), cli_long_opts,
                             &option_idx)) > 0) {
@@ -100,10 +102,14 @@ run_main(int argc, char *argv[])
             case 'q':
                 kernel.verbosity = 0;
                 break;
+            case 'w':
+                weights_file.open(optarg);
+                break;
             // This section is for the global options
             case 'h':
             case 'V':
             case 'U':
+            case 'C':
                 break;
             case '?':
                 print_cli_help();
@@ -129,6 +135,10 @@ run_main(int argc, char *argv[])
         kern_out.open(kern_out_name);
     }
 
+    if (weights_file.is_open()) {
+        kernel.load(weights_file);
+    }
+
     // Do the pairwise distance calculation
     kernel.calculate_pairwise(filenames);
 
@@ -151,9 +161,81 @@ run_main(int argc, char *argv[])
 }
 
 int
+run_precalc(int argc, char *argv[])
+{
+    KernelD2Ent                 kernel;
+    int                         option_idx      = 0;
+    int                         c               = 0;
+    std::ofstream               weights_file;
+    std::string                 weights_file_name;
+    std::vector<std::string>    filenames;
+
+    while ((c = getopt_long(argc, argv, cli_opts.c_str(), cli_long_opts,
+                            &option_idx)) > 0) {
+        switch (c) {
+            case 't':
+                kernel.num_threads = atol(optarg);
+                break;
+            case 'v':
+                kernel.verbosity = 2;
+                break;
+            case 'q':
+                kernel.verbosity = 0;
+                break;
+            case 'w':
+                weights_file_name = optarg;
+                weights_file.open(optarg);
+                if (!weights_file.is_open()) {
+                    std::cerr << "Error opening weights file '"
+                              << weights_file_name << "'" << std::endl;
+                    print_cli_help();
+                    return EXIT_FAILURE;
+                }
+                break;
+            // This section is for the pairwise calculation main options
+            case 'k':
+            case 'd':
+            // This section is for the global options
+            case 'h':
+            case 'V':
+            case 'U':
+            case 'C':
+                break;
+            case '?':
+                print_cli_help();
+                return EXIT_FAILURE;
+        }
+    }
+
+    // Ensure we have at least two counting hashes to work with
+    if (optind + 1 >= argc) {
+        print_cli_help();
+        return EXIT_FAILURE;
+    }
+
+    if (weights_file_name.size() < 1) {
+        std::cerr << "Weight vector file must be supplied with '-C'"
+                  << std::endl;
+        print_cli_help();
+        return EXIT_FAILURE;
+    }
+
+    for (int i = optind; i < argc; i++) {
+        filenames.push_back(std::string(argv[i]));
+    }
+    kernel.calculate_entropy_vector(filenames);
+
+    kernel.save(weights_file);
+    return EXIT_SUCCESS;
+}
+
+int
 main (int argc, char *argv[])
 {
     bool unweighted = false;
+    bool precalc_weights = false;
+    int retval = 0;
+    int opt = 0;
     prog_name = std::string(argv[0]);
 
     if (argc < 2) {
@@ -163,7 +245,7 @@ main (int argc, char *argv[])
 
     int c;
     while ((c = getopt_long(argc, argv, cli_opts.c_str(), cli_long_opts,
-                            NULL)) > 0) {
+                            &opt)) > 0) {
         switch (c) {
             case 'h':
                 print_cli_help();
@@ -174,6 +256,9 @@ main (int argc, char *argv[])
             case 'U':
                 unweighted = true;
                 break;
+            case 'C':
+                precalc_weights = true;
+                break;
             // This section is the kernel options, which we parse in the kernel
             // main function above.
             case 't':
@@ -181,15 +266,23 @@ main (int argc, char *argv[])
             case 'd':
             case 'q':
             case 'v':
+            case 'w':
                 break;
             case '?':
+                print_version();
                 print_cli_help();
                 return EXIT_FAILURE;
         }
     }
+    // Reset so that getops works later on.
+    optind = 0;
 
-    if (unweighted) {
-        return run_main<KernelD2>(argc, argv);
+    if (precalc_weights) {
+        retval = run_precalc(argc, argv);
+    } else if (unweighted) {
+        retval = run_pwcalc<KernelD2>(argc, argv);
+    } else {
+        retval = run_pwcalc<KernelD2Ent>(argc, argv);
     }
-    return run_main<KernelD2Ent>(argc, argv);
+    return retval;
 }
