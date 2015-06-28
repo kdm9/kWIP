@@ -1,0 +1,13 @@
+language: cpp
+
+env:
+ matrix:
+  - BUILD_TYPE=Release
+  - BUILD_TYPE=Debug
+
+compiler:
+  - clang
+  - gcc
+
+script:
+ - bash .biojenkins-build.sh
