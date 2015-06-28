@@ -1,4 +1,3 @@
-
 set -xe
 
 export wdir=`pwd`
@@ -16,13 +15,18 @@ pushd khmer-src
     popd
 popd
 
+BUILD_TYPE="${BUILD_TYPE:-Debug}"
 
 # Build kwip
 rm -rf build target
 mkdir build
 mkdir target
 pushd build
-    cmake $wdir -DKHMER_ROOT=$wdir/khmer/ -DCMAKE_INSTALL_PREFIX=$wdir/target
+    cmake \
+	    $wdir \
+	    -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+	    -DKHMER_ROOT=$wdir/khmer/ \
+	    -DCMAKE_INSTALL_PREFIX=$wdir/target
     make
     ctest --verbose
     make install
