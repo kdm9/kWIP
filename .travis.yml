@@ -6,7 +6,6 @@ env:
   - BUILD_TYPE=Debug
 
 compiler:
-  - clang
   - gcc
 
 addons:
@@ -16,12 +15,9 @@ addons:
     packages:
     - gcc-4.8
     - g++-4.8
-    - clang
 
 install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+- export CXX="g++-4.8" CC="gcc-4.8"
 
 script:
-# Skip the release clang++ target
- - if [ "$BUILD_TYPE" == "Release" && "$CXX" == "clang++" ] ; then exit 0; fi
  - bash .biojenkins-build.sh
