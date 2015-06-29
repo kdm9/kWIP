@@ -54,8 +54,22 @@ SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${KHMER_LIBRARIES})
 INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
 
 IF(NOT KHMER_FOUND)
-    MESSAGE(FATAL_ERROR "Khmer's C++ libary must be installed. "
-                        "See https://github.com/kdmurray91/kwip for instructions")
+    MESSAGE(STATUS "Khmer's C++ libary must be installed.")
+    MESSAGE(STATUS "Will now download khmer...")
+    FILE(DOWNLOAD "https://github.com/dib-lab/khmer/archive/master.tar.gz"
+                  "${CMAKE_BINARY_DIR}/khmer-master.tar.gz")
+    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                    "${CMAKE_BINARY_DIR}/khmer-master.tar.gz")
+    FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/khmer")
+    MESSAGE(STATUS "Will now compile khmer...")
+    EXECUTE_PROCESS(COMMAND make PREFIX="${CMAKE_BINARY_DIR}/khmer"
+                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-master/lib")
+    EXECUTE_PROCESS(COMMAND make install PREFIX="${CMAKE_BINARY_DIR}/khmer"
+                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-master/lib")
+    MESSAGE(STATUS "Using locally compiled version of khmer...")
+    SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS}
+                               "${CMAKE_BINARY_DIR}/khmer/lib/libkhmer.a")
+    INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/khmer/include")
 ENDIF()
 
 IF(USE_OPENMP)
