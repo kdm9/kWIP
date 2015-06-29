@@ -18,12 +18,4 @@ do
 	set -x
 	$cli $kernel data/empty-[12].ct 2>&1 >$out | tee $err
 	set +x
-
-	out_expect=$tmpdir/${tst}_expect.out
-	cat > $out_expect << END
-.	empty-1	empty-2
-empty-1	-nan	-nan
-empty-2	-nan	-nan
-END
-	diff $out $out_expect
 done
