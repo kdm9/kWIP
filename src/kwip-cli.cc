@@ -40,11 +40,11 @@ static const struct option cli_long_opts[] = {
 
 static std::vector<std::string>
 cli_help {
-"-t, --threads       Number of threads to utilise [default N_CPUS].",
+"-t, --threads       Number of threads to utilise. [default N_CPUS]",
 "-k, --kernel        Output file for the kernel matrix. [default None]",
 "-d, --distance      Output file for the distance matrix. [default stdout]",
 "-U, --unweighted    Use the unweighted inner proudct kernel. [default off]",
-"-w, --weights       Input file for bin weight vector.",
+"-w, --weights       Bin weight vector file (input, or output w/ -C).",
 "-C, --calc-weights  Calculate only the bin weight vector, not kernel matrix.",
 "-V, --version       Print the version string.",
 "-v, --verbose       Increase verbosity. May or may not acutally do anything.",
