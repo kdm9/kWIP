@@ -33,7 +33,7 @@ protected:
     size_t          _n_tables;
     std::vector<khmer::HashIntoType> _tablesizes;
     std::vector<uint64_t> _table_sums;
-    omp_lock_t _pop_table_lock;
+    omp_lock_t      _pop_table_lock;
 
     void
     _check_pop_counts           (khmer::CountingHash        &ht);

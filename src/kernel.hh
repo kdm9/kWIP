@@ -22,8 +22,10 @@
 #include <cmath>
 #include <cassert>
 #include <memory>
-#include <ostream>
 #include <limits>
+#include <iostream>
+#include <string>
+
 
 #ifdef _OPENMP
     #include <omp.h>
@@ -39,7 +41,9 @@
 
 #include <counting.hh>  // Khmer
 
+#include "kwip-utils.hh"
 #include "lrucache.hpp"
+
 
 namespace kmerclust
 {
