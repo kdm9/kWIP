@@ -1,15 +1,16 @@
 /*
  * ============================================================================
  *
- *       Filename:  kmerclust.cc
- *    Description:  Utilities for kmerclust
+ *       Filename:  kwip-utils.cc
+ *    Description:  Utilities for kwip
  *        License:  GPLv3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================
  */
 
-#include "kwip.hh"
+
+#include "kwip-utils.hh"
 
 namespace kmerclust
 {

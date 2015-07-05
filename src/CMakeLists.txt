@@ -1,6 +1,6 @@
 # Libary
 ADD_LIBRARY(libkwip
-            kwip.cc
+            kwip-utils.cc
             countmin.cc
             kernel.cc
             population.cc

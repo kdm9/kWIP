@@ -18,21 +18,12 @@
 #ifndef KWIP_HH
 #define KWIP_HH
 
-#include <iostream>
-#include <string>
-
 #include <kwip-config.hh>
+#include <kwip-utils.hh>
 #include <countmin.hh>
 #include <kernel.hh>
 #include <population.hh>
 #include <kernels/ip.hh>
 #include <kernels/wip.hh>
-
-namespace kmerclust
-{
-
-void print_version();
-
-} // end namespace kmerclust
 
 #endif /* KWIP_HH */
