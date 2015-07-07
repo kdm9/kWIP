@@ -2,7 +2,7 @@
  * ============================================================================
  *
  *       Filename:  main.cc
- *    Description:  kmerclust's main test driver
+ *    Description:  kwip's main test driver
  *        License:  GPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *

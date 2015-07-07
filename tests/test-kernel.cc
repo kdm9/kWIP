@@ -16,7 +16,7 @@
 
 
 TEST_CASE("Test kernel before computation", "[kernel]") {
-    kmerclust::Kernel kernel;
+    kwip::Kernel kernel;
 
     SECTION("Test num_threads") {
         // Sensible default
@@ -62,7 +62,7 @@ TEST_CASE("Test kernel before computation", "[kernel]") {
 
 TEST_CASE("Test kernel.kernel method", "[kernel]") {
     using CountingHash = khmer::CountingHash;
-    kmerclust::Kernel kernel;
+    kwip::Kernel kernel;
 
     SECTION("Same hash dimensions") {
         CountingHash a{10, 10000};
@@ -103,7 +103,7 @@ TEST_CASE("Test kernel.kernel method", "[kernel]") {
 
 
 TEST_CASE("Test kernel.calculate_pairwise method", "[kernel]") {
-    kmerclust::Kernel kernel;
+    kwip::Kernel kernel;
     std::ostringstream output;
     std::ostringstream kern;
     std::ostringstream dist;

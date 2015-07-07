@@ -17,7 +17,7 @@
 
 
 TEST_CASE("Test kwip.kernel method", "[kernel]") {
-    kmerclust::metrics::KernelD2Ent kernel;
+    kwip::metrics::KernelD2Ent kernel;
     using CountingHash = khmer::CountingHash;
     std::ostringstream output;
 
