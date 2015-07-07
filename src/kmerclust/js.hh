@@ -27,9 +27,9 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 class KernelJS : public Kernel
@@ -39,5 +39,5 @@ public:
                                 khmer::CountingHash        &b);
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics
 #endif /* JS_HH */

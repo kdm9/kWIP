@@ -17,9 +17,9 @@
 
 #include "d2freq.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 float
@@ -52,4 +52,4 @@ KernelD2freq::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     return tab_kernels[0];
 }
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics

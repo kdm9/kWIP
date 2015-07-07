@@ -17,9 +17,9 @@
 
 #include "js.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 float
@@ -69,4 +69,4 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 }
 
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics
