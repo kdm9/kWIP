@@ -21,7 +21,7 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
 
 template<typename bin_tp>
@@ -64,6 +64,6 @@ public:
     fpr                        ();
 };
 
-} // end namespace kmerclust
+} // end namespace kwip
 
 #endif /* POPULATION_HH */

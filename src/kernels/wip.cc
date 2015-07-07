@@ -17,7 +17,7 @@
 
 #include "wip.hh"
 
-namespace kmerclust
+namespace kwip
 {
 namespace metrics
 {
@@ -177,4 +177,4 @@ save(std::ostream &outstream)
     }
 }
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::metrics

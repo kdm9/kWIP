@@ -21,7 +21,7 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
 namespace metrics
 {
@@ -33,6 +33,6 @@ public:
                                 khmer::CountingHash        &b);
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::metrics
 
 #endif /* D2_HH */

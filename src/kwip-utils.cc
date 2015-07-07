@@ -12,16 +12,16 @@
 
 #include "kwip-utils.hh"
 
-namespace kmerclust
+namespace kwip
 {
 
-const std::string kmerclust_version = KMERCLUST_VERSION;
+const std::string kwip_version = KWIP_VERSION;
 
 void
 print_version()
 {
     using namespace std;
-    cerr << "kmerclust version " << kmerclust_version << endl;
+    cerr << "kwip version " << kwip_version << endl;
 }
 
-} // end namespace kmerclust
+} // end namespace kwip

@@ -17,7 +17,7 @@
 
 #include "population.hh"
 
-namespace kmerclust
+namespace kwip
 {
 
 template<typename bin_tp>
@@ -174,6 +174,6 @@ template class KernelPopulation<uint16_t>;
 template class KernelPopulation<uint32_t>;
 template class KernelPopulation<uint64_t>;
 
-} // end namespace kmerclust
+} // end namespace kwip
 
 

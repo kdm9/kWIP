@@ -17,7 +17,7 @@
 
 #include "ip.hh"
 
-namespace kmerclust
+namespace kwip
 {
 namespace metrics
 {
@@ -45,4 +45,4 @@ KernelD2::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     return tab_scores[0];
 }
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::metrics

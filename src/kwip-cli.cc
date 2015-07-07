@@ -19,8 +19,8 @@
 
 #include <getopt.h>
 
-using namespace kmerclust;  // Imports the base classes
-using namespace kmerclust::metrics;  // Imports the KernelXXX classes
+using namespace kwip;  // Imports the base classes
+using namespace kwip::metrics;  // Imports the KernelXXX classes
 
 static std::string prog_name = "kwip";
 static std::string cli_opts = "t:k:d:w:hCUVvq";

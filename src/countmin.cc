@@ -17,7 +17,7 @@
 
 #include "countmin.hh"
 
-namespace kmerclust
+namespace kwip
 {
 
 template<typename val_tp, typename hash_tp>
@@ -115,4 +115,4 @@ set(hash_tp hash, val_tp val)
 }
 
 
-} // end namespace kmerclust
+} // end namespace kwip

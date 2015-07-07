@@ -25,7 +25,7 @@
 #include <iostream>
 #include <limits>
 
-namespace kmerclust
+namespace kwip
 {
 namespace metrics
 {
@@ -72,7 +72,7 @@ private:
     const std::string       _file_sig="kWIP_BinEntVector";
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::metrics
 
 
 #endif /* D2ENT_HH */

@@ -45,7 +45,7 @@
 #include "lrucache.hpp"
 
 
-namespace kmerclust
+namespace kwip
 {
 
 typedef std::shared_ptr<khmer::CountingHash> CountingHashShrPtr;
@@ -121,6 +121,6 @@ public:
 
 };
 
-} // end namespace kmerclust
+} // end namespace kwip
 
 #endif /* KERNEL_HH */
