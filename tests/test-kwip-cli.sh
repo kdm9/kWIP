@@ -8,7 +8,7 @@ function filesize() {
 	wc -c "$1" | awk '{print $1}'
 }
 
-tmpdir=${TMPDIR:-/tmp}/$RANDOM-kmerclust-tests
+tmpdir=${TMPDIR:-/tmp}/$RANDOM-kwip-tests
 mkdir $tmpdir
 trap "echo rm -rf $tmpdir" EXIT
 
