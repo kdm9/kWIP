@@ -3,7 +3,7 @@
 set -e
 
 cli=bin/kmerclust
-all_kernels="d2 d2ent d2pop d2thresh d2freq js"
+all_kernels="ip wip d2pop d2thresh d2freq js"
 
 tmpdir=${TMPDIR:-/tmp}/$RANDOM-kmerclust-tests
 mkdir $tmpdir
