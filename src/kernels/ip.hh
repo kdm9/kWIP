@@ -26,7 +26,7 @@ namespace kwip
 namespace metrics
 {
 
-class KernelD2 : public Kernel
+class IPKernel : public Kernel
 {
 public:
     float kernel               (khmer::CountingHash        &a,

@@ -23,7 +23,7 @@ namespace metrics
 {
 
 void
-KernelD2Ent::
+WIPKernel::
 add_hashtable(const std::string &hash_fname)
 {
     khmer::CountingHash ht(1, 1);
@@ -51,7 +51,7 @@ add_hashtable(const std::string &hash_fname)
 
 
 void
-KernelD2Ent::
+WIPKernel::
 calculate_entropy_vector(std::vector<std::string> &hash_fnames)
 {
     num_samples = hash_fnames.size();
@@ -91,7 +91,7 @@ calculate_entropy_vector(std::vector<std::string> &hash_fnames)
 
 
 void
-KernelD2Ent::
+WIPKernel::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     // Only load samples and calculate the bin entropy vector if we don't have
@@ -107,7 +107,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 }
 
 float
-KernelD2Ent::
+WIPKernel::
 kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
     std::vector<float> tab_kernels;
@@ -135,7 +135,7 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 }
 
 void
-KernelD2Ent::
+WIPKernel::
 load(std::istream &instream)
 {
     std::string filesig;
@@ -163,7 +163,7 @@ load(std::istream &instream)
 }
 
 void
-KernelD2Ent::
+WIPKernel::
 save(std::ostream &outstream)
 {
     if (_bin_entropies.size() < 1) {

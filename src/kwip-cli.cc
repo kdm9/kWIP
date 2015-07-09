@@ -163,7 +163,7 @@ run_pwcalc(int argc, char *argv[])
 int
 run_precalc(int argc, char *argv[])
 {
-    KernelD2Ent                 kernel;
+    WIPKernel                 kernel;
     int                         option_idx      = 0;
     int                         c               = 0;
     std::ofstream               weights_file;
@@ -280,9 +280,9 @@ main (int argc, char *argv[])
     if (precalc_weights) {
         retval = run_precalc(argc, argv);
     } else if (unweighted) {
-        retval = run_pwcalc<KernelD2>(argc, argv);
+        retval = run_pwcalc<IPKernel>(argc, argv);
     } else {
-        retval = run_pwcalc<KernelD2Ent>(argc, argv);
+        retval = run_pwcalc<WIPKernel>(argc, argv);
     }
     return retval;
 }
