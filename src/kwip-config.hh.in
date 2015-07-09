@@ -18,7 +18,7 @@
 #ifndef VERSION_H_IN
 #define VERSION_H_IN
 
-#define KMERCLUST_VERSION "${VERSION}"
+#define KWIP_VERSION "${VERSION}"
 #cmakedefine ENABLE_MULTITABLE
 
 #endif /* VERSION_H_IN */

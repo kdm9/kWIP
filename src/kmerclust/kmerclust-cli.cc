@@ -24,8 +24,9 @@
 
 #include <getopt.h>
 
-using namespace kmerclust;  // Imports the base classes
-using namespace kmerclust::metrics;  // Imports the KernelXXX classes
+using namespace kwip;  // Imports the base classes
+using namespace kwip::metrics;  // Imports the KernelXXX classes
+using namespace kwip::oldmetrics;  // Imports the old KernelXXX classes
 
 static std::string cli_opts = "t:k:d:hVvq";
 
@@ -205,9 +206,9 @@ void
 print_valid_kernels()
 {
     std::cerr << "Valid kernels are:" << std::endl;
-    std::cerr << "  d2" << std::endl
+    std::cerr << "  ip" << std::endl
+              << "  wip" << std::endl
               << "  d2pop" << std::endl
-              << "  d2ent" << std::endl
               << "  d2thresh" << std::endl
               << "  d2freq" << std::endl
               << "  js" << std::endl;
@@ -225,12 +226,12 @@ main (int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (strcmp(argv[1], "d2") == 0) {
-        return run_main<KernelD2>(argc, argv);
+    if (strcmp(argv[1], "ip") == 0) {
+        return run_main<IPKernel>(argc, argv);
+    } else if (strcmp(argv[1], "wip") == 0) {
+        return run_main<WIPKernel>(argc, argv);
     } else if (strcmp(argv[1], "d2pop") == 0) {
         return run_main<KernelD2pop>(argc, argv);
-    } else if (strcmp(argv[1], "d2ent") == 0) {
-        return run_main<KernelD2Ent>(argc, argv);
     } else if (strcmp(argv[1], "d2thresh") == 0) {
         return run_main<KernelD2Thresh>(argc, argv);
     } else if (strcmp(argv[1], "d2freq") == 0) {

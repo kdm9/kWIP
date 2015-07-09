@@ -21,9 +21,9 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 class KernelD2freq : public Kernel
@@ -43,6 +43,6 @@ public:
             "A_f, B_f = X / sum X, X=A,B\n";
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics
 
 #endif /* D2FREQ_HH */

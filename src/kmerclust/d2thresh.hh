@@ -21,9 +21,9 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 class KernelD2Thresh : public Kernel
@@ -43,6 +43,6 @@ protected:
 
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics
 
 #endif /* D2THRESH_HH */

@@ -9,9 +9,6 @@ TARGET_LINK_LIBRARIES(test-kwip ${KMERCLUST_DEPENDS_LIBRARIES} libkwip)
 
 # Copy test files over to bin dir & make output
 ADD_CUSTOM_TARGET(setup_tests ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-           ${CMAKE_CURRENT_SOURCE_DIR}/test-cli.sh
-                   ${CMAKE_BINARY_DIR}/bin
     COMMAND ${CMAKE_COMMAND} -E copy_directory
            ${CMAKE_CURRENT_SOURCE_DIR}/data
                    ${CMAKE_BINARY_DIR}/data
@@ -24,17 +21,15 @@ ADD_TEST(NAME "UnitTests"
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
-ADD_TEST(NAME "CLIScript"
-         COMMAND ${CMAKE_BINARY_DIR}/bin/test-cli.sh
+ADD_TEST(NAME "kWIP-cli"
+	 COMMAND bash ${CMAKE_SOURCE_DIR}/tests/test-kwip-cli.sh
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
-FOREACH(dist IN ITEMS d2 d2ent d2freq d2pop js d2thresh)
-    ADD_TEST(NAME "cli-${dist}"
-             COMMAND ${CMAKE_BINARY_DIR}/bin/kmerclust ${dist} data/empty-1.ct data/empty-2.ct
-             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-             )
-ENDFOREACH()
+ADD_TEST(NAME "old-cli"
+	 COMMAND bash ${CMAKE_SOURCE_DIR}/tests/test-kmerclust-cli.sh
+         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	 )
 
 SET(COVERAGE_CMD ctest)
 SET(COVERAGE_OUT "${CMAKE_BINARY_DIR}/coverage_html")

@@ -22,7 +22,7 @@
 #include <array>
 #include <vector>
 
-namespace kmerclust
+namespace kwip
 {
 
 template<typename val_tp, typename hash_tp=size_t>
@@ -47,7 +47,7 @@ public:
                                 val_tp by);
 };
 
-} // end namespace kmerclust
+} // end namespace kwip
 
 
 #endif /* COUNTMIN_HH */

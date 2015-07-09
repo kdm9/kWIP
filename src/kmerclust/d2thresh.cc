@@ -17,9 +17,9 @@
 
 #include "d2thresh.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 KernelD2Thresh::
@@ -63,4 +63,4 @@ set_threshold(unsigned int threshold)
 }
 
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics

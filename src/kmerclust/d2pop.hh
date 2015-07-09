@@ -21,9 +21,9 @@
 
 #include "population.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 class KernelD2pop : public KernelPopulation<uint16_t>
@@ -34,7 +34,7 @@ public:
                                 khmer::CountingHash        &b);
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics
 
 
 #endif /* D2POP_HH */

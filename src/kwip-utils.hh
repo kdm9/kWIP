@@ -19,7 +19,7 @@
 
 #include <kwip-config.hh>
 
-namespace kmerclust
+namespace kwip
 {
 
 void print_version();
@@ -31,6 +31,6 @@ vec_min(std::vector<eltype> &vec)
     return *(std::min_element(vec.begin(), vec.end()));
 }
 
-} // end namespace kmerclust
+} // end namespace kwip
 
 #endif /* KWIP_UTILS_HH */

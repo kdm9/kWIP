@@ -17,9 +17,9 @@
 
 #include "d2pop.hh"
 
-namespace kmerclust
+namespace kwip
 {
-namespace metrics
+namespace oldmetrics
 {
 
 float
@@ -58,4 +58,4 @@ KernelD2pop::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     return tab_kernels[0];
 }
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::oldmetrics

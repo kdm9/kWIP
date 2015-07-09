@@ -17,7 +17,7 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
 
 Kernel::
@@ -335,4 +335,4 @@ _check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b)
     }
 }
 
-} // namespace kmerclust
+} // namespace kwip

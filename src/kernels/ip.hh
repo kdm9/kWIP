@@ -21,18 +21,18 @@
 
 #include "kernel.hh"
 
-namespace kmerclust
+namespace kwip
 {
 namespace metrics
 {
 
-class KernelD2 : public Kernel
+class IPKernel : public Kernel
 {
 public:
     float kernel               (khmer::CountingHash        &a,
                                 khmer::CountingHash        &b);
 };
 
-}} // end namespace kmerclust::metrics
+}} // end namespace kwip::metrics
 
 #endif /* D2_HH */
