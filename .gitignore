@@ -34,5 +34,4 @@ tags
 *.RData
 *.Rhistory
 
-build/
 doc/_build/
