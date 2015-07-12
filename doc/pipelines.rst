@@ -53,30 +53,10 @@ Create the file ``sra_run_ids.txt`` with the following contents
     ERR626209
     ERR626210
     ERR626211
-    ERR626212
-    ERR626213
-    ERR626214
-    ERR626215
-    ERR626216
-    ERR626217
-    ERR626218
-    ERR626219
-    ERR626220
-    ERR626221
     ERR619511
     ERR619512
     ERR619513
     ERR619514
-    ERR619515
-    ERR619516
-    ERR619517
-    ERR619518
-    ERR619519
-    ERR619520
-    ERR619521
-    ERR619522
-    ERR619523
-    ERR619524
 
 Download the above sra files:
 
