@@ -29,6 +29,7 @@
 
 # Editor temps
 *.swp
+tags
 
 *.RData
 *.Rhistory
