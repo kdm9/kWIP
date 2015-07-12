@@ -21,6 +21,7 @@ values, which decreases the effect of erroneous, rare or over-abundant
 :math:`k`-mers while focusing on :math:`k`-mers which give the most insight
 into the similarity of samples.
 
+
 Installation
 ~~~~~~~~~~~~
 
@@ -28,7 +29,7 @@ Dependencies:
 
 - liboxli
 - cmake (>=2.8)
-- A C++11 compiler (gcc >=4.8).
+- A C++11 compiler (e.g., gcc >=4.8).
 - A fully POSIX-compliant operating system. ``kWIP`` is fully tested only on
   Debian GNU/Linux, however should work on any modern GNU/Linux and even Apple
   Mac OS X.
@@ -58,8 +59,8 @@ Then, to compile kWIP:
 
 The commands above assume you want to install kWIP and libkhmer to your home
 directory. This is probably required on clusters, and necessary without root
-privileges. To install to, e.g, /usr/local/, replace all occurrences of $HOME
-with your preferred installation prefix.
+privileges. To install to, e.g, ``/usr/local/``, replace all occurrences of
+``$HOME`` with your preferred installation prefix.
 
 
 ``kWIP`` CLI Usage
