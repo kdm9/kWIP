@@ -32,3 +32,11 @@ pushd build
     make install
     test -x $wdir/target/bin/kwip
 popd
+
+
+# Build documentation
+
+pushd doc
+    make
+popd
+
