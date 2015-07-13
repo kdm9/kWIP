@@ -18,7 +18,7 @@ Requirements
 - virutalenvwrapper
 - git
 - the SRA toolkit
-- ``kWIP``, installed such that the ``kwip`` binary is on ``$PATH``
+- ``kWIP``, installed such that the ``kwip`` binary is in ``$PATH``
 - We also need the ``img.R`` script which comes with ``kWIP``, but isn't
   installed. Hereafter I assume that you have this script in the analysis
   directory, ``~/rice_kwip``. Copy it with ``cp util/img.R ~/rice_kwip`` from
@@ -63,7 +63,7 @@ Download the above sra files:
 ::
 
     mkdir sra_runs
-    get-run.py -s -f sra_run_ids.txt -d sra_runs
+    get-run.py -s -f sra_run_ids.txt -d sra_files
 
 And export them to FASTQ files:
 
@@ -79,7 +79,7 @@ And export them to FASTQ files:
             --readids                           \
             --defline-seq '@$sn/$ri'            \
             --defline-qual '+'                  \
-            sra_runs/${srr}.sra |               \
+            sra_files/${srr}.sra |               \
             gzip  > fastqs/${srr}.fastq.gz
     done
 
@@ -113,13 +113,13 @@ This creates a count-min sketch with a single table (OK, it's just a hash, :])
 and a billion bins. This is saved, with gzip compression, to the ``*.ct.gz``
 files under ``./hashes``. These are the direct input to ``kwip``. Note that
 this hash is probably a bit small for this dataset, but we will go ahead anyway
-so this works on most modern laptop.
+so this works on most modern laptops.
 
 
 Distance Calculation
 ^^^^^^^^^^^^^^^^^^^^
 
-So here's the meat of the protocol: calculating the pairwise distances between
+So here's the core of the protocol: calculating the pairwise distances between
 these samples, which are from the two major groups of rice, Indica and
 Japonica.
 
@@ -129,10 +129,11 @@ Japonica.
         -t 3 \
         -k rice.kern \
         -d rice.dist \
+        -w rice-weight-vector-file
         hashes/*.ct.gz
 
 
-This should calculate the distance matrix between these samples.
+This should calculate the weighted distance matrix between these samples.
 
 Now, we should plot these results using the R script ``img.R``. This creates
 plots of the distance and kernel matrices, as well as a cluster dendrogram and
