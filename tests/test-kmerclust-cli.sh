@@ -5,7 +5,7 @@ set -e
 cli=bin/kmerclust
 all_kernels="ip wip d2pop d2thresh d2freq js"
 
-tmpdir=${TMPDIR:-/tmp}/$RANDOM-kmerclust-tests
+tmpdir=${TMPDIR:-/tmp}/$$-$RANDOM-kmerclust-tests
 mkdir $tmpdir
 trap "echo rm -rf $tmpdir" EXIT
 
