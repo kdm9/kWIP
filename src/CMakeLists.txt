@@ -1,4 +1,3 @@
-# Libary
 ADD_LIBRARY(libkwip
             kwip-utils.cc
             countmin.cc
@@ -11,7 +10,7 @@ ADD_LIBRARY(libkwip
 SET_TARGET_PROPERTIES(libkwip PROPERTIES OUTPUT_NAME kwip)
 TARGET_LINK_LIBRARIES(libkwip ${KMERCLUST_DEPENDS_LIBS})
 
-# Executable
+
 ADD_EXECUTABLE(kmerclust
                kmerclust/kmerclust-cli.cc
                kmerclust/js.cc
@@ -22,7 +21,11 @@ ADD_EXECUTABLE(kmerclust
 TARGET_LINK_LIBRARIES(kmerclust ${KMERCLUST_DEPENDS_LIBS} libkwip)
 
 
-# Executable
 ADD_EXECUTABLE(kwip kwip-cli.cc)
 TARGET_LINK_LIBRARIES(kwip ${KMERCLUST_DEPENDS_LIBS} libkwip)
 INSTALL(TARGETS kwip DESTINATION "bin")
+
+
+ADD_EXECUTABLE(kwip-entvec utils/entvec.cc)
+TARGET_LINK_LIBRARIES(kwip-entvec ${KMERCLUST_DEPENDS_LIBS} libkwip)
+INSTALL(TARGETS kwip-entvec DESTINATION "bin")

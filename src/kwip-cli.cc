@@ -46,6 +46,7 @@ cli_help {
 "-U, --unweighted    Use the unweighted inner proudct kernel. [default off]",
 "-w, --weights       Bin weight vector file (input, or output w/ -C).",
 "-C, --calc-weights  Calculate only the bin weight vector, not kernel matrix.",
+"-h, --help          Print this help message.",
 "-V, --version       Print the version string.",
 "-v, --verbose       Increase verbosity. May or may not acutally do anything.",
 "-q, --quiet         Execute silently but for errors.",
