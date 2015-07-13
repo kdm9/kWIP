@@ -129,7 +129,6 @@ Japonica.
         -t 3 \
         -k rice.kern \
         -d rice.dist \
-        -w rice-weight-vector-file
         hashes/*.ct.gz
 
 
