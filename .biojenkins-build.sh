@@ -23,10 +23,10 @@ mkdir build
 mkdir target
 pushd build
     cmake \
-	    $wdir \
-	    -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-	    -DKHMER_ROOT=$wdir/khmer/ \
-	    -DCMAKE_INSTALL_PREFIX=$wdir/target
+        $wdir \
+        -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+        -DKHMER_ROOT=$wdir/khmer/ \
+        -DCMAKE_INSTALL_PREFIX=$wdir/target
     make
     ctest --verbose
     make install
@@ -36,7 +36,9 @@ popd
 
 # Build documentation
 
-pushd doc
-    make
-popd
-
+if [ -x "$(which sphinx-build)" ]
+then
+    pushd doc
+        make
+    popd
+fi
