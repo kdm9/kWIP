@@ -123,7 +123,7 @@ TEST_CASE("Test kernel.calculate_pairwise method", "[kernel]") {
 
     SECTION("Check kernel matrix") {
         std::string kern_matrix {
-            ".\tempty-1\tempty-2\tempty-3\n"
+            "\tempty-1\tempty-2\tempty-3\n"
             "empty-1\t0\t0\t0\n"
             "empty-2\t0\t0\t0\n"
             "empty-3\t0\t0\t0\n"
