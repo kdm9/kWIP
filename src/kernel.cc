@@ -176,7 +176,6 @@ _print_mat(std::ostream &outstream, float **matrix)
     }
 
     // Header row
-    outstream << "."; // Marker for the far top left cell
     for (const auto &sample: sample_names) {
         outstream << "\t" << sample;
     }
