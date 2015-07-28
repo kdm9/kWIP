@@ -34,18 +34,18 @@ add_hashtable(const std::string &hash_fname)
 
     counts = ht.get_raw_tables();
 
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t tab = 0; tab < _n_tables; tab++) {
         uint64_t tab_count = 0;
         // Save these here to avoid dereferencing twice below.
-        uint16_t *this_popcount = _pop_counts[i];
-        khmer::Byte *this_count = counts[i];
-        for (size_t j = 0; j < _tablesizes[i]; j++) {
+        uint16_t *this_popcount = _pop_counts[tab];
+        khmer::Byte *this_count = counts[tab];
+        for (size_t j = 0; j < _tablesizes[tab]; j++) {
             if (this_count[j] > 0) {
                 __sync_fetch_and_add(&(this_popcount[j]), 1);
             }
             tab_count += this_count[j];
         }
-        __sync_fetch_and_add(&_table_sums[i], tab_count);
+        __sync_fetch_and_add(&_table_sums[tab], tab_count);
     }
 }
 
@@ -71,21 +71,22 @@ calculate_entropy_vector(std::vector<std::string> &hash_fnames)
         *outstream << "FPR: " << this->fpr() << std::endl;
     }
 
-    double sum_bin_entropy = 0.0;
     _bin_entropies.clear();
-    _bin_entropies.assign(_tablesizes[0], 0.0);
-    for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
-        unsigned int bin_n_samples = _pop_counts[0][bin];
-        if (bin_n_samples == 0 || bin_n_samples == num_samples) {
-            // Kmer not found in the population, or in all samples.
-            // entropy will be 0, so bail out here
-            _bin_entropies[bin] = 0.0;
-        } else {
-            const float pop_freq = (float)bin_n_samples / (float)num_samples;
-            _bin_entropies[bin] = (pop_freq * -log2(pop_freq)) +
-                                  ((1 - pop_freq) * -log2(1 - pop_freq));
+    for (size_t tab = 0; tab < _n_tables; tab++) {
+        _bin_entropies.emplace_back(_tablesizes[tab], 0.0);
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            // Number of samples in popn with non-zero for this bin
+            unsigned int pop_count = _pop_counts[tab][bin];
+            if (0 < pop_count && pop_count < num_samples) {
+                const float pop_freq = (float)pop_count / (float)num_samples;
+                // Shannon entropy is
+                // sum for all states p_state * -log_2(p_state)
+                // We have two states, present & absent
+                _bin_entropies[tab][bin] =  \
+                        (pop_freq * -log2(pop_freq)) +
+                        ((1 - pop_freq) * -log2(1 - pop_freq));
+            }
         }
-        sum_bin_entropy += _bin_entropies[bin];
     }
 }
 
@@ -110,34 +111,46 @@ float
 WIPKernel::
 kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 {
-    std::vector<float> tab_kernels;
-    khmer::Byte **a_counts = a.get_raw_tables();
-    khmer::Byte **b_counts = b.get_raw_tables();
+    std::vector<float>          tab_kernels;
+    khmer::Byte               **a_counts = a.get_raw_tables();
+    khmer::Byte               **b_counts = b.get_raw_tables();
 
     _check_hash_dimensions(a, b);
 
-    for (size_t tab = 0; tab < 1; tab++) {
-        float tab_kernel = 0.0;
-        double sum_a = 0, sum_b = 0;
-        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            sum_a += a_counts[tab][bin];
-            sum_b += b_counts[tab][bin];
+    for (size_t tab_a = 0; tab_a < _n_tables; tab_a++) {
+        for (size_t tab_b = 0; tab_b < _n_tables; tab_b++) {
+            float tab_kernel = 0.0;
+            double sum_a = 0, sum_b = 0;
+            size_t min_tabsize = std::min(_tablesizes[tab_a],
+                                          _tablesizes[tab_b]);
+            for (size_t bin = 0; bin < min_tabsize; bin++) {
+                sum_a += a_counts[tab_a][bin];
+                sum_b += b_counts[tab_b][bin];
+            }
+            for (size_t bin = 0; bin < min_tabsize; bin++) {
+                float bin_entropy;
+                if (tab_a == tab_b) {
+                    bin_entropy = _bin_entropies[tab_a][bin];
+                } else {
+                    float ent_a = _bin_entropies[tab_a][bin];
+                    float ent_b = _bin_entropies[tab_b][bin];
+                    bin_entropy = sqrt(ent_a * ent_b);
+                }
+                float a_freq = a_counts[tab_a][bin] / sum_a;
+                float b_freq = b_counts[tab_b][bin] / sum_b;
+                tab_kernel += a_freq * b_freq * bin_entropy;
+            }
+            tab_kernels.push_back(tab_kernel);
         }
-        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            float bin_entropy = _bin_entropies[bin];
-            float a_freq = a_counts[tab][bin] / sum_a;
-            float b_freq = b_counts[tab][bin] / sum_b;
-            tab_kernel += a_freq * b_freq * bin_entropy;
-        }
-        tab_kernels.push_back(tab_kernel);
     }
-    return tab_kernels[0];
+    return vec_min(tab_kernels);
 }
 
 void
 WIPKernel::
 load(std::istream &instream)
 {
+#if 0
     std::string filesig;
     int64_t      hashsize;
 
@@ -160,12 +173,14 @@ load(std::istream &instream)
         instream >> idx;
         instream >> _bin_entropies[i];
     }
+#endif
 }
 
 void
 WIPKernel::
 save(std::ostream &outstream)
 {
+#if 0
     if (_bin_entropies.size() < 1) {
         std::runtime_error("There is no bin entropy vector to save");
     }
@@ -175,6 +190,7 @@ save(std::ostream &outstream)
     for (size_t i = 0; i < _bin_entropies.size(); i++) {
         outstream << i << "\t" << _bin_entropies[i] << "\n";
     }
+#endif
 }
 
 }} // end namespace kwip::metrics

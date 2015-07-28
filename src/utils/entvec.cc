@@ -48,21 +48,22 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         *outstream << "FPR: " << this->fpr() << std::endl;
     }
 
-    double sum_bin_entropy = 0.0;
     _bin_entropies.clear();
-    _bin_entropies.assign(_tablesizes[0], 0.0);
-    for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
-        unsigned int bin_n_samples = _pop_counts[0][bin];
-        if (bin_n_samples == 0 || bin_n_samples == num_samples) {
-            // Kmer not found in the population, or in all samples.
-            // entropy will be 0, so bail out here
-            _bin_entropies[bin] = 0.0;
-        } else {
-            const float pop_freq = (float)bin_n_samples / (float)num_samples;
-            _bin_entropies[bin] = (pop_freq * -log2(pop_freq)) +
-                                  ((1 - pop_freq) * -log2(1 - pop_freq));
+    for (size_t tab = 0; tab < _n_tables; tab++) {
+        _bin_entropies.emplace_back(_tablesizes[tab], 0.0);
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            unsigned int bin_n_samples = _pop_counts[tab][bin];
+            if (bin_n_samples == 0 || bin_n_samples == num_samples) {
+                // Kmer not found in the population, or in all samples.
+                // entropy will be 0, so bail out here
+                _bin_entropies[tab][bin] = 0.0;
+            } else {
+                const float pop_freq = (float)bin_n_samples / (float)num_samples;
+                _bin_entropies[tab][bin] = \
+                        (pop_freq * -log2(pop_freq)) +
+                        ((1 - pop_freq) * -log2(1 - pop_freq));
+            }
         }
-        sum_bin_entropy += _bin_entropies[bin];
     }
 
     if (sample_names.empty()) {
@@ -99,18 +100,22 @@ EntVecIPSummer::
 sample_entvec_sum(khmer::CountingHash &sample)
 {
     khmer::Byte **counts = sample.get_raw_tables();
-    double countentvec_sum = 0.0;
-    double count_sum = 0.0;
+    std::vector<double>     entvecsums;
 
-    for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
-        count_sum += counts[0][bin];
+    for (size_t tab = 0; tab < _n_tables; tab++) {
+        double countentvec_sum = 0.0;
+        double count_sum = 0.0;
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            count_sum += counts[tab][bin];
+        }
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            float bin_entropy = _bin_entropies[tab][bin];
+            float freq = counts[tab][bin] / count_sum;
+            countentvec_sum += freq * bin_entropy;
+        }
+        entvecsums.push_back(countentvec_sum);
     }
-    for (size_t bin = 0; bin < _tablesizes[0]; bin++) {
-        float bin_entropy = _bin_entropies[bin];
-        float freq = counts[0][bin] / count_sum;
-        countentvec_sum += freq * bin_entropy;
-    }
-    return countentvec_sum;
+    return kwip::vec_min(entvecsums);
 }
 
 static std::string prog_name = "kwip-entvec";

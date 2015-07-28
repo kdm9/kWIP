@@ -63,7 +63,7 @@ public:
     save                        (std::ostream       &outstream);
 
 protected:
-    std::vector<float>      _bin_entropies;
+    std::vector<std::vector<float>>  _bin_entropies;
     const std::string       _file_sig="kWIP_BinEntVector";
 };
 

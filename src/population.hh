@@ -21,6 +21,8 @@
 
 #include "kernel.hh"
 
+#include <algorithm>
+
 namespace kwip
 {
 
@@ -29,11 +31,11 @@ class KernelPopulation : public Kernel
 {
 
 protected:
-    bin_tp        **_pop_counts;
-    size_t          _n_tables;
+    bin_tp                **_pop_counts;
+    size_t                  _n_tables;
     std::vector<khmer::HashIntoType> _tablesizes;
-    std::vector<uint64_t> _table_sums;
-    omp_lock_t      _pop_table_lock;
+    std::vector<uint64_t>   _table_sums;
+    omp_lock_t              _pop_table_lock;
 
     void
     _check_pop_counts           (khmer::CountingHash        &ht);
