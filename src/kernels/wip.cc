@@ -128,16 +128,25 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
                 sum_b += b_counts[tab_b][bin];
             }
             for (size_t bin = 0; bin < min_tabsize; bin++) {
-                float bin_entropy;
+                uint8_t a = a_counts[tab_a][bin];
+                uint8_t b = b_counts[tab_b][bin];
+                float bin_entropy = 0.0;
+
+                if (a == 0 || b == 0 ) {
+                    continue;
+                }
                 if (tab_a == tab_b) {
                     bin_entropy = _bin_entropies[tab_a][bin];
                 } else {
-                    float ent_a = _bin_entropies[tab_a][bin];
-                    float ent_b = _bin_entropies[tab_b][bin];
-                    bin_entropy = sqrt(ent_a * ent_b);
+                    const float ent_a = _bin_entropies[tab_a][bin];
+                    const float ent_b = _bin_entropies[tab_b][bin];
+                    const float prod =  ent_a * ent_b;
+                    if (prod > 0.0) {
+                        bin_entropy = sqrt(prod);
+                    }
                 }
-                float a_freq = a_counts[tab_a][bin] / sum_a;
-                float b_freq = b_counts[tab_b][bin] / sum_b;
+                float a_freq = a / sum_a;
+                float b_freq = b / sum_b;
                 tab_kernel += a_freq * b_freq * bin_entropy;
             }
             tab_kernels.push_back(tab_kernel);
