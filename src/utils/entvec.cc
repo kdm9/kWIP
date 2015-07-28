@@ -21,7 +21,7 @@ public:
     void
     calculate_pairwise          (std::vector<std::string> &hash_fnames);
 
-    double
+    std::tuple<double, double>
     sample_entvec_sum           (khmer::CountingHash &sample);
 
 };
@@ -30,7 +30,6 @@ void
 EntVecIPSummer::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
-
     num_samples = hash_fnames.size();
     #pragma omp parallel for num_threads(num_threads)
     for (size_t i = 0; i < num_samples; i++) {
@@ -80,14 +79,17 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
 
-    #pragma omp parallel for schedule(dynamic) num_threads(num_threads)
+    #pragma omp parallel for num_threads(num_threads)
     for (size_t i = 0; i < num_samples; i++) {
         kwip::CountingHashShrPtr ht = _get_hash(hash_fnames[i]);
 
-        double sumentsamp = sample_entvec_sum(*ht);
+        double sumentsamp = 0;
+        double sumsamp = 0;
+        std::tie(sumsamp, sumentsamp) = sample_entvec_sum(*ht);
         #pragma omp critical
         {
-            *tabstream << sample_names[i] << "\t" << sumentsamp << std::endl;
+            *tabstream << sample_names[i] << "\t" << sumentsamp << "\t"
+                       << sumsamp << "\t" << std::endl;
         }
     }
     if (verbosity > 0) {
@@ -95,18 +97,21 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     }
 }
 
-double
+std::tuple<double, double>
 EntVecIPSummer::
 sample_entvec_sum(khmer::CountingHash &sample)
 {
     khmer::Byte **counts = sample.get_raw_tables();
     std::vector<double>     entvecsums;
+    double count_sum = 0.0;
 
     for (size_t tab = 0; tab < _n_tables; tab++) {
         double countentvec_sum = 0.0;
-        double count_sum = 0.0;
-        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            count_sum += counts[tab][bin];
+        if (count_sum == 0.0) {
+            // Count doesn't change between tables, hopefully
+            for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+                count_sum += counts[tab][bin];
+            }
         }
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             float bin_entropy = _bin_entropies[tab][bin];
@@ -115,8 +120,9 @@ sample_entvec_sum(khmer::CountingHash &sample)
         }
         entvecsums.push_back(countentvec_sum);
     }
-    return kwip::vec_min(entvecsums);
+    return std::make_tuple(count_sum, kwip::vec_min(entvecsums));
 }
+
 
 static std::string prog_name = "kwip-entvec";
 static std::string cli_opts = "t:o:hVvq";
