@@ -159,9 +159,8 @@ void
 WIPKernel::
 load(std::istream &instream)
 {
-#if 0
     std::string filesig;
-    int64_t      hashsize;
+    int64_t     hashsize;
 
     instream >> filesig;
     instream >> hashsize;
@@ -176,30 +175,27 @@ load(std::istream &instream)
     }
 
     _bin_entropies.clear();
-    _bin_entropies.resize(hashsize);
+    _bin_entropies.emplace_back(hashsize, 0.0);
     for (ssize_t i = 0; i < hashsize; i++) {
         size_t idx;
         instream >> idx;
-        instream >> _bin_entropies[i];
+        instream >> _bin_entropies[0][i];
     }
-#endif
 }
 
 void
 WIPKernel::
 save(std::ostream &outstream)
 {
-#if 0
     if (_bin_entropies.size() < 1) {
         std::runtime_error("There is no bin entropy vector to save");
     }
 
     outstream.precision(std::numeric_limits<float>::digits10);
-    outstream << _file_sig << "\t" << _bin_entropies.size() << "\n";
-    for (size_t i = 0; i < _bin_entropies.size(); i++) {
-        outstream << i << "\t" << _bin_entropies[i] << "\n";
+    outstream << _file_sig << "\t" << _bin_entropies[0].size() << "\n";
+    for (size_t i = 0; i < _bin_entropies[0].size(); i++) {
+        outstream << i << "\t" << _bin_entropies[0][i] << "\n";
     }
-#endif
 }
 
 }} // end namespace kwip::metrics
