@@ -39,7 +39,7 @@
     #define omp_get_max_threads(x) (1)
 #endif
 
-#include <counting.hh>  // Khmer
+#include <oxli/counting.hh> // liboxli countgraphs
 
 #include "kwip-utils.hh"
 #include "lrucache.hpp"
