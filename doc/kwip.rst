@@ -52,7 +52,7 @@ Then, to compile kWIP:
 
     git clone https://github.com/kdmurray91/kWIP.git
     cd kWIP/build
-    cmake .. -DKHMER_ROOT=$HOME -DCMAKE_INSTALL_PREFIX=$HOME
+    cmake .. -DOXLI_ROOT=$HOME -DCMAKE_INSTALL_PREFIX=$HOME
     make
     make test
     make install

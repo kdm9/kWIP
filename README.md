@@ -39,7 +39,7 @@ Then, to compile `kWIP`:
     git clone https://github.com/kdmurray91/kWIP.git
     cd kWIP
     mkdir build && cd build  # Out-of-source build for sanity
-    cmake .. -DKHMER_ROOT=$HOME
+    make .. -DOXLI_ROOT=$HOME
     make
     make test
     make install

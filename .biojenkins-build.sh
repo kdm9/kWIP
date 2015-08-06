@@ -25,7 +25,7 @@ pushd build
     cmake \
         $wdir \
         -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-        -DKHMER_ROOT=$wdir/khmer/ \
+        -DOXLI_ROOT=$wdir/khmer/ \
         -DCMAKE_INSTALL_PREFIX=$wdir/target
     make
     ctest --verbose
