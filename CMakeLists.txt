@@ -49,12 +49,12 @@ OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
 ## Find Packages and Headers ##
 ###############################
 
-FIND_PACKAGE(khmer 1.3 REQUIRED)
-SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${KHMER_LIBRARIES})
-INCLUDE_DIRECTORIES(${KHMER_INCLUDE_DIRS})
+FIND_PACKAGE(oxli 2.0 REQUIRED)
+SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${OXLI_LIBRARIES})
+INCLUDE_DIRECTORIES(${OXLI_INCLUDE_DIRS})
 
-IF(NOT KHMER_FOUND)
-    MESSAGE(STATUS "Khmer's C++ libary must be installed.")
+IF(NOT OXLI_FOUND)
+    MESSAGE(STATUS "khmer's C++ libary must be installed.")
     MESSAGE(STATUS "Will now download khmer...")
     FILE(DOWNLOAD "https://github.com/dib-lab/khmer/archive/master.tar.gz"
                   "${CMAKE_BINARY_DIR}/khmer-master.tar.gz")
@@ -68,7 +68,7 @@ IF(NOT KHMER_FOUND)
                     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-master/lib")
     MESSAGE(STATUS "Using locally compiled version of khmer...")
     SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS}
-                               "${CMAKE_BINARY_DIR}/khmer/lib/libkhmer.a")
+                               "${CMAKE_BINARY_DIR}/khmer/lib/liboxli.a")
     INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/khmer/include")
 ENDIF()
 
