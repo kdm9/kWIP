@@ -115,7 +115,8 @@ sample_entvec_sum(khmer::CountingHash &sample)
             }
         }
         if (count_sum == 0.0) {
-            // Wat, there's nothing here.
+            // Wat! There's nothing in this table. Skip this table to avoid a
+            // div-by-zero.
             entvecsums.push_back(0.0);
             continue;
         }
