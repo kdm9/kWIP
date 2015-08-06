@@ -79,6 +79,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
 
+    *tabstream << "Sample\tSampleSum\tWeightedSampleSum\n";
     #pragma omp parallel for num_threads(num_threads)
     for (size_t i = 0; i < num_samples; i++) {
         kwip::CountingHashShrPtr ht = _get_hash(hash_fnames[i]);
@@ -88,8 +89,8 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         std::tie(sumsamp, sumentsamp) = sample_entvec_sum(*ht);
         #pragma omp critical
         {
-            *tabstream << sample_names[i] << "\t" << sumentsamp << "\t"
-                       << sumsamp << "\t" << std::endl;
+            *tabstream << sample_names[i] << "\t" << sumsamp << "\t"
+                       << sumentsamp << "\n";
         }
     }
     if (verbosity > 0) {
@@ -101,9 +102,9 @@ std::tuple<double, double>
 EntVecIPSummer::
 sample_entvec_sum(khmer::CountingHash &sample)
 {
-    khmer::Byte **counts = sample.get_raw_tables();
+    khmer::Byte           **counts      = sample.get_raw_tables();
     std::vector<double>     entvecsums;
-    double count_sum = 0.0;
+    double                  count_sum   = 0.0;
 
     for (size_t tab = 0; tab < _n_tables; tab++) {
         double countentvec_sum = 0.0;
@@ -112,6 +113,11 @@ sample_entvec_sum(khmer::CountingHash &sample)
             for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
                 count_sum += counts[tab][bin];
             }
+        }
+        if (count_sum == 0.0) {
+            // Wat, there's nothing here.
+            entvecsums.push_back(0.0);
+            continue;
         }
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             float bin_entropy = _bin_entropies[tab][bin];
