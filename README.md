@@ -19,6 +19,23 @@ Full documentation is available at https://kwip.readthedocs.org
 Installation
 ============
 
+### The easy way
+
+This will install `kWIP` to `~/bin`. If this is not what you want, use the full
+install instructions below.
+
+    git clone https://github.com/kdmurray91/kWIP.git
+    cd kWIP
+    ./util/simple-build.sh
+
+This will build `khmer` and `kWIP`. Then, to install `kWIP`:
+
+    cd build
+    make install
+
+
+### The full way
+
 Dependencies:
 
 - `libkhmer.a`
