@@ -35,3 +35,4 @@ tags
 *.Rhistory
 
 doc/_build/
+build
