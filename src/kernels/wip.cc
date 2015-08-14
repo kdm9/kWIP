@@ -117,40 +117,26 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     _check_hash_dimensions(a, b);
 
-    for (size_t tab_a = 0; tab_a < _n_tables; tab_a++) {
-        for (size_t tab_b = 0; tab_b < _n_tables; tab_b++) {
-            float tab_kernel = 0.0;
-            double sum_a = 0, sum_b = 0;
-            size_t min_tabsize = std::min(_tablesizes[tab_a],
-                                          _tablesizes[tab_b]);
-            for (size_t bin = 0; bin < min_tabsize; bin++) {
-                sum_a += a_counts[tab_a][bin];
-                sum_b += b_counts[tab_b][bin];
-            }
-            for (size_t bin = 0; bin < min_tabsize; bin++) {
-                uint8_t a = a_counts[tab_a][bin];
-                uint8_t b = b_counts[tab_b][bin];
-                float bin_entropy = 0.0;
-
-                if (a == 0 || b == 0 ) {
-                    continue;
-                }
-                if (tab_a == tab_b) {
-                    bin_entropy = _bin_entropies[tab_a][bin];
-                } else {
-                    const float ent_a = _bin_entropies[tab_a][bin];
-                    const float ent_b = _bin_entropies[tab_b][bin];
-                    const float prod =  ent_a * ent_b;
-                    if (prod > 0.0) {
-                        bin_entropy = sqrt(prod);
-                    }
-                }
-                float a_freq = a / sum_a;
-                float b_freq = b / sum_b;
-                tab_kernel += a_freq * b_freq * bin_entropy;
-            }
-            tab_kernels.push_back(tab_kernel);
+    for (size_t tab = 0; tab < _n_tables; tab++) {
+        float tab_kernel = 0.0;
+        double sum_a = 0, sum_b = 0;
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            sum_a += a_counts[tab][bin];
+            sum_b += b_counts[tab][bin];
         }
+        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            uint8_t a = a_counts[tab][bin];
+            uint8_t b = b_counts[tab][bin];
+
+            if (a == 0 || b == 0 ) {
+                continue;
+            }
+            float bin_entropy = _bin_entropies[tab][bin];
+            float a_freq = a / sum_a;
+            float b_freq = b / sum_b;
+            tab_kernel += a_freq * b_freq * bin_entropy;
+        }
+        tab_kernels.push_back(tab_kernel);
     }
     return vec_min(tab_kernels);
 }

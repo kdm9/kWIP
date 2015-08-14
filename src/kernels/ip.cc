@@ -32,20 +32,15 @@ IPKernel::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     _check_hash_dimensions(a, b);
 
-    for (size_t tab_a = 0; tab_a < tablesizes.size(); tab_a++) {
-        for (size_t tab_b = 0; tab_b < tablesizes.size(); tab_b++) {
-            if (tab_a < tab_b) {
-                continue;
-            }
-            uint64_t tab_kernel = 0;
-            uint64_t tabsz = tablesizes[tab_a];
-            khmer::Byte *A = a_counts[tab_a];
-            khmer::Byte *B = b_counts[tab_b];
-            for (size_t bin = 0; bin < tabsz; bin++) {
-                tab_kernel += A[bin] * B[bin];
-            }
-            tab_scores.push_back(tab_kernel);
+    for (size_t tab = 0; tab < tablesizes.size(); tab++) {
+        uint64_t tab_kernel = 0;
+        uint64_t tabsz = tablesizes[tab];
+        khmer::Byte *A = a_counts[tab];
+        khmer::Byte *B = b_counts[tab];
+        for (size_t bin = 0; bin < tabsz; bin++) {
+            tab_kernel += A[bin] * B[bin];
         }
+        tab_scores.push_back(tab_kernel);
     }
     return vec_min(tab_scores);
 }
