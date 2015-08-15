@@ -18,15 +18,6 @@
 TEST_CASE("Test kernel before computation", "[kernel]") {
     kwip::Kernel kernel;
 
-    SECTION("Test num_threads") {
-        // Sensible default
-        REQUIRE(kernel.num_threads == omp_get_max_threads());
-
-        // Explicit setting
-        kernel.num_threads = 5;
-        REQUIRE(kernel.num_threads == 5);
-    }
-
     SECTION("Test verbosity") {
         // Sensible default
         REQUIRE(kernel.verbosity == 1);

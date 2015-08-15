@@ -110,7 +110,7 @@ void
 KernelPopulation<bin_tp>::
 calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
-    #pragma omp parallel for num_threads(num_threads)
+    #pragma omp parallel for num_threads(_num_threads)
     for (size_t i = 0; i < hash_fnames.size(); i++) {
         add_hashtable(hash_fnames[i]);
         if (verbosity > 0) {

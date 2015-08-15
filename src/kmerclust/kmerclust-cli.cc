@@ -114,7 +114,7 @@ run_main(int argc, char *argv[])
     while ((c = getopt_long(argc, argv, opts, long_opts, &option_idx)) > 0) {
         switch (c) {
             case 't':
-                kernel.num_threads = atol(optarg);
+                kernel.set_num_threads(atol(optarg));
                 break;
             case 'k':
                 kern_out_name = optarg;

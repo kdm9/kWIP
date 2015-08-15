@@ -89,7 +89,7 @@ run_pwcalc(int argc, char *argv[])
                             &option_idx)) > 0) {
         switch (c) {
             case 't':
-                kernel.num_threads = atol(optarg);
+                kernel.set_num_threads(atol(optarg));
                 break;
             case 'k':
                 kern_out_name = optarg;
@@ -175,7 +175,7 @@ run_precalc(int argc, char *argv[])
                             &option_idx)) > 0) {
         switch (c) {
             case 't':
-                kernel.num_threads = atol(optarg);
+                kernel.set_num_threads(atol(optarg));
                 break;
             case 'v':
                 kernel.verbosity = 2;

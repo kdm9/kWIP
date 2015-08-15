@@ -56,6 +56,7 @@ class Kernel
 protected:
     float                     **_kernel_mat;
     float                     **_distance_mat;
+    int                         _num_threads;
     omp_lock_t                  _kernel_mat_lock;
     omp_lock_t                  _distance_mat_lock;
     CountingHashCache           _hash_cache;
@@ -78,7 +79,6 @@ protected:
 
 
 public:
-    int                         num_threads;
     int                         verbosity;
     size_t                      num_samples;
     std::vector<std::string>    sample_names;
@@ -91,18 +91,18 @@ public:
 
     // Calculate the kernel between two counting hashes
     virtual float
-    kernel                      (khmer::CountingHash        &a,
-                                 khmer::CountingHash        &b);
+    kernel                      (khmer::CountingHash   &a,
+                                 khmer::CountingHash   &b);
 
     // Calculate the kernel between all pairs of counting hashes in parallel
     virtual void
-    calculate_pairwise          (std::vector<std::string>   &hash_fnames);
+    calculate_pairwise          (std::vector<std::string> &hash_fnames);
 
     virtual void
-    print_kernel_mat            (std::ostream            &outstream=std::cout);
+    print_kernel_mat            (std::ostream          &outstream=std::cout);
 
     virtual void
-    print_distance_mat          (std::ostream            &outstream=std::cout);
+    print_distance_mat          (std::ostream          &outstream=std::cout);
 
     virtual void
     kernel_to_distance          ();
@@ -114,10 +114,13 @@ public:
     get_distance_matrix         ();
 
     virtual void
-    load                        (std::istream           &instream);
+    load                        (std::istream          &instream);
 
     virtual void
-    save                        (std::ostream           &outstream);
+    save                        (std::ostream          &outstream);
+
+    void
+    set_num_threads             (int                    num_threads);
 
 };
 

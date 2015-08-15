@@ -55,7 +55,7 @@ WIPKernel::
 calculate_entropy_vector(std::vector<std::string> &hash_fnames)
 {
     num_samples = hash_fnames.size();
-    #pragma omp parallel for num_threads(num_threads)
+    #pragma omp parallel for num_threads(_num_threads)
     for (size_t i = 0; i < num_samples; i++) {
         add_hashtable(hash_fnames[i]);
         if (verbosity > 0) {

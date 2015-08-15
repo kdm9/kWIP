@@ -31,8 +31,8 @@ Kernel() :
     omp_init_lock(&_kernel_mat_lock);
     omp_init_lock(&_distance_mat_lock);
     omp_init_lock(&_hash_cache_lock);
-    num_threads = omp_get_max_threads();
-    _hash_cache = CountingHashCache(num_threads*2 + 1);
+    _num_threads = omp_get_max_threads();
+    _hash_cache = CountingHashCache(_num_threads*2 + 1);
 }
 
 Kernel::
@@ -125,7 +125,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
 
-    #pragma omp parallel for schedule(dynamic) num_threads(num_threads)
+    #pragma omp parallel for schedule(dynamic) num_threads(_num_threads)
     for (size_t i = 0; i < num_samples; i++) {
         CountingHashShrPtr ht1 = _get_hash(hash_fnames[i]);
         for (size_t j = 0; j < num_samples; j++) {
@@ -287,6 +287,16 @@ Kernel::
 save(std::ostream &outstream)
 {
     (void)outstream;
+}
+
+void
+Kernel::
+set_num_threads(int num_threads)
+{
+    _num_threads = num_threads;
+
+    // Update the hash cache size
+    _hash_cache = CountingHashCache(_num_threads*2 + 1);
 }
 
 CountingHashShrPtr
