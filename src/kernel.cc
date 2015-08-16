@@ -304,17 +304,25 @@ Kernel::
 _get_hash(std::string &filename)
 {
     CountingHashShrPtr ret;
-    omp_set_lock(&_hash_cache_lock);
     while (1) {
         try {
+            omp_set_lock(&_hash_cache_lock);
             ret = _hash_cache.get(filename);
             omp_unset_lock(&_hash_cache_lock);
+            while (ret == NULL) {
+                ret = _hash_cache.get(filename);
+            }
             return ret;
         } catch (std::range_error &err) {
+            _hash_cache.put(filename, NULL);
+            omp_unset_lock(&_hash_cache_lock);
+
             CountingHashShrPtr ht = \
                     std::make_shared<khmer::CountingHash>(1, 1);
             khmer::CountingHashFile::load(filename, *ht);
+            omp_set_lock(&_hash_cache_lock);
             _hash_cache.put(filename, ht);
+            omp_unset_lock(&_hash_cache_lock);
         }
     }
 }
