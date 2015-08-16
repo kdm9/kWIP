@@ -29,7 +29,7 @@ add_hashtable(const std::string &hash_fname)
     khmer::CountingHash ht(1, 1);
     khmer::Byte **counts;
 
-    CountingHashFile::load(hash_fname, ht);
+    khmer::CountingHashFile::load(hash_fname, ht);
     _check_pop_counts(ht);
 
     counts = ht.get_raw_tables();
