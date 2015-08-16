@@ -19,7 +19,7 @@ else
         rm -rf $wdir/khmer
         mkdir $wdir/khmer
         pushd lib
-            make install PREFIX=$wdir/khmer/
+            make clean all install PREFIX=$wdir/khmer/
         popd
     popd
 
