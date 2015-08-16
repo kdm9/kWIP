@@ -313,7 +313,7 @@ _get_hash(std::string &filename)
         } catch (std::range_error &err) {
             CountingHashShrPtr ht = \
                     std::make_shared<khmer::CountingHash>(1, 1);
-            ht->load(filename);
+            CountingHashFile::load(filename, *ht);
             _hash_cache.put(filename, ht);
         }
     }
