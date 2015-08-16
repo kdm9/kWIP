@@ -303,6 +303,7 @@ CountingHashShrPtr
 Kernel::
 _get_hash(std::string &filename)
 {
+    using namespace std;
     CountingHashShrPtr ret;
     while (1) {
         try {
@@ -311,12 +312,13 @@ _get_hash(std::string &filename)
             omp_unset_lock(&_hash_cache_lock);
             while (ret == NULL) {
                 ret = _hash_cache.get(filename);
+                std::chrono::milliseconds d(2);
+                std::this_thread::sleep_for(d);
             }
             return ret;
         } catch (std::range_error &err) {
             _hash_cache.put(filename, NULL);
             omp_unset_lock(&_hash_cache_lock);
-
             CountingHashShrPtr ht = \
                     std::make_shared<khmer::CountingHash>(1, 1);
             khmer::CountingHashFile::load(filename, *ht);

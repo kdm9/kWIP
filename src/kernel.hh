@@ -25,6 +25,8 @@
 #include <limits>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 
 
 #ifdef _OPENMP
