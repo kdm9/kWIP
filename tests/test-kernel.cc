@@ -100,9 +100,8 @@ TEST_CASE("Test kernel.calculate_pairwise method", "[kernel]") {
     std::ostringstream dist;
     kernel.outstream = &output;
     std::vector<std::string> filenames {
-        "data/empty-1.ct",
-        "data/empty-2.ct",
-        "data/empty-3.ct",
+        "data/empty.ct",
+        "data/empty.ct",
     };
 
     REQUIRE_NOTHROW(kernel.calculate_pairwise(filenames));
@@ -114,10 +113,9 @@ TEST_CASE("Test kernel.calculate_pairwise method", "[kernel]") {
 
     SECTION("Check kernel matrix") {
         std::string kern_matrix {
-            "\tempty-1\tempty-2\tempty-3\n"
-            "empty-1\t0\t0\t0\n"
-            "empty-2\t0\t0\t0\n"
-            "empty-3\t0\t0\t0\n"
+            "\tempty\tempty\n"
+            "empty\t0\t0\n"
+            "empty\t0\t0\n"
         };
         REQUIRE_NOTHROW(kernel.print_kernel_mat(kern));
         REQUIRE(kern.str() == kern_matrix);
