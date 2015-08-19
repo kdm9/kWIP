@@ -90,8 +90,8 @@ gzipped interleaved fastq file.
 Hashing
 ^^^^^^^
 
-We directly utilise Khmer's ``load-into-counting.py`` to hash reads to a
-Count-min sketch or hash.
+We directly utilise ``khmer``'s ``load-into-counting.py`` to hash reads to a
+hash (Countgraph).
 
 ::
 
@@ -109,11 +109,11 @@ Count-min sketch or hash.
             fastqs/${srr}.fastq.gz
     done
 
-This creates a count-min sketch with a single table (OK, it's just a hash, :])
-and a billion bins. This is saved, with gzip compression, to the ``*.ct.gz``
-files under ``./hashes``. These are the direct input to ``kwip``. Note that
-this hash is probably a bit small for this dataset, but we will go ahead anyway
-so this works on most modern laptops.
+This creates a hash with a single table and a billion bins for each run. Hashes
+are saved, with gzip compression, to the ``*.ct.gz`` files under ``./hashes``.
+These hashes are the direct input to ``kwip``. Note that this hash is probably
+a bit small for this dataset, but we will go ahead anyway so this works on most
+modern laptops.
 
 
 Distance Calculation
@@ -126,16 +126,17 @@ Japonica.
 ::
 
     kwip \
-        -t 3 \
+        -t 2 \
         -k rice.kern \
         -d rice.dist \
         hashes/*.ct.gz
 
 
-This should calculate the weighted distance matrix between these samples.
+This should calculate the weighted distance matrix between these samples, using
+two threads.
 
-Now, we should plot these results using the R script ``img.R``. This creates
-plots of the distance and kernel matrices, as well as a cluster dendrogram and
+Now, we plot these results using the R script ``img.R``. This creates plots of
+the distance and kernel matrices, as well as a cluster dendrogram and
 multi-dimensional scaling plot.
 
 ::
@@ -143,4 +144,4 @@ multi-dimensional scaling plot.
     Rscript img.R rice
 
 This should create ``rice.pdf``. Inspect, and you should see two large
-groupings.
+groupings corresponding to the two rice families.
