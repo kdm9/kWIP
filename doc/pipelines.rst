@@ -5,7 +5,7 @@ Example ``kWIP`` Analysis Protocols
 These protocols should work on any computer running a unix-like OS with
 sufficient resources (8GB RAM, two cores, 100GB disk). If any step fails,
 please re-try that step. If you are unable to complete a protocol, this is
-probably a bug in either ``kWIP`` or this protocol, so please let me known by
+probably a bug in either ``kWIP`` or this protocol, so please let me know by
 `creating an issue on GitHub <https://github.com/kdmurray91/kwip/issues/new>`_.
 
 
