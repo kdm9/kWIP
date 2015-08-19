@@ -30,6 +30,7 @@
 # Editor temps
 *.swp
 tags
+*.bak
 
 *.RData
 *.Rhistory
