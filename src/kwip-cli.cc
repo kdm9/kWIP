@@ -239,6 +239,8 @@ main (int argc, char *argv[])
     int opt = 0;
     prog_name = std::string(argv[0]);
 
+    print_version();
+
     if (argc < 2) {
         print_cli_help();
         return EXIT_FAILURE;
@@ -252,7 +254,6 @@ main (int argc, char *argv[])
                 print_cli_help();
                 return EXIT_SUCCESS;
             case 'V':
-                print_version();
                 return EXIT_SUCCESS;
             case 'U':
                 unweighted = true;
@@ -270,7 +271,6 @@ main (int argc, char *argv[])
             case 'w':
                 break;
             case '?':
-                print_version();
                 print_cli_help();
                 return EXIT_FAILURE;
         }
