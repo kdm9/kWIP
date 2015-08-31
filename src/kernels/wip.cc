@@ -57,9 +57,10 @@ calculate_entropy_vector(std::vector<std::string> &hash_fnames)
     num_samples = hash_fnames.size();
     if (verbosity > 0) {
         *outstream << "Calculating entropy weighting vector:" << std::endl;
-        *outstream << "  - Loading all hashes into a population frequency vector:"
+        *outstream << "  - Loading hashes into a population frequency vector:"
                    << std::endl;
     }
+
     #pragma omp parallel for num_threads(_num_threads) schedule(dynamic)
     for (size_t i = 0; i < num_samples; i++) {
         add_hashtable(hash_fnames[i]);
