@@ -55,20 +55,27 @@ WIPKernel::
 calculate_entropy_vector(std::vector<std::string> &hash_fnames)
 {
     num_samples = hash_fnames.size();
-    #pragma omp parallel for num_threads(_num_threads)
+    if (verbosity > 0) {
+        *outstream << "Calculating entropy weighting vector:" << std::endl;
+        *outstream << "  - Loading all hashes into a population frequency vector:"
+                   << std::endl;
+    }
+    #pragma omp parallel for num_threads(_num_threads) schedule(dynamic)
     for (size_t i = 0; i < num_samples; i++) {
         add_hashtable(hash_fnames[i]);
         if (verbosity > 0) {
             #pragma omp critical
             {
-                *outstream << "Loaded " << hash_fnames[i] << std::endl;
+                *outstream << "    - Loaded '" << hash_fnames[i]  << "' ("
+                           << i + 1 << ")" << std::endl;
             }
         }
     }
 
     if (verbosity > 0) {
-        *outstream << "Finished loading!" << std::endl;
-        *outstream << "FPR: " << this->fpr() << std::endl;
+        *outstream << " - Finished loading hashes!" << std::endl;
+        *outstream << " - Occupancy rate of population hash: "
+                   << this->fpr() << std::endl;
     }
 
     _bin_entropies.clear();
