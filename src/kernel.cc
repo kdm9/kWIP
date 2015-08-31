@@ -24,15 +24,12 @@ Kernel::
 Kernel() :
     _kernel_mat(NULL),
     _distance_mat(NULL),
-    _hash_cache(1),
     verbosity(1),
     num_samples(0)
 {
     omp_init_lock(&_kernel_mat_lock);
     omp_init_lock(&_distance_mat_lock);
-    omp_init_lock(&_hash_cache_lock);
     _num_threads = omp_get_max_threads();
-    _hash_cache = CountingHashCache(_num_threads + 5);
 }
 
 Kernel::
@@ -41,7 +38,6 @@ Kernel::
     // Lock these to avoid a race. Very unlikely but doesn't hurt
     omp_set_lock(&_kernel_mat_lock);
     omp_set_lock(&_distance_mat_lock);
-    omp_set_lock(&_hash_cache_lock);
     // Free the kernel matrix if it exists
     if (_kernel_mat != NULL) {
         for (size_t i = 0; i < num_samples; i++) {
@@ -59,7 +55,6 @@ Kernel::
     // Destroy all locks
     omp_destroy_lock(&_kernel_mat_lock);
     omp_destroy_lock(&_distance_mat_lock);
-    omp_destroy_lock(&_hash_cache_lock);
 }
 
 float
@@ -127,15 +122,17 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 
     #pragma omp parallel for schedule(dynamic) num_threads(_num_threads)
     for (size_t i = 0; i < num_samples; i++) {
-        CountingHashShrPtr ht1 = _get_hash(hash_fnames[i]);
+        khmer::CountingHash ht1(1, 1);
+        khmer::CountingHashFile::load(hash_fnames[i], ht1);
         for (size_t j = 0; j < num_samples; j++) {
             float kernel = 0.0;
             if (i > j) {
                 // Skip calculating the bottom half of the matrix
                 continue;
             }
-            CountingHashShrPtr ht2 = _get_hash(hash_fnames[j]);
-            kernel = this->kernel(*ht1, *ht2);
+            khmer::CountingHash ht2(1,1);
+            khmer::CountingHashFile::load(hash_fnames[j], ht2);
+            kernel = this->kernel(ht1, ht2);
             // Fill in both halves of the matrix
             _kernel_mat[i][j] = kernel;
             _kernel_mat[j][i] = kernel;
@@ -294,29 +291,6 @@ Kernel::
 set_num_threads(int num_threads)
 {
     _num_threads = num_threads;
-
-    // Update the hash cache size
-    _hash_cache = CountingHashCache(_num_threads + 5);
-}
-
-CountingHashShrPtr
-Kernel::
-_get_hash(std::string &filename)
-{
-    CountingHashShrPtr ret;
-    omp_set_lock(&_hash_cache_lock);
-    while (1) {
-        try {
-            ret = _hash_cache.get(filename);
-            omp_unset_lock(&_hash_cache_lock);
-            return ret;
-        } catch (std::range_error &err) {
-            CountingHashShrPtr ht = \
-                    std::make_shared<khmer::CountingHash>(1, 1);
-            khmer::CountingHashFile::load(filename, *ht);
-            _hash_cache.put(filename, ht);
-        }
-    }
 }
 
 void

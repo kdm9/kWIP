@@ -82,11 +82,12 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     *tabstream << "Sample\tSampleSum\tWeightedSampleSum\n";
     #pragma omp parallel for num_threads(_num_threads)
     for (size_t i = 0; i < num_samples; i++) {
-        kwip::CountingHashShrPtr ht = _get_hash(hash_fnames[i]);
+        khmer::CountingHash ht(1, 1);
+        khmer::CountingHashFile::load(hash_fnames[i], ht);
 
         double sumentsamp = 0;
         double sumsamp = 0;
-        std::tie(sumsamp, sumentsamp) = sample_entvec_sum(*ht);
+        std::tie(sumsamp, sumentsamp) = sample_entvec_sum(ht);
         #pragma omp critical
         {
             *tabstream << sample_names[i] << "\t" << sumsamp << "\t"
