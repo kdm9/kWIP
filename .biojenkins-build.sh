@@ -15,7 +15,7 @@ else
     # update and install khmer
     pushd khmer-src
         git fetch --all
-        git reset --hard origin/master
+        git reset --hard v2.0
         rm -rf $wdir/khmer
         mkdir $wdir/khmer
         pushd lib
