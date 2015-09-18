@@ -22,10 +22,10 @@ IF (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
+
 # Version jiggery-pokery
-IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version")
-    # Use version string from ./version
-        FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version" VERSION)
+IF ("${KWIP_VERSION}")  # Manually set the version
+	SET(VERSION "${KWIP_VERSION}")
 ELSE()
         # git describe as versioning
         EXECUTE_PROCESS(COMMAND git describe --always
