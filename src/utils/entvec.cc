@@ -21,7 +21,7 @@ public:
     void
     calculate_pairwise          (std::vector<std::string> &hash_fnames);
 
-    std::tuple<double, double>
+    std::tuple<double, double, double>
     sample_entvec_sum           (khmer::CountingHash &sample);
 
 };
@@ -79,18 +79,20 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
 
-    *tabstream << "Sample\tSampleSum\tWeightedSampleSum\tWeight\n";
+    *tabstream << "Sample\tSampleSum\tWeightedSampleSum\tWeight\tEntropy\n";
     #pragma omp parallel for num_threads(_num_threads)
     for (size_t i = 0; i < num_samples; i++) {
         kwip::CountingHashShrPtr ht = _get_hash(hash_fnames[i]);
 
         double sumentsamp = 0;
         double sumsamp = 0;
-        std::tie(sumsamp, sumentsamp) = sample_entvec_sum(*ht);
+        double entropy = 0;
+        std::tie(sumsamp, sumentsamp, entropy) = sample_entvec_sum(*ht);
         #pragma omp critical
         {
             *tabstream << sample_names[i] << "\t" << sumsamp << "\t"
-                       << sumentsamp << "\t" << sumsamp * sumentsamp << "\n";
+                       << sumentsamp << "\t" << sumsamp * sumentsamp << "\t"
+                       << entropy << "\n";
         }
     }
     if (verbosity > 0) {
@@ -98,24 +100,27 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     }
 }
 
-std::tuple<double, double>
+std::tuple<double, double, double>
 EntVecIPSummer::
 sample_entvec_sum(khmer::CountingHash &sample)
 {
     khmer::Byte           **counts      = sample.get_raw_tables();
     std::vector<double>     entvecsums;
     double                  count_sum   = 0.0;
+    double                  entropy = 0.0;
+    std::map<khmer::Byte, size_t> histogram;
 
     for (size_t tab = 0; tab < _n_tables; tab++) {
         double countentvec_sum = 0.0;
         if (count_sum == 0.0) {
             // Count doesn't change between tables, hopefully
             for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+                histogram[counts[tab][bin]] += 1;
                 count_sum += counts[tab][bin];
             }
         }
         if (count_sum == 0.0) {
-            // Wat! There's nothing in this table. Skip this table to avoid a
+            // There's nothing in this table. Skip this table to avoid a
             // div-by-zero.
             entvecsums.push_back(0.0);
             continue;
@@ -127,7 +132,11 @@ sample_entvec_sum(khmer::CountingHash &sample)
         }
         entvecsums.push_back(countentvec_sum);
     }
-    return std::make_tuple(count_sum, kwip::vec_min(entvecsums));
+    for (const auto &pair: histogram) {
+        double fraction = (double)pair.second / _tablesizes[0];
+        entropy += -(fraction * log2(fraction));
+    }
+    return std::make_tuple(count_sum, kwip::vec_min(entvecsums), entropy);
 }
 
 
