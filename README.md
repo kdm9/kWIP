@@ -38,15 +38,15 @@ This will build `khmer` and `kWIP`. Then, to install `kWIP`:
 
 Dependencies:
 
-- `libkhmer.a`
+- `liboxli.a` -- from the DIB-lab's [khmer](https://github.com/dib-lab/khmer)
 - `cmake>=2.8`
 - A C++11 compiler (gcc >=4.8, clang >=3.4).
 
-`kWIP` depends upon `libkhmer.a` and uses the khmer C++ headers during
-compilation. These should be compiled from the `master` branch of khmer, as
-bugs relevant to our use case exist in the latest released version (v1.4.1).
+`kWIP` depends upon `liboxli.a` and the khmer C++ headers during
+compilation, version 2.0 or later.
 
     git clone https://github.com/dib-lab/khmer.git
+    git checkout v2.0
     # Build the library and install it
     cd khmer/lib
     make install PREFIX=$HOME
@@ -56,12 +56,12 @@ Then, to compile `kWIP`:
     git clone https://github.com/kdmurray91/kWIP.git
     cd kWIP
     mkdir build && cd build  # Out-of-source build for sanity
-    make .. -DOXLI_ROOT=$HOME
+    cmake .. -DOXLI_ROOT=$HOME
     make
     make test
     make install
 
-The commands above assume you want to install kWIP and libkhmer to your
+The commands above assume you want to install kWIP and liboxli to your
 home directory. This is probably required on clusters, and necessary without
 root privileges. To install to, e.g, `/usr/local/`, replace all occurrences of
 `$HOME` with your preferred installation prefix.
