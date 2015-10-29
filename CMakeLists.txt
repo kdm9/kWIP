@@ -56,16 +56,16 @@ INCLUDE_DIRECTORIES(${OXLI_INCLUDE_DIRS})
 IF(NOT OXLI_FOUND)
     MESSAGE(STATUS "khmer's C++ libary must be installed.")
     MESSAGE(STATUS "Will now download khmer...")
-    FILE(DOWNLOAD "https://github.com/dib-lab/khmer/archive/master.tar.gz"
-                  "${CMAKE_BINARY_DIR}/khmer-master.tar.gz")
+    FILE(DOWNLOAD "https://github.com/dib-lab/khmer/archive/v2.0.tar.gz"
+                  "${CMAKE_BINARY_DIR}/khmer-v2.0.tar.gz")
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                    "${CMAKE_BINARY_DIR}/khmer-master.tar.gz")
+                    "${CMAKE_BINARY_DIR}/khmer-v2.0.tar.gz")
     FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/khmer")
     MESSAGE(STATUS "Will now compile khmer...")
     EXECUTE_PROCESS(COMMAND make PREFIX="${CMAKE_BINARY_DIR}/khmer"
-                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-master/lib")
+                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-2.0/lib")
     EXECUTE_PROCESS(COMMAND make install PREFIX="${CMAKE_BINARY_DIR}/khmer"
-                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-master/lib")
+                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-2.0/lib")
     MESSAGE(STATUS "Using locally compiled version of khmer...")
     SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS}
                                "${CMAKE_BINARY_DIR}/khmer/lib/liboxli.a")
