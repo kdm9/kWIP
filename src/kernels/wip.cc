@@ -129,8 +129,9 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
         double tab_kernel = 0.0;
         double norm_a = 0, norm_b = 0;
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            norm_a += (uint32_t)a_counts[tab][bin] * (uint32_t)a_counts[tab][bin];
-            norm_b += (uint32_t)b_counts[tab][bin] * (uint32_t)b_counts[tab][bin];
+            float bin_entropy = _bin_entropies[tab][bin];
+            norm_a += pow(a_counts[tab][bin] * bin_entropy, 2);
+            norm_b += pow(b_counts[tab][bin] * bin_entropy, 2);
         }
         norm_a = sqrt(norm_a);
         norm_b = sqrt(norm_b);
@@ -138,13 +139,9 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
             uint32_t a = a_counts[tab][bin];
             uint32_t b = b_counts[tab][bin];
 
-            if (a == 0 || b == 0 ) {
-                continue;
-            }
-            double bin_entropy = _bin_entropies[tab][bin];
-            double a_freq = a / norm_a;
-            double b_freq = b / norm_b;
-            tab_kernel += a_freq * b_freq * bin_entropy;
+            float bin_entropy = _bin_entropies[tab][bin];
+            tab_kernel += (a * bin_entropy / norm_a) *
+                          (b * bin_entropy / norm_b);
         }
         tab_kernels.push_back(tab_kernel);
     }
