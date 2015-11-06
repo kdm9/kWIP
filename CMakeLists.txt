@@ -44,14 +44,17 @@ OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
 OPTION(UNSAFE_MATH "Use -ffast-math in Release build? (costs a little accuracy)" ON)
 OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
 OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
+OPTION(USE_SYSTEM_KHMER "Use a globally pre-installed copy of khmer" OFF)
 
 ###############################
 ## Find Packages and Headers ##
 ###############################
 
-FIND_PACKAGE(oxli 2.0 REQUIRED)
-SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${OXLI_LIBRARIES})
-INCLUDE_DIRECTORIES(${OXLI_INCLUDE_DIRS})
+IF (USE_SYSTEM_KHMER)
+    FIND_PACKAGE(oxli 2.0 REQUIRED)
+    SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${OXLI_LIBRARIES})
+    INCLUDE_DIRECTORIES(${OXLI_INCLUDE_DIRS})
+ENDIF ()
 
 IF(USE_OPENMP)
   FIND_PACKAGE(OpenMP)

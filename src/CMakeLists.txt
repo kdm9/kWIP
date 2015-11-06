@@ -1,4 +1,4 @@
-IF (NOT KHMER_FOUND)
+IF (NOT OXLI_FOUND)
     INCLUDE_DIRECTORIES(ext/khmer)
     FILE(GLOB KHMER_SRC ext/khmer/*.cc)
 ENDIF()
