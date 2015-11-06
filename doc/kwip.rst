@@ -37,11 +37,13 @@ On Debian (or Debian derivatives) the dependencies of `kWIP` can be installed
 with:
 
 ::
+
     sudo apt-get install zlib1g cmake build-essential
 
 Then, to compile `kWIP`:
 
 ::
+
     git clone https://github.com/kdmurray91/kWIP.git
     cd kWIP
     mkdir build && cd build
