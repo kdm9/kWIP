@@ -1,5 +1,8 @@
 This folder contains bundled code from third parties. Licences for each are
-included under their subfolders.
+included under their sub-folders. Distributions packaging kWIP will probably
+want to exclude this, and package each component separately.
+
+Bundled code:
 
  - khmer: The k-mer counting and graph algorithm library. We bundle khmer's C++
    library only as we don't utilise the python interface or scripts.
