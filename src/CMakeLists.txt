@@ -1,6 +1,4 @@
-IF (NOT OXLI_FOUND)
-    INCLUDE_DIRECTORIES(ext)
-    INCLUDE_DIRECTORIES(ext/seqan/core/include)
+IF (NOT USE_SYSTEM_KHMER)
     FILE(GLOB KHMER_SRC ext/oxli/*.cc)
 ENDIF()
 
