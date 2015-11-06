@@ -1,0 +1,5 @@
+This folder contains bundled code from third parties. Licences for each are
+included under their subfolders.
+
+ - khmer: The k-mer counting and graph algorithm library. We bundle khmer's C++
+   library only as we don't utilise the python interface or scripts.
