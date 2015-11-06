@@ -40,7 +40,7 @@ Dependencies:
 
 - `zlib`
 - `cmake>=2.8`
-- A C++11 compiler (gcc >=4.8, clang >=3.4).
+- A C++11 compiler that supports OpenMP (i.e., gcc >=4.8)
 
 On Debian (or Debian derivatives) the dependencies of `kWIP` can be installed
 with:

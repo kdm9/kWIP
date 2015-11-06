@@ -27,40 +27,33 @@ Installation
 
 Dependencies:
 
-- liboxli
 - cmake (>=2.8)
-- A C++11 compiler (e.g., g++ >=4.8).
+- A C++11 compiler that supports OpenMP (e.g., g++ >=4.8).
 - A fully POSIX-compliant operating system. ``kWIP`` is fully tested only on
   Debian GNU/Linux, however should work on any modern GNU/Linux and even Apple
   Mac OS X.
 
-kWIP depends upon liboxli from the `khmer project
-<https://github.com/dib-lab/khmer>`_, version 2.0 or greater.  In Debian
-GNU/Linux, it should soon be possible to install ``liboxli-dev`` using ``sudo
-apt-get install liboxli-dev``. On all other systems, the following commands
-will compile and install ``liboxli``.
+On Debian (or Debian derivatives) the dependencies of `kWIP` can be installed
+with:
 
 ::
+    sudo apt-get install zlib1g cmake build-essential
 
-    git clone https://github.com/dib-lab/khmer.git
-    cd khmer/lib
-    make install PREFIX=$HOME
-
-Then, to compile kWIP:
+Then, to compile `kWIP`:
 
 ::
-
     git clone https://github.com/kdmurray91/kWIP.git
-    cd kWIP/build
-    cmake .. -DOXLI_ROOT=$HOME -DCMAKE_INSTALL_PREFIX=$HOME
+    cd kWIP
+    mkdir build && cd build
+    cmake ..
     make
     make test
     make install
 
-The commands above assume you want to install kWIP and libkhmer to your home
-directory. This is probably required on clusters, and necessary without root
-privileges. To install elsewhere (e.g ``/usr/local/``), replace all occurrences
-of ``$HOME`` with your preferred installation prefix.
+The commands above assume you want to install kWIP to your home directory. This
+is probably required on clusters, and necessary without root privileges. To
+install elsewhere (e.g ``/usr/local/``), replace all occurrences of ``$HOME``
+with your preferred installation prefix.
 
 
 ``kWIP`` CLI Usage
