@@ -1,6 +1,6 @@
 IF (NOT OXLI_FOUND)
-    INCLUDE_DIRECTORIES(ext/khmer)
-    FILE(GLOB KHMER_SRC ext/khmer/*.cc)
+    INCLUDE_DIRECTORIES(ext/oxli)
+    FILE(GLOB KHMER_SRC ext/oxli/*.cc)
 ENDIF()
 
 ADD_LIBRARY(libkwip

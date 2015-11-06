@@ -4,5 +4,6 @@ want to exclude this, and package each component separately.
 
 Bundled code:
 
- - khmer: The k-mer counting and graph algorithm library. We bundle khmer's C++
-   library only as we don't utilise the python interface or scripts.
+ - oxli: (aka khmer) The k-mer counting and graph algorithm library. We bundle
+   khmer's C++ library only as we don't utilise the python interface or
+   scripts.
