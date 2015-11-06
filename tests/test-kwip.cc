@@ -35,23 +35,21 @@ TEST_CASE("Test kwip.kernel method", "[kernel]") {
         kernel.calculate_pairwise(filenames);
 
         std::vector<std::vector<float>> kmat_expt {
-            {0.0102637,     0.00603745,     0.00422621,     0.000533385},
-            {0.00603745,    0.00664119,     0.000603745,    0.000533385},
-            {0.00422621,    0.000603745,     0.00482996,     0.00106677},
-            {0.000533385,   0.000533385,    0.00106677,     0.00746739}
+            {0.283837,    0.142978,  0.109202},
+            {0.142978,    0.134683,  0.0133592},
+            {0.109202,    0.0133592, 0.116609},
         };
         std::vector<std::vector<float>> dmat_expt {
-            {0.0,       0.733113,   0.894153,   1.37207},
-            {0.733113,  0.0,        1.33671,    1.36146},
-            {0.894153,  1.33671,    0.0,        1.285},
-            {1.37207,   1.36146,    1.285,      0.0}
+            {0.0,       0.733113,   0.894153},
+            {0.733113,  0.0,        1.33671},
+            {0.894153,  1.33671,    0.0},
         };
 
         float **kmat = kernel.get_kernel_matrix();
         float **dmat = kernel.get_distance_matrix();
 
-        for (size_t i = 0; i < 3; i++) {
-            for (size_t j = 0; j < 3; j++) {
+        for (size_t i = 0; i < kmat_expt.size(); i++) {
+            for (size_t j = 0; j < kmat_expt.size(); j++) {
                 CAPTURE(i);
                 CAPTURE(j);
                 CAPTURE(dmat[i][j]);
