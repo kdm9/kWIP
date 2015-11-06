@@ -44,33 +44,28 @@ OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
 OPTION(UNSAFE_MATH "Use -ffast-math in Release build? (costs a little accuracy)" ON)
 OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
 OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
+OPTION(USE_SYSTEM_KHMER "Use a globally pre-installed copy of khmer" OFF)
 
 ###############################
 ## Find Packages and Headers ##
 ###############################
 
-FIND_PACKAGE(oxli 2.0 REQUIRED)
-SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${OXLI_LIBRARIES})
-INCLUDE_DIRECTORIES(${OXLI_INCLUDE_DIRS})
+IF (USE_SYSTEM_KHMER)
+    FIND_PACKAGE(oxli 2.0 REQUIRED)
+    SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${OXLI_LIBRARIES})
+    INCLUDE_DIRECTORIES(${OXLI_INCLUDE_DIRS})
+ELSE()
+    INCLUDE_DIRECTORIES(src/ext)
+    INCLUDE_DIRECTORIES(src/ext/seqan/core/include)
+ENDIF ()
 
-IF(NOT OXLI_FOUND)
-    MESSAGE(STATUS "khmer's C++ libary must be installed.")
-    MESSAGE(STATUS "Will now download khmer...")
-    FILE(DOWNLOAD "https://github.com/dib-lab/khmer/archive/v2.0.tar.gz"
-                  "${CMAKE_BINARY_DIR}/khmer-v2.0.tar.gz")
-    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                    "${CMAKE_BINARY_DIR}/khmer-v2.0.tar.gz")
-    FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/khmer")
-    MESSAGE(STATUS "Will now compile khmer...")
-    EXECUTE_PROCESS(COMMAND make PREFIX="${CMAKE_BINARY_DIR}/khmer"
-                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-2.0/lib")
-    EXECUTE_PROCESS(COMMAND make install PREFIX="${CMAKE_BINARY_DIR}/khmer"
-                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/khmer-2.0/lib")
-    MESSAGE(STATUS "Using locally compiled version of khmer...")
-    SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS}
-                               "${CMAKE_BINARY_DIR}/khmer/lib/liboxli.a")
-    INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/khmer/include")
-ENDIF()
+FIND_PACKAGE(ZLIB 1.2.3 REQUIRED)
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+SET(KMERCLUST_DEPENDS_LIBS ${KMERCLUST_DEPENDS_LIBS} ${ZLIB_LIBRARIES})
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ZLIB_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ZLIB_C_FLAGS} -DSEQAN_HAS_ZLIB=1")
+
 
 IF(USE_OPENMP)
   FIND_PACKAGE(OpenMP)

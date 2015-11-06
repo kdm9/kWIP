@@ -1,3 +1,7 @@
+IF (NOT USE_SYSTEM_KHMER)
+    FILE(GLOB KHMER_SRC ext/oxli/*.cc)
+ENDIF()
+
 ADD_LIBRARY(libkwip
             kwip-utils.cc
             countmin.cc
@@ -5,6 +9,7 @@ ADD_LIBRARY(libkwip
             population.cc
             kernels/ip.cc
             kernels/wip.cc
+            ${KHMER_SRC}
             )
 
 SET_TARGET_PROPERTIES(libkwip PROPERTIES OUTPUT_NAME kwip)
