@@ -1,5 +1,6 @@
 This is the `lib` subdirectory of khmer version 2.0's source tarball
-(https://github.com/dib-lab/khmer/archive/v2.0.tar.gz). I have moved
+(https://github.com/dib-lab/khmer/archive/v2.0.tar.gz). I have copied in
 MurmurHash3.* from the `third-party/smhasher` directory of khmer, and deleted
 all testing code from lib (source files test-Colours.cc, test-compile.cc and
-.check_openmp.cc).
+.check_openmp.cc). I have also copied the patched version of seqan that khmer
+bundles.
