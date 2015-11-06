@@ -105,7 +105,7 @@ The Concepts Behind ``kWIP``
 
 The inner product between two vectors is directly related to the distance
 between the vectors in Euclidean space. This has been utilised several times in
-Bioinformatics to implement measures of genetic similarity between two
+bioinformatics to implement measures of genetic similarity between two
 sequences, including the :math:`D2` statistic. Traditionally, the software
 which implement these and similar algorithms operate on known genetic
 sequences, e.g. those taken from a reference genome. ``kWIP``'s innovation is
