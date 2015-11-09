@@ -45,7 +45,7 @@ Dependencies:
 On Debian (or Debian derivatives) the dependencies of `kWIP` can be installed
 with:
 
-    sudo apt-get install zlib1g cmake build-essential
+    sudo apt-get install zlib1g-dev cmake build-essential
 
 Then, to compile `kWIP`:
 
