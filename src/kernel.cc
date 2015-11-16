@@ -120,7 +120,20 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
             } else {
                 base = hash_fnames[i];
             }
-            base = base.substr(0, base.find_first_of("."));
+            std::vector<std::string> exts {
+                ".kh",
+                ".ct",
+                ".cg",
+                ".countgraph",
+            };
+            size_t ext_idx = std::string::npos;
+            for (const auto &ext: exts) {
+                ext_idx = base.find(ext);
+                if (ext_idx != std::string::npos) {
+                    base.erase(ext_idx);
+                    break;
+                }
+            }
             sample_names.push_back(std::string(base));
         }
     }
