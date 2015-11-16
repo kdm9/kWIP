@@ -52,7 +52,7 @@ Then, to compile `kWIP`:
     git clone https://github.com/kdmurray91/kWIP.git
     cd kWIP
     mkdir build && cd build
-    cmake ..
+    cmake .. -DCMAKE_INSTALL_PREFIX=${HOME}
     make
     make test
     make install
