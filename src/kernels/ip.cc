@@ -38,7 +38,7 @@ IPKernel::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
         khmer::Byte *A = a_counts[tab];
         khmer::Byte *B = b_counts[tab];
         for (size_t bin = 0; bin < tabsz; bin++) {
-            tab_kernel += A[bin] * B[bin];
+            tab_kernel += (uint32_t)A[bin] * (uint32_t)B[bin];
         }
         tab_scores.push_back(tab_kernel);
     }
