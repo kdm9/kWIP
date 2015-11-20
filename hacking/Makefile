@@ -2,4 +2,4 @@
 all: eigencalc
 
 eigencalc: eigencalc.cc
-	g++ -o $@ -I/usr/include/eigen3 $^
+	g++ -o $@ -std=c++11 -I/usr/include/eigen3 $^
