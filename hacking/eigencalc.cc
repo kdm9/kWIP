@@ -14,7 +14,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-using Eigen::MatrixXd;
+using namespace Eigen;
 using namespace std;
 
 MatrixXd
@@ -59,7 +59,14 @@ main (int argc, char *argv[])
         return 1;
     }
     MatrixXd lm = load_lsmat(argv[1]);
-    cout << lm.eigenvalues() << endl;
+    VectorXd ev = lm.eigenvalues().real();
+    for (size_t i = 0; i < ev.rows(); i++) {
+        double eigenv = ev[i];
+        if (eigenv < 0.0) {
+            cout << "NEGATIVE EIGENVALUE -- ";
+        }
+        cout << eigenv << endl;
+    }
 
     return 0;
 }
