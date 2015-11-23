@@ -90,9 +90,11 @@ calculate_entropy_vector(std::vector<std::string> &hash_fnames)
                 // Shannon entropy is
                 // sum for all states p_state * -log_2(p_state)
                 // We have two states, present & absent
-                _bin_entropies[tab][bin] =  \
-                        (pop_freq * -log2(pop_freq)) +
-                        ((1 - pop_freq) * -log2(1 - pop_freq));
+                float entropy = (pop_freq * -log2(pop_freq)) +
+                                ((1 - pop_freq) * -log2(1 - pop_freq));
+                // we store the square root of the entropy otherwise we weight
+                // twice in the kernel function (V1 * entropy) * (V2 * entropy)
+                _bin_entropies[tab][bin] = sqrt(entropy);
             }
         }
     }
