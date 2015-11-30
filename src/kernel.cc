@@ -256,16 +256,11 @@ kernel_to_distance()
         norm_kern_mat[i] = new float[num_samples];
     }
 
-    // Normalise the diagonal of the matrix to 1
-    for (size_t i = 0; i < num_samples; i++) {
-        diag[i] = _kernel_mat[i][i];
-    }
-
+    float **K = _kernel_mat; // For shorthand maths below.
+    // Normalise the diagonal of the matrix to 1 with an L2 norm
     for (size_t i = 0; i < num_samples; i++) {
         for (size_t j = 0; j < num_samples; j++) {
-            float this_val = _kernel_mat[i][j];
-            float norm_factor = sqrt(diag[i] * diag[j]);
-            norm_kern_mat[i][j] = this_val / norm_factor;
+            norm_kern_mat[i][j] = i[K][j] / sqrt(K[i][i] * K[j][j]);
         }
     }
 

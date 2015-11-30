@@ -132,6 +132,8 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
         khmer::Byte *A = a_counts[tab];
         khmer::Byte *B = b_counts[tab];
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
+            // Note: the bin entropy vector has the entropies already sqrt'd,
+            // not the raw shannon entropy
             float bin_entropy = _bin_entropies[tab][bin];
             tab_kernel += (A[bin] * bin_entropy) * (B[bin] * bin_entropy);
         }
