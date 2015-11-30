@@ -32,7 +32,7 @@ Kernel() :
     omp_init_lock(&_distance_mat_lock);
     omp_init_lock(&_hash_cache_lock);
     _num_threads = omp_get_max_threads();
-    _hash_cache = CountingHashCache(_num_threads + 5);
+    _hash_cache = CountingHashCache(_num_threads + 1);
 }
 
 Kernel::
@@ -305,7 +305,7 @@ set_num_threads(int num_threads)
     _num_threads = num_threads;
 
     // Update the hash cache size
-    _hash_cache = CountingHashCache(_num_threads + 5);
+    _hash_cache = CountingHashCache(_num_threads + 1);
 }
 
 CountingHashShrPtr
