@@ -90,9 +90,9 @@ calculate_entropy_vector(std::vector<std::string> &hash_fnames)
                 // Shannon entropy is
                 // sum for all states p_state * -log_2(p_state)
                 // We have two states, present & absent
-                _bin_entropies[tab][bin] =  \
-                        (pop_freq * -log2(pop_freq)) +
-                        ((1 - pop_freq) * -log2(1 - pop_freq));
+                float entropy = (pop_freq * -log2(pop_freq)) +
+                                ((1 - pop_freq) * -log2(1 - pop_freq));
+                _bin_entropies[tab][bin] = entropy;
             }
         }
     }
@@ -127,24 +127,11 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
 
     for (size_t tab = 0; tab < _n_tables; tab++) {
         double tab_kernel = 0.0;
-        double norm_a = 0, norm_b = 0;
+        khmer::Byte *A = a_counts[tab];
+        khmer::Byte *B = b_counts[tab];
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            norm_a += (uint32_t)a_counts[tab][bin] * (uint32_t)a_counts[tab][bin];
-            norm_b += (uint32_t)b_counts[tab][bin] * (uint32_t)b_counts[tab][bin];
-        }
-        norm_a = sqrt(norm_a);
-        norm_b = sqrt(norm_b);
-        for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            uint32_t a = a_counts[tab][bin];
-            uint32_t b = b_counts[tab][bin];
-
-            if (a == 0 || b == 0 ) {
-                continue;
-            }
-            double bin_entropy = _bin_entropies[tab][bin];
-            double a_freq = a / norm_a;
-            double b_freq = b / norm_b;
-            tab_kernel += a_freq * b_freq * bin_entropy;
+            float bin_entropy = _bin_entropies[tab][bin];
+            tab_kernel += A[bin] * B[bin] * bin_entropy;
         }
         tab_kernels.push_back(tab_kernel);
     }
