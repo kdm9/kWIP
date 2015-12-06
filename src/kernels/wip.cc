@@ -92,9 +92,7 @@ calculate_entropy_vector(std::vector<std::string> &hash_fnames)
                 // We have two states, present & absent
                 float entropy = (pop_freq * -log2(pop_freq)) +
                                 ((1 - pop_freq) * -log2(1 - pop_freq));
-                // we store the square root of the entropy otherwise we weight
-                // twice in the kernel function (V1 * entropy) * (V2 * entropy)
-                _bin_entropies[tab][bin] = sqrt(entropy);
+                _bin_entropies[tab][bin] = entropy;
             }
         }
     }
@@ -132,10 +130,8 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
         khmer::Byte *A = a_counts[tab];
         khmer::Byte *B = b_counts[tab];
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-            // Note: the bin entropy vector has the entropies already sqrt'd,
-            // not the raw shannon entropy
             float bin_entropy = _bin_entropies[tab][bin];
-            tab_kernel += (A[bin] * bin_entropy) * (B[bin] * bin_entropy);
+            tab_kernel += A[bin] * B[bin] * bin_entropy;
         }
         tab_kernels.push_back(tab_kernel);
     }
