@@ -58,9 +58,9 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
                 _bin_entropies[tab][bin] = 0.0;
             } else {
                 const float pop_freq = (float)bin_n_samples / (float)num_samples;
-                _bin_entropies[tab][bin] = \
-                        (pop_freq * -log2(pop_freq)) +
-                        ((1 - pop_freq) * -log2(1 - pop_freq));
+                const float entropy = (pop_freq * -log2(pop_freq)) +
+                                      ((1 - pop_freq) * -log2(1 - pop_freq));
+                _bin_entropies[tab][bin] = sqrt(entropy);
             }
         }
     }
@@ -112,29 +112,15 @@ sample_entvec_sum(khmer::CountingHash &sample)
 
     for (size_t tab = 0; tab < _n_tables; tab++) {
         double countentvec_sum = 0.0;
-        if (count_sum == 0.0) {
-            // Count doesn't change between tables, hopefully
-            for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
-                histogram[counts[tab][bin]] += 1;
-                count_sum += counts[tab][bin];
-            }
-        }
-        if (count_sum == 0.0) {
-            // There's nothing in this table. Skip this table to avoid a
-            // div-by-zero.
-            entvecsums.push_back(0.0);
-            continue;
-        }
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             float bin_entropy = _bin_entropies[tab][bin];
-            float freq = counts[tab][bin] / count_sum;
-            countentvec_sum += freq * bin_entropy;
+            countentvec_sum += counts[tab][bin] * bin_entropy;
         }
         entvecsums.push_back(countentvec_sum);
     }
     for (const auto &pair: histogram) {
         double fraction = (double)pair.second / _tablesizes[0];
-        entropy += -(fraction * log2(fraction));
+        entropy -= fraction * log2(fraction);
     }
     return std::make_tuple(count_sum, kwip::vec_min(entvecsums), entropy);
 }
