@@ -35,9 +35,9 @@ TEST_CASE("Test kwip.kernel method", "[kernel]") {
         kernel.calculate_pairwise(filenames);
 
         std::vector<std::vector<float>> kmat_expt {
-            {0.283837,    0.142978,  0.109202},
-            {0.142978,    0.134683,  0.0133592},
-            {0.109202,    0.0133592, 0.116609},
+            {15.611,      9.18296,   6.42807},
+            {9.18296,     10.1013,   0.918296},
+            {6.42807,     0.918296,  7.34637},
         };
         std::vector<std::vector<float>> dmat_expt {
             {0.0,       0.733113,   0.894153},
