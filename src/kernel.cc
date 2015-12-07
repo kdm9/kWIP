@@ -42,6 +42,9 @@ Kernel::
     omp_set_lock(&_kernel_mat_lock);
     omp_set_lock(&_distance_mat_lock);
     omp_set_lock(&_hash_cache_lock);
+    for (auto &lockpair: _hash_cache_locks) {
+        omp_set_lock(&lockpair.second);
+    }
     // Free the kernel matrix if it exists
     if (_kernel_mat != NULL) {
         for (size_t i = 0; i < num_samples; i++) {
@@ -60,6 +63,9 @@ Kernel::
     omp_destroy_lock(&_kernel_mat_lock);
     omp_destroy_lock(&_distance_mat_lock);
     omp_destroy_lock(&_hash_cache_lock);
+    for (auto &lockpair: _hash_cache_locks) {
+        omp_destroy_lock(&lockpair.second);
+    }
 }
 
 float
@@ -109,6 +115,10 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     num_samples = hash_fnames.size();
 
+    for (const auto &filename: hash_fnames) {
+        _hash_cache_locks[filename];
+        omp_init_lock(&_hash_cache_locks[filename]);
+    }
     _make_matrices();
 
     if (sample_names.empty()) {
@@ -313,11 +323,11 @@ Kernel::
 _get_hash(std::string &filename)
 {
     CountingHashShrPtr ret;
-    omp_set_lock(&_hash_cache_lock);
+    omp_set_lock(&_hash_cache_locks[filename]);
     while (1) {
         try {
             ret = _hash_cache.get(filename);
-            omp_unset_lock(&_hash_cache_lock);
+            omp_unset_lock(&_hash_cache_locks[filename]);
             return ret;
         } catch (std::range_error &err) {
             CountingHashShrPtr ht = \

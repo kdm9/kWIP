@@ -61,6 +61,8 @@ protected:
     omp_lock_t                  _distance_mat_lock;
     CountingHashCache           _hash_cache;
     omp_lock_t                  _hash_cache_lock;
+    std::map<std::string, omp_lock_t>
+                                _hash_cache_locks;
 
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
