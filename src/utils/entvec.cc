@@ -114,13 +114,16 @@ sample_entvec_sum(khmer::CountingHash &sample)
         double countentvec_sum = 0.0;
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             float bin_entropy = _bin_entropies[tab][bin];
+            if (tab == 0) {
+                count_sum += counts[tab][bin];
+            }
             countentvec_sum += counts[tab][bin] * bin_entropy;
         }
         entvecsums.push_back(countentvec_sum);
     }
     for (const auto &pair: histogram) {
         double fraction = (double)pair.second / _tablesizes[0];
-        entropy -= fraction * log2(fraction);
+        entropy +=  -(fraction * log2(fraction));
     }
     return std::make_tuple(count_sum, kwip::vec_min(entvecsums), entropy);
 }
