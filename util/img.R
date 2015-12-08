@@ -19,8 +19,8 @@ image.plot(1:n, 1:n, dist[sam_ord, sam_ord],
            ylab="",
            col=rainbow(80, start=0.2),
            main=paste("Distance of", base))
-axis(1, 1:n, colnames(dist)[sam_ord], srt=45, xpd=T, cex.axis=0.2, las=2, tick=F)
-axis(2, 1:n, colnames(dist)[sam_ord], srt=90, cex.axis=0.2, las=2, tick=F)
+axis(1, 1:n, colnames(dist)[sam_ord], srt=45, xpd=T, cex.axis=0.5, las=2, tick=F)
+axis(2, 1:n, colnames(dist)[sam_ord], srt=90, cex.axis=0.5, las=2, tick=F)
 
 image.plot(1:n, 1:n, kern[sam_ord, sam_ord],
            axes=FALSE,
@@ -28,8 +28,8 @@ image.plot(1:n, 1:n, kern[sam_ord, sam_ord],
            ylab="",
            col=rainbow(80, start=0.2),
            main=paste("Kernel of", base))
-axis(1, 1:n, colnames(dist)[sam_ord], srt=45, xpd=T, cex.axis=0.2, las=2, tick=F)
-axis(2, 1:n, colnames(dist)[sam_ord], srt=90, cex.axis=0.2, las=2, tick=F)
+axis(1, 1:n, colnames(dist)[sam_ord], srt=45, xpd=T, cex.axis=0.5, las=2, tick=F)
+axis(2, 1:n, colnames(dist)[sam_ord], srt=90, cex.axis=0.5, las=2, tick=F)
 
 d = diag(kern)
 geom.mean.d = sqrt(d %*% t(d))
@@ -41,10 +41,10 @@ image.plot(1:n, 1:n, normk[sam_ord, sam_ord],
            ylab="",
            col=rainbow(80, start=0.2),
            main=paste("Normalised Kernel of", base))
-axis(1, 1:n, colnames(dist)[sam_ord], srt=45, xpd=T, cex.axis=0.2, las=2, tick=F)
-axis(2, 1:n, colnames(dist)[sam_ord], srt=90, cex.axis=0.2, las=2, tick=F)
+axis(1, 1:n, colnames(dist)[sam_ord], srt=45, xpd=T, cex.axis=0.5, las=2, tick=F)
+axis(2, 1:n, colnames(dist)[sam_ord], srt=90, cex.axis=0.5, las=2, tick=F)
 
-plot(clust, cex=0.2, main=base)
+plot(clust, cex=0.5, main=base)
 
 fit <- cmdscale(dist, eig=TRUE, k=2) # k is the number of dim
 
