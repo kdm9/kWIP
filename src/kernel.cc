@@ -17,6 +17,8 @@
 
 #include "kernel.hh"
 
+#include <Eigen/Eigenvalues>
+
 namespace kwip
 {
 

@@ -56,6 +56,9 @@ class Kernel
 protected:
     float                     **_kernel_mat;
     float                     **_distance_mat;
+    MatrixXd                    _kernel_m;
+    MatrixXd                    _normkernel_m;
+    MatrixXd                    _distance_mt;
     int                         _num_threads;
     omp_lock_t                  _kernel_mat_lock;
     omp_lock_t                  _distance_mat_lock;
