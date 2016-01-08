@@ -21,8 +21,8 @@
 
 
 CXX 	 := g++
-CXXFLAGS += -static -static-libstdc++ -std=c++11 -fopenmp -I src -I src/ext/
-LDFLAGS  += -lz
+CXXFLAGS += -static -static-libstdc++ -std=c++11 -fopenmp  -DSEQAN_HAS_GZIP=1 -DSEQAN_HAS_BZIP2=1 -I src -I src/ext/
+LDFLAGS  += -lz -lbz2
 
 VER=$(shell git describe --always)
 
@@ -47,11 +47,16 @@ KWIP_OBJ=src/countmin.o \
 		 src/population.o \
 		 $(OXLI_OBJ)
 
+
 kwip: $(KWIP_OBJ) src/kwip-config.hh
 	$(CXX) $(CXXFLAGS) -o kwip $(KWIP_OBJ) $(LDFLAGS)
+
+$(KWIP_OBJ): src/kwip-config.hh
 
 src/kwip-config.hh: src/kwip-config.hh.in
 	sed -e 's/^#define KWIP_VERSION.*/#define KWIP_VERSION "$(VER)"/' \
 		-e 's/^#cmakedefine ENABLE_MULTITABLE.*/#undef ENABLE_MULTITABLE/' \
 		$< >$@
 
+clean:
+	rm -f $(KWIP_OBJ) kwip src/kwip-config.hh
