@@ -119,7 +119,6 @@ void
 Kernel::
 print_kernel_mat(std::ostream &outstream)
 {
-    std::cerr << "pkm ksz " << _kernel_m.size() << "\n";
     if (_kernel_m.size() == 1) {
         // No kernel has been calculated
         throw std::runtime_error("No kernel matrix exists");
