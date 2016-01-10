@@ -54,11 +54,8 @@ typedef cache::lru_cache<std::string, CountingHashShrPtr> CountingHashCache;
 class Kernel
 {
 protected:
-    float                     **_kernel_mat;
-    float                     **_distance_mat;
+    MatrixXd                    _kernel_m;
     int                         _num_threads;
-    omp_lock_t                  _kernel_mat_lock;
-    omp_lock_t                  _distance_mat_lock;
     CountingHashCache           _hash_cache;
     omp_lock_t                  _hash_cache_lock;
 
@@ -69,13 +66,6 @@ protected:
                                 khmer::CountingHash        &b);
     CountingHashShrPtr
     _get_hash                  (std::string                &filename);
-
-    void
-    _make_matrices             ();
-
-    void
-    _print_mat                 (std::ostream               &outstream,
-                                float                     **matrix);
 
 
 public:
@@ -105,13 +95,13 @@ public:
     print_distance_mat          (std::ostream          &outstream=std::cout);
 
     virtual void
-    kernel_to_distance          ();
+    get_kernel_matrix           (MatrixXd &mat);
 
-    virtual float **
-    get_kernel_matrix           ();
+    virtual void
+    get_norm_kernel_matrix      (MatrixXd &mat);
 
-    virtual float **
-    get_distance_matrix         ();
+    virtual void
+    get_distance_matrix         (MatrixXd &mat);
 
     virtual void
     load                        (std::istream          &instream);
