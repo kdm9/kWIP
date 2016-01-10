@@ -31,6 +31,6 @@ TARGET_LINK_LIBRARIES(kwip ${KMERCLUST_DEPENDS_LIBS} libkwip)
 INSTALL(TARGETS kwip DESTINATION "bin")
 
 
-ADD_EXECUTABLE(kwip-entvec utils/entvec.cc)
-TARGET_LINK_LIBRARIES(kwip-entvec ${KMERCLUST_DEPENDS_LIBS} libkwip)
-INSTALL(TARGETS kwip-entvec DESTINATION "bin")
+ADD_EXECUTABLE(kwip-stats utils/entvec.cc)
+TARGET_LINK_LIBRARIES(kwip-stats ${KMERCLUST_DEPENDS_LIBS} libkwip)
+INSTALL(TARGETS kwip-stats DESTINATION "bin")

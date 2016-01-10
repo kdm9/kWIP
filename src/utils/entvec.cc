@@ -130,7 +130,7 @@ sample_entvec_sum(khmer::CountingHash &sample)
 }
 
 
-static std::string prog_name = "kwip-entvec";
+static std::string prog_name = "kwip-stats";
 static std::string cli_opts = "t:o:hVvq";
 
 static const struct option cli_long_opts[] = {
