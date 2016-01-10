@@ -74,7 +74,6 @@ load_lsmat(MatrixXd &mat, const std::string &filename)
     }
 }
 
-using namespace std;
 void
 normalise_matrix(MatrixXd &norm, MatrixXd &input)
 {
@@ -83,16 +82,12 @@ normalise_matrix(MatrixXd &norm, MatrixXd &input)
     norm.fill(0.0);
     auto diag = input.diagonal();
 
-    cerr << "normalise" << endl << endl;
-    cerr << input << endl << endl;
-    cerr << diag << endl;
     // Normalise the diagonal of the matrix to 1 with an L2 norm
     for (size_t i = 0; i < size; i++) {
         for (size_t j = 0; j < size; j++) {
             norm(i, j) = input(i, j) / sqrt(diag(i) * diag(j));
         }
     }
-    cerr << norm <<endl << "---------\n\n";
 
 }
 
@@ -106,15 +101,11 @@ kernel_to_distance(MatrixXd &dist, MatrixXd &kernel, bool normalise)
     dist.resize(size, size);
     dist.fill(0.0);
 
-    cerr << "k2d\n\n";
-
     if (normalise) {
         normalise_matrix(norm, kernel);
     } else {
         norm = kernel;
     }
-
-    cerr << norm << endl;
 
     // Convert the normalised kernel matrix to distance matrix
     for (size_t i = 0; i < size; i++) {
@@ -127,8 +118,6 @@ kernel_to_distance(MatrixXd &dist, MatrixXd &kernel, bool normalise)
             }
         }
     }
-    cerr << dist << endl;
-    cerr << "------------------------------- k2d\n\n\n";
 }
 
 } // end namespace kwip
