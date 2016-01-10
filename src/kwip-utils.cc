@@ -126,6 +126,8 @@ bool
 matrix_is_pos_semidef(MatrixXd &mat)
 {
     VectorXd eigenvalues = mat.eigenvalues().real();
+    // To be PSD, all eigenvalues must be greater than negative 1e-5. So check
+    // that the smallest is (as (eigenvalues > -1e-5).all() doesn't work).
     return eigenvalues.minCoeff() > -1e-5;
 }
 
