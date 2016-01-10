@@ -22,6 +22,7 @@
 #include <Eigen/Core>
 
 using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 #include <kwip-config.hh>
 
@@ -36,6 +37,10 @@ void print_lsmat(MatrixXd &mat, std::ostream &outstream,
 
 void normalise_matrix(MatrixXd &norm, MatrixXd &input);
 void kernel_to_distance(MatrixXd &dist, MatrixXd &kernel, bool normalise=true);
+
+// Checks if a matrix is postitive semi-definite. Specifically, that all
+// eigenvalues are > -1e-5.
+bool matrix_is_pos_semidef(MatrixXd &mat);
 
 template <typename eltype>
 eltype
