@@ -31,8 +31,11 @@ namespace kwip
 void print_version();
 
 void load_lsmat(MatrixXd &mat, const std::string &filename);
-void print_lsmat(MatrixXd &mat, std::ostream &outstream);
+void print_lsmat(MatrixXd &mat, std::ostream &outstream,
+                 std::vector<std::string> &labels);
 
+void normalise_matrix(MatrixXd &norm, MatrixXd &input);
+void kernel_to_distance(MatrixXd &dist, MatrixXd &kernel, bool normalise=true);
 
 template <typename eltype>
 eltype

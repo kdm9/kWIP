@@ -25,9 +25,21 @@ print_version()
 }
 
 void
-print_lsmat(MatrixXd &mat, std::ostream &outstream)
+print_lsmat(MatrixXd &mat, std::ostream &outstream,
+            std::vector<std::string> &labels)
 {
+    for (const auto &label: labels) {
+        outstream << "\t" << label;
+    }
+    outstream << "\n";
 
+    for (size_t i = 0; i < labels.size(); i++) {
+        outstream << labels[i] << "\t";
+        for (size_t j = 0; j < labels.size(); j++) {
+            outstream << mat(i, j) << "\t";
+        }
+        outstream << "\n";
+    }
 }
 
 void
@@ -60,6 +72,63 @@ load_lsmat(MatrixXd &mat, const std::string &filename)
             i++;
         }
     }
+}
+
+using namespace std;
+void
+normalise_matrix(MatrixXd &norm, MatrixXd &input)
+{
+    size_t size = input.rows();
+    norm.resize(size, size);
+    norm.fill(0.0);
+    auto diag = input.diagonal();
+
+    cerr << "normalise" << endl << endl;
+    cerr << input << endl << endl;
+    cerr << diag << endl;
+    // Normalise the diagonal of the matrix to 1 with an L2 norm
+    for (size_t i = 0; i < size; i++) {
+        for (size_t j = 0; j < size; j++) {
+            norm(i, j) = input(i, j) / sqrt(diag(i) * diag(j));
+        }
+    }
+    cerr << norm <<endl << "---------\n\n";
+
+}
+
+void
+kernel_to_distance(MatrixXd &dist, MatrixXd &kernel, bool normalise)
+{
+    // todo check kernel is square
+
+    size_t size = kernel.rows();
+    MatrixXd norm(size, size);
+    dist.resize(size, size);
+    dist.fill(0.0);
+
+    cerr << "k2d\n\n";
+
+    if (normalise) {
+        normalise_matrix(norm, kernel);
+    } else {
+        norm = kernel;
+    }
+
+    cerr << norm << endl;
+
+    // Convert the normalised kernel matrix to distance matrix
+    for (size_t i = 0; i < size; i++) {
+        for (size_t j = 0; j < size; j++) {
+            float d = norm(i, i) + norm(j, j) - 2 * norm(i, j);
+            if (d > 0.0) {
+                dist(i, j) = sqrt(d);
+            } else {
+                dist(i, j) = 0.;
+            }
+        }
+    }
+    cerr << dist << endl;
+    cerr << "------------------------------- k2d\n\n\n";
 }
 
 } // end namespace kwip

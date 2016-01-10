@@ -24,14 +24,11 @@ namespace kwip
 
 Kernel::
 Kernel() :
-    _kernel_mat(NULL),
-    _distance_mat(NULL),
+    _kernel_m(1,1),
     _hash_cache(1),
     verbosity(1),
     num_samples(0)
 {
-    omp_init_lock(&_kernel_mat_lock);
-    omp_init_lock(&_distance_mat_lock);
     omp_init_lock(&_hash_cache_lock);
     _num_threads = omp_get_max_threads();
     _hash_cache = CountingHashCache(_num_threads + 1);
@@ -41,26 +38,7 @@ Kernel::
 ~Kernel()
 {
     // Lock these to avoid a race. Very unlikely but doesn't hurt
-    omp_set_lock(&_kernel_mat_lock);
-    omp_set_lock(&_distance_mat_lock);
     omp_set_lock(&_hash_cache_lock);
-    // Free the kernel matrix if it exists
-    if (_kernel_mat != NULL) {
-        for (size_t i = 0; i < num_samples; i++) {
-            delete[] _kernel_mat[i];
-        }
-        delete[] _kernel_mat;
-    }
-    // Free dist matrix if it exists
-    if (_distance_mat != NULL) {
-        for (size_t i = 0; i < num_samples; i++) {
-            delete[] _distance_mat[i];
-        }
-        delete[] _distance_mat;
-    }
-    // Destroy all locks
-    omp_destroy_lock(&_kernel_mat_lock);
-    omp_destroy_lock(&_distance_mat_lock);
     omp_destroy_lock(&_hash_cache_lock);
 }
 
@@ -72,38 +50,6 @@ kernel(khmer::CountingHash &a, khmer::CountingHash &b)
     return 0.0;
 }
 
-void
-Kernel::
-_make_matrices()
-{
-    // Create the kernel matrix
-    omp_set_lock(&_kernel_mat_lock);
-    omp_set_lock(&_distance_mat_lock);
-    if (_kernel_mat != NULL) {
-        for (size_t i = 0; i < num_samples; i++) {
-            delete[] _kernel_mat[i];
-        }
-        delete[] _kernel_mat;
-    }
-    _kernel_mat = new float *[num_samples];
-    for (size_t i = 0; i < num_samples; i++) {
-        _kernel_mat[i] = new float[num_samples];
-    }
-
-    // Create the distance matrix
-    if (_distance_mat != NULL) {
-        for (size_t i = 0; i < num_samples; i++) {
-            delete[] _distance_mat[i];
-        }
-        delete[] _distance_mat;
-    }
-    _distance_mat = new float *[num_samples];
-    for (size_t i = 0; i < num_samples; i++) {
-        _distance_mat[i] = new float[num_samples];
-    }
-    omp_unset_lock(&_kernel_mat_lock);
-    omp_unset_lock(&_distance_mat_lock);
-}
 
 void
 Kernel::
@@ -111,7 +57,8 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 {
     num_samples = hash_fnames.size();
 
-    _make_matrices();
+    _kernel_m.resize(num_samples, num_samples);
+    _kernel_m.fill(0);
 
     if (sample_names.empty()) {
         for (size_t i = 0; i < num_samples; i++) {
@@ -152,8 +99,8 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
             CountingHashShrPtr ht2 = _get_hash(hash_fnames[j]);
             kernel = this->kernel(*ht1, *ht2);
             // Fill in both halves of the matrix
-            _kernel_mat[i][j] = kernel;
-            _kernel_mat[j][i] = kernel;
+            _kernel_m(i, j) = kernel;
+            _kernel_m(j, i) = kernel;
             if (verbosity > 0) {
                 #pragma omp critical
                 {
@@ -170,119 +117,40 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 
 void
 Kernel::
-_print_mat(std::ostream &outstream, float **matrix)
+print_kernel_mat(std::ostream &outstream)
 {
-    outstream.precision(std::numeric_limits<float>::digits10);
-    // Avoid a segfault
-    if (matrix == NULL) {
-        throw std::runtime_error("Invalid matrix provided");
-    }
-    for (size_t i = 0; i < num_samples; i++) {
-        if (matrix[i] == NULL) {
-            throw std::runtime_error("Invalid matrix provided");
-        }
-    }
-
-    // Use numerals as indices if there's no names provided
-    if (sample_names.empty()) {
-        for (size_t i = 0; i < num_samples; i++) {
-            // This cast is required to fix an error with Intel compilers
-            sample_names.push_back(std::to_string((unsigned long long)i));
-        }
-    }
-
-    // Header row
-    for (const auto &sample: sample_names) {
-        outstream << "\t" << sample;
-    }
-    outstream << std::endl;
-
-    // The matrix itself
-    for (size_t i = 0; i < num_samples; i++) {
-        outstream << sample_names[i];
-        for (size_t j = 0; j < num_samples; j++) {
-            outstream << "\t" << matrix[i][j];
-        }
-        outstream << std::endl;
-    }
+    print_lsmat(_kernel_m, outstream, sample_names);
 }
 
 void
 Kernel::
-print_kernel_mat(std::ostream &outstream)
+get_kernel_matrix(MatrixXd &mat)
 {
-    _print_mat(outstream, _kernel_mat);
+    mat = _kernel_m;
+}
+
+void
+Kernel::
+get_norm_kernel_matrix(MatrixXd &mat)
+{
+    normalise_matrix(mat, _kernel_m);
+}
+
+void
+Kernel::
+get_distance_matrix(MatrixXd &mat)
+{
+    MatrixXd dist(num_samples, num_samples);
+    kernel_to_distance(mat, _kernel_m);
 }
 
 void
 Kernel::
 print_distance_mat(std::ostream &outstream)
 {
-    kernel_to_distance();
-    _print_mat(outstream, _distance_mat);
-}
-
-float **
-Kernel::
-get_kernel_matrix()
-{
-    if (_kernel_mat == NULL) {
-        throw std::runtime_error("No kernel matrix exists");
-    }
-    return _kernel_mat;
-}
-
-float **
-Kernel::
-get_distance_matrix()
-{
-    kernel_to_distance();
-    return _distance_mat;
-}
-
-void
-Kernel::
-kernel_to_distance()
-{
-    std::vector<float> diag(num_samples);
-
-    if (_distance_mat == NULL) {
-        throw std::runtime_error("No distance matrix exists");
-    }
-    if (_kernel_mat == NULL) {
-        throw std::runtime_error("No kernel matrix exists");
-    }
-
-    float **norm_kern_mat = new float *[num_samples];
-    for (size_t i = 0; i < num_samples; i++) {
-        norm_kern_mat[i] = new float[num_samples];
-    }
-
-    float **K = _kernel_mat; // For shorthand maths below.
-    // Normalise the diagonal of the matrix to 1 with an L2 norm
-    for (size_t i = 0; i < num_samples; i++) {
-        for (size_t j = 0; j < num_samples; j++) {
-            norm_kern_mat[i][j] = i[K][j] / sqrt(K[i][i] * K[j][j]);
-        }
-    }
-
-    // Convert the normalised kernel matrix to distance matrix
-    for (size_t i = 0; i < num_samples; i++) {
-        for (size_t j = 0; j < num_samples; j++) {
-            float dist = norm_kern_mat[i][i] + norm_kern_mat[j][j] \
-                         - 2 * norm_kern_mat[i][j];
-            if (dist > 0.0) {
-                dist = sqrt(dist);
-            }
-            _distance_mat[i][j] = dist;
-        }
-    }
-
-    // Free the temporary matrix
-    for (size_t i = 0; i < num_samples; i++) {
-        delete[] norm_kern_mat[i];
-    }
-    delete[] norm_kern_mat;
+    MatrixXd dist;
+    get_distance_matrix(dist);
+    print_lsmat(dist, outstream, sample_names);
 }
 
 
