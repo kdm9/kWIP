@@ -11,6 +11,8 @@
 
 
 #include "kwip-utils.hh"
+#include <Eigen/Eigenvalues>
+
 
 namespace kwip
 {
@@ -118,6 +120,13 @@ kernel_to_distance(MatrixXd &dist, MatrixXd &kernel, bool normalise)
             }
         }
     }
+}
+
+bool
+matrix_is_pos_semidef(MatrixXd &mat)
+{
+    VectorXd eigenvalues = mat.eigenvalues().real();
+    return eigenvalues.minCoeff() > -1e-5;
 }
 
 } // end namespace kwip

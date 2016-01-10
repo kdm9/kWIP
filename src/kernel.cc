@@ -113,6 +113,14 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
     if (verbosity > 0) {
         *outstream << "Done all!" << std::endl;
     }
+
+    if (!matrix_is_pos_semidef(_kernel_m)) {
+        *outstream << "WARNING: The kernel matrix is not positive semidefinite."
+                   << std::endl;
+    } else {
+        *outstream << "The kernel matrix is positive semidefinite."
+                   << std::endl;
+    }
 }
 
 void
