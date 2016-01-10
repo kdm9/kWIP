@@ -119,6 +119,11 @@ void
 Kernel::
 print_kernel_mat(std::ostream &outstream)
 {
+    std::cerr << "pkm ksz " << _kernel_m.size() << "\n";
+    if (_kernel_m.size() == 1) {
+        // No kernel has been calculated
+        throw std::runtime_error("No kernel matrix exists");
+    }
     print_lsmat(_kernel_m, outstream, sample_names);
 }
 
@@ -126,6 +131,10 @@ void
 Kernel::
 get_kernel_matrix(MatrixXd &mat)
 {
+    if (_kernel_m.size() == 1) {
+        // No kernel has been calculated
+        throw std::runtime_error("No kernel matrix exists");
+    }
     mat = _kernel_m;
 }
 
@@ -133,6 +142,10 @@ void
 Kernel::
 get_norm_kernel_matrix(MatrixXd &mat)
 {
+    if (_kernel_m.size() == 1) {
+        // No kernel has been calculated
+        throw std::runtime_error("No kernel matrix exists");
+    }
     normalise_matrix(mat, _kernel_m);
 }
 
@@ -140,6 +153,10 @@ void
 Kernel::
 get_distance_matrix(MatrixXd &mat)
 {
+    if (_kernel_m.size() == 1) {
+        // No kernel has been calculated
+        throw std::runtime_error("No kernel matrix exists");
+    }
     MatrixXd dist(num_samples, num_samples);
     kernel_to_distance(mat, _kernel_m);
 }
@@ -148,6 +165,10 @@ void
 Kernel::
 print_distance_mat(std::ostream &outstream)
 {
+    if (_kernel_m.size() == 1) {
+        // No kernel has been calculated
+        throw std::runtime_error("No kernel matrix exists");
+    }
     MatrixXd dist;
     get_distance_matrix(dist);
     print_lsmat(dist, outstream, sample_names);
