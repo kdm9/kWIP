@@ -34,9 +34,9 @@ print_lsmat(MatrixXd &mat, std::ostream &outstream,
     outstream << "\n";
 
     for (size_t i = 0; i < labels.size(); i++) {
-        outstream << labels[i] << "\t";
+        outstream << labels[i];
         for (size_t j = 0; j < labels.size(); j++) {
-            outstream << mat(i, j) << "\t";
+            outstream << "\t" << mat(i, j);
         }
         outstream << "\n";
     }
