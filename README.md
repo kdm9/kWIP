@@ -8,7 +8,6 @@ genetic dissimilarity which operates upon raw sequencing reads. It is able to
 calculate the genetic dissimilarity between samples without any reference
 genome, and without assembling one.
 
-[![Build Status](http://biojenkins.anu.edu.au/job/kwip/badge/icon)](http://biojenkins.anu.edu.au/job/kwip/)
 [![Build Status](https://travis-ci.org/kdmurray91/kWIP.svg?branch=master)](https://travis-ci.org/kdmurray91/kWIP)
 [![gplv3+](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl.html)
 [![Documentation Status](https://readthedocs.org/projects/kwip/badge/?version=latest)](https://kwip.readthedocs.org)
