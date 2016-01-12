@@ -39,12 +39,14 @@ Dependencies:
 
 - `zlib`
 - `cmake>=2.8`
+- Optionally, `liboxli` and `Eigen3` are required. These libraries are bundled
+  with kWIP, and the internal copy will be used if system copies are not.
 - A C++11 compiler that supports OpenMP (i.e., gcc >=4.8)
 
 On Debian (or Debian derivatives) the dependencies of `kWIP` can be installed
 with:
 
-    sudo apt-get install zlib1g-dev cmake build-essential
+    sudo apt-get install zlib1g-dev cmake build-essential git
 
 Then, to compile `kWIP`:
 
@@ -77,8 +79,6 @@ across different hash values, which decreases the effect of erroneous, rare or
 over-abundant k-mers while focusing on k-mers which give the most insight into
 the similarity of samples.
 
-More detail will be added here soon.
-
 
 License
 =======
@@ -88,10 +88,3 @@ License version 3 (or any later version). See [THANKS.md](./THANKS.md) for a
 list of contributors.
 
 A publication describing kWIP is soon to be released publicly.
-
-
-Miscellany
-==========
-
-- **Naming**: The working title of this software was `kmerclust`, any
-  references to `kmerclust` are a result of my poor `sed` skills.
