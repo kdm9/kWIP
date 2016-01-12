@@ -16,10 +16,10 @@ addons:
     packages:
     - gcc-4.8
     - g++-4.8
-#    - python-sphinx
+    - python-sphinx
 
 install:
 - export CXX="g++-4.8" CC="gcc-4.8"
 
 script:
- - bash .biojenkins-build.sh
+ - bash util/ci-build.sh
