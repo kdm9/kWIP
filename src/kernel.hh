@@ -62,8 +62,8 @@ protected:
     // Ensure `a` and `b` have the same counting hash dimensions. Throws an
     // exception if they are not.
     virtual void
-    _check_hash_dimensions     (khmer::CountingHash        &a,
-                                khmer::CountingHash        &b);
+    _check_hash_dimensions     (const khmer::CountingHash        &a,
+                                const khmer::CountingHash        &b);
     CountingHashShrPtr
     _get_hash                  (std::string                &filename);
 
@@ -81,8 +81,8 @@ public:
 
     // Calculate the kernel between two counting hashes
     virtual float
-    kernel                      (khmer::CountingHash   &a,
-                                 khmer::CountingHash   &b);
+    kernel                      (const khmer::CountingHash   &a,
+                                 const khmer::CountingHash   &b);
 
     // Calculate the kernel between all pairs of counting hashes in parallel
     virtual void

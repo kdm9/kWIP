@@ -23,7 +23,7 @@ namespace metrics
 {
 
 float
-IPKernel::kernel(khmer::CountingHash &a, khmer::CountingHash &b)
+IPKernel::kernel(const khmer::CountingHash &a, const khmer::CountingHash &b)
 {
     std::vector<float> tab_scores;
     khmer::Byte **a_counts = a.get_raw_tables();

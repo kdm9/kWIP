@@ -38,7 +38,7 @@ add_hashtable(const std::string &hash_fname)
         uint64_t tab_count = 0;
         // Save these here to avoid dereferencing twice below.
         uint16_t *this_popcount = _pop_counts[tab];
-        khmer::Byte *this_count = counts[tab];
+        const khmer::Byte *this_count = counts[tab];
         for (size_t j = 0; j < _tablesizes[tab]; j++) {
             if (this_count[j] > 0) {
                 __sync_fetch_and_add(&(this_popcount[j]), 1);
@@ -117,18 +117,18 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
 
 float
 WIPKernel::
-kernel(khmer::CountingHash &a, khmer::CountingHash &b)
+kernel(const khmer::CountingHash &a, const khmer::CountingHash &b)
 {
     std::vector<float>          tab_kernels;
-    khmer::Byte               **a_counts = a.get_raw_tables();
-    khmer::Byte               **b_counts = b.get_raw_tables();
+    khmer::Byte         **a_counts = a.get_raw_tables();
+    khmer::Byte         **b_counts = b.get_raw_tables();
 
     _check_hash_dimensions(a, b);
 
     for (size_t tab = 0; tab < _n_tables; tab++) {
         double tab_kernel = 0.0;
-        khmer::Byte *A = a_counts[tab];
-        khmer::Byte *B = b_counts[tab];
+        const khmer::Byte *A = a_counts[tab];
+        const khmer::Byte *B = b_counts[tab];
         for (size_t bin = 0; bin < _tablesizes[tab]; bin++) {
             float bin_entropy = _bin_entropies[tab][bin];
             tab_kernel += A[bin] * B[bin] * bin_entropy;

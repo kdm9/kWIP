@@ -38,8 +38,8 @@ public:
     add_hashtable               (const std::string     &hash_fname);
 
     float
-    kernel                      (khmer::CountingHash   &a,
-                                 khmer::CountingHash   &b);
+    kernel                      (const khmer::CountingHash   &a,
+                                 const khmer::CountingHash   &b);
 
     void
     calculate_pairwise          (std::vector<std::string> &hash_fnames);
