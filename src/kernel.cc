@@ -44,7 +44,7 @@ Kernel::
 
 float
 Kernel::
-kernel(khmer::CountingHash &a, khmer::CountingHash &b)
+kernel(const khmer::CountingHash &a, const khmer::CountingHash &b)
 {
     _check_hash_dimensions(a, b);
     return 0.0;
@@ -228,7 +228,7 @@ _get_hash(std::string &filename)
 
 void
 Kernel::
-_check_hash_dimensions(khmer::CountingHash &a, khmer::CountingHash &b)
+_check_hash_dimensions(const khmer::CountingHash &a, const khmer::CountingHash &b)
 {
     size_t i;
     bool ok = true;

@@ -29,8 +29,8 @@ namespace metrics
 class IPKernel : public Kernel
 {
 public:
-    float kernel               (khmer::CountingHash        &a,
-                                khmer::CountingHash        &b);
+    float kernel               (const khmer::CountingHash        &a,
+                                const khmer::CountingHash        &b);
 };
 
 }} // end namespace kwip::metrics
