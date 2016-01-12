@@ -21,7 +21,7 @@
 
 
 CXX 	 := g++
-CXXFLAGS += -static -static-libstdc++ -std=c++11 -fopenmp  -DSEQAN_HAS_GZIP=1 -DSEQAN_HAS_BZIP2=1 -I src -I src/ext/
+CXXFLAGS += -O3 -static -static-libstdc++ -std=c++11 -fopenmp  -DSEQAN_HAS_GZIP=1 -DSEQAN_HAS_BZIP2=1 -I src -I src/ext/
 LDFLAGS  += -lz -lbz2
 
 VER=$(shell git describe --always)
