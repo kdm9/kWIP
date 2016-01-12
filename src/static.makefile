@@ -21,8 +21,9 @@
 
 
 CXX 	 := g++
-CXXFLAGS += -O3 -static -static-libstdc++ -std=c++11 -fopenmp  -DSEQAN_HAS_GZIP=1 -DSEQAN_HAS_BZIP2=1 -I src -I src/ext/
-LDFLAGS  += -lz -lbz2
+CXXFLAGS += -O3 -static -static-libstdc++ -std=c++11 -fopenmp  -DSEQAN_HAS_GZIP=1 -DSEQAN_HAS_BZIP2=1 \
+		   	-I src -I src/ext/ -I src/ext/eigen3 -I src/ext/seqan/core/include
+LDFLAGS  += /usr/local/lib/libz.a /usr/local/lib/libbz2.a
 
 VER=$(shell git describe --always)
 
