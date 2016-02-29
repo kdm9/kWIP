@@ -8,6 +8,7 @@ Contents:
    :maxdepth: 2
 
    kwip
+   installation
    pipelines
    experiments
 

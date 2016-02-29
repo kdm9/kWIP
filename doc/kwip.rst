@@ -22,42 +22,6 @@ values, which decreases the effect of erroneous, rare or over-abundant
 into the similarity of samples.
 
 
-Installation
-------------
-
-Dependencies:
-
-- cmake (>=2.8)
-- A C++11 compiler that supports OpenMP (e.g., g++ >=4.8).
-- A fully POSIX-compliant operating system. ``kWIP`` is fully tested only on
-  Debian GNU/Linux, however should work on any modern GNU/Linux and even Apple
-  Mac OS X.
-
-On Debian (or Debian derivatives) the dependencies of `kWIP` can be installed
-with:
-
-::
-
-    sudo apt-get install zlib1g-dev cmake build-essential
-
-Then, to compile `kWIP`:
-
-::
-
-    git clone https://github.com/kdmurray91/kWIP.git
-    cd kWIP
-    mkdir build && cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX=${HOME}
-    make
-    make test
-    make install
-
-The commands above assume you want to install kWIP to your home directory. This
-is probably required on clusters, and necessary without root privileges. To
-install elsewhere (e.g ``/usr/local/``), replace all occurrences of ``$HOME``
-with your preferred installation prefix.
-
-
 ``kWIP`` CLI Usage
 ------------------
 
