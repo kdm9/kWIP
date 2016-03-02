@@ -36,7 +36,7 @@ Setup
 
 Create a working directory
 
-::
+.. code-block:: shell
 
     mkdir ~/rice_kwip
     cd ~/rice_kwip
@@ -45,16 +45,18 @@ Install ``SRApy`` and ``khmer`` using pip. We will require the master branch of
 khmer until the 2.0 release, as bugs exist in the latest release uploaded to
 PyPI.
 
-::
+.. code-block:: shell
 
     mkvirtualenv rice-kwip
     pip install srapy
     pip install -e git+https://github.com/dib-lab/khmer.git
 
-Create the file ``sra_run_ids.txt`` with the following contents
+Create a list of SRA identifiers in file ``sra_run_ids.txt`` using the
+following command:
 
-::
+.. code-block:: shell
 
+    cat >sra_run_ids.txt <<EOF
     ERR626208
     ERR626209
     ERR626210
@@ -63,17 +65,18 @@ Create the file ``sra_run_ids.txt`` with the following contents
     ERR619512
     ERR619513
     ERR619514
+    EOF
 
 Download the above sra files:
 
-::
+.. code-block:: shell
 
     mkdir sra_runs
     get-run.py -s -f sra_run_ids.txt -d sra_files
 
 And export them to FASTQ files:
 
-::
+.. code-block:: shell
 
     mkdir fastqs
     for srr in $(cat sra_run_ids.txt)
@@ -99,7 +102,7 @@ Hashing
 We directly utilise ``khmer``'s ``load-into-counting.py`` to hash reads to a
 hash (Countgraph).
 
-::
+.. code-block:: shell
 
     mkdir hashes
     for srr in $(cat sra_run_ids.txt)
@@ -129,7 +132,7 @@ So here's the core of the protocol: calculating the pairwise distances between
 these samples, which are from the two major groups of rice, Indica and
 Japonica.
 
-::
+.. code-block:: shell
 
     kwip \
         -t 2 \
