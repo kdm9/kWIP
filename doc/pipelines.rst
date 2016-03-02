@@ -111,7 +111,7 @@ hash (Countgraph).
             -b                      \
             -f                      \
             -s tsv                  \
-            hashes/${srr}.ct.gz
+            hashes/${srr}.ct.gz     \
             fastqs/${srr}.fastq.gz
     done
 
