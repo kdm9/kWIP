@@ -17,9 +17,11 @@ addons:
     - gcc-4.8
     - g++-4.8
     - python-sphinx
+    - python-pip
 
 install:
 - export CXX="g++-4.8" CC="gcc-4.8"
+- pip install --user alabaster
 
 script:
  - bash util/ci-build.sh
