@@ -88,8 +88,8 @@ And export them to FASTQ files:
             --readids                           \
             --defline-seq '@$sn/$ri'            \
             --defline-qual '+'                  \
-            sra_files/${srr}.sra |               \
-            gzip  > fastqs/${srr}.fastq.gz
+            sra_files/${srr}.sra |              \
+            gzip -1 > fastqs/${srr}.fastq.gz
     done
 
 Don't worry about the full details of this ``fastq-dump``, but it produces a
@@ -134,10 +134,10 @@ Japonica.
 
 .. code-block:: shell
 
-    kwip \
-        -t 2 \
-        -k rice.kern \
-        -d rice.dist \
+    kwip                            \
+        -t 2                        \
+        -k rice.kern                \
+        -d rice.dist                \
         hashes/*.ct.gz
 
 
@@ -148,7 +148,7 @@ Now, we plot these results using the R script ``img.R``. This creates plots of
 the distance and kernel matrices, as well as a cluster dendrogram and
 multi-dimensional scaling plot.
 
-::
+.. code-block:: shell
 
     Rscript img.R rice
 
