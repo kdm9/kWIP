@@ -1,0 +1,18 @@
+*.bak
+*.yaml
+*.yml
+!.travis.yml
+*.swp
+
+# Python junk
+*.pyc
+.ipynb_checkpoints
+*.so
+.eggs
+*.egg-info
+.coverage
+build
+dist
+
+# Cython compiled files (for now)
+*.c
