@@ -1,0 +1,2 @@
+include versioneer.py
+include kwipy/_version.py
