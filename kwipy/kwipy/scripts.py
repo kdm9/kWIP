@@ -20,7 +20,12 @@ import numpy as np
 import numexpr as ne
 from pymer import CountMinKmerCounter
 import screed
+from mpi4py import MPI
+
+import itertools as itl
 from sys import stderr, stdout
+import os
+from os import path
 
 term = Terminal()
 
@@ -113,3 +118,95 @@ def calcweight_main():
     print("Writing to", outfile, end='... '); stdout.flush()
     bp.pack_ndarray_file(popfreq, outfile)
     print("Done!")
+
+def calcweight_main():
+    cli = '''
+
+    USAGE:
+        kwipy-calcweight [options] WEIGHTFILE COUNTFILES ...
+
+    OPTIONS:
+        -k KSIZE    Kmer length [default: 20]
+        -N NTAB     Number of tables [default: 4]
+        -x TSIZE    Table size [default: 1e9]
+    '''
+
+    opts = docopt(cli)
+    k = int(opts['-k'])
+    nt = int(opts['-N'])
+    ts = int(float(opts['-x']))
+    outfile = opts['WEIGHTFILE']
+    countfiles = opts['COUNTFILES']
+
+    popfreq = np.zeros((nt, ts), dtype=float)
+    nsamples = len(countfiles)
+    print(nsamples)
+
+    for countfile in countfiles:
+        print("Loading",  countfile, end='... '); stdout.flush()
+        counter = CountMinKmerCounter.read(countfile)
+        counts = counter.array
+        ne.evaluate('popfreq + where(counts > 0, 1, 0)', out=popfreq)
+        print("Done!")
+
+    print("Calculating entropy vector")
+
+    ne.evaluate('popfreq / nsamples', out=popfreq)
+    ne.evaluate('-(popfreq * log(popfreq) + (1 - popfreq) * log((1-popfreq)))',
+                out=popfreq)
+    # workaround for numexpr's lack of isnan(): compare inequality, NaN != NaN
+    ne.evaluate('where(popfreq != popfreq, 0, popfreq)', out=popfreq)
+    print("Writing to", outfile, end='... '); stdout.flush()
+    bp_args = bp.BloscArgs(cname='lz4', clevel=9, shuffle=False)
+    bp.pack_ndarray_file(popfreq, outfile, blosc_args=bp_args)
+    print("Done!")
+
+def kernel_argparse():
+    cli = '''
+
+    USAGE:
+        kwipy-kernelcalc OUTDIR WEIGHTFILE COUNTFILES ...
+    '''
+
+    opts = docopt(cli)
+    outdir = opts['OUTDIR']
+    weightfile = opts['WEIGHTFILE']
+    countfiles = opts['COUNTFILES']
+    return outdir, weightfile, countfiles
+
+
+def kernel_mpi_main():
+    outdir, weightfile, countfiles = kernel_argparse()
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+
+    pairs = list(itl.combinations(countfiles, 2))
+
+    if rank == 0:
+        size = comm.Get_size()
+        if size > len(pairs):
+            warn('Number of MPI ranks is greater than number of comparisons')
+            warn('This is harmless but silly')
+        pieces = [list() for x in range(size)]
+        for i, pair in enumerate(pairs):
+            pieces[i%size].append(pair)
+    else:
+        pieces = None
+
+    pairs = comm.scatter(pieces, root=0)
+
+    weights = bp.unpack_ndarray_file(weightfile)
+
+    outfile = path.join(outdir, 'kernels_{}'.format(rank))
+    with open(outfile, 'w') as fh:
+        pass
+
+    for afile, bfile in pairs:
+        a = CountMinKmerCounter.read(afile).array
+        b = CountMinKmerCounter.read(bfile).array
+
+        print(rank, afile, bfile)
+        kernel = ne.evaluate('sum(a * b * weights, axis=1)').min()
+
+        with open(outfile, 'a') as kfh:
+            print(afile, bfile, kernel, sep='\t', file=kfh)
