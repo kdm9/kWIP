@@ -50,6 +50,7 @@ setup_requires = [
 ]
 
 install_requires = [
+    'blessings',
     'docopt>=0.6',
     'screed>=0.9',
     'pymer',
@@ -74,6 +75,7 @@ setup(
         'console_scripts': [
             'kwip-hash = kwipy.scripts:hash_main',
             'kwip-calcweight = kwipy.scripts:calcweight_main',
+            'kwip-kernel-mpi = kwipy.scripts:kernel_mpi_main',
         ],
     },
     cmdclass=command_classes,
