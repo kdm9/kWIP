@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright  2016  Kevin Murray <spam@kdmurray.id.au>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,7 +18,13 @@
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
-from Cython.Build import cythonize
+EXT='c'
+try:
+    from Cython.Build import cythonize
+    EXT='pyx'
+except ImportError:
+    def cythonize(x): return x
+
 import versioneer
 
 
@@ -62,6 +70,7 @@ setup(
     entry_points={
         'console_scripts': [
             'kwip-hash = kwipy.scripts:hash_main',
+            'kwip-calcweight = kwipy.scripts:calcweight_main',
         ],
     },
     cmdclass=command_classes,
