@@ -53,7 +53,10 @@ install_requires = [
     'docopt>=0.6',
     'screed>=0.9',
     'pymer',
-    'pyyaml',
+    'msgpack-python',
+    'numexpr',
+    'numpy',
+    'mpi4py',
 ]
 
 test_requires = [
