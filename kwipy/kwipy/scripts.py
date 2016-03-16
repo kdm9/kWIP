@@ -126,6 +126,7 @@ def calcweight_main():
     popfreq.flush()
     print("Done!")
 
+
 def kernel_argparse():
     cli = '''
 
@@ -185,7 +186,6 @@ def kernel_mpi_main():
         b = bcolz.open(bfile, mode='r')
 
         print(rank, afile, bfile)
-        print(a.shape, b.shape, weights.shape)
         kernel = bcolz.eval('sum(a * b * weights, axis=0)').min()
 
         with open(outfile, 'a') as kfh:
