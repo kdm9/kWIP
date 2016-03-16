@@ -73,9 +73,10 @@ setup(
     version=versioneer.get_version(),
     entry_points={
         'console_scripts': [
-            'kwip-hash = kwipy.scripts:hash_main',
-            'kwip-calcweight = kwipy.scripts:calcweight_main',
-            'kwip-kernel-mpi = kwipy.scripts:kernel_mpi_main',
+            'kwipy-hash = kwipy.scripts:hash_main',
+            'kwipy-calcweight = kwipy.scripts:calcweight_main',
+            'kwipy-kernel-mpi = kwipy.scripts:kernel_mpi_main',
+            'kwipy-distmat = kwipy.scripts:distmat_main',
         ],
     },
     cmdclass=command_classes,
