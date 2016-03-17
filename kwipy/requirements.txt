@@ -1,0 +1,8 @@
+bcolz
+blessings
+docopt
+mpi4py
+numexpr
+numpy
+pymer
+screed
