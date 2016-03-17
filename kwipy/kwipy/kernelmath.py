@@ -16,7 +16,7 @@ def normalise_kernel(K):
     return N
 
 
-def kern_to_dist(K):
+def kernel_to_distance(K):
     '''Convert a kernel matrix to a distance matrix.
 
     The kernel matrix need not be normalised, this is done internally.'''

@@ -13,15 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from blessings import Terminal
 import bcolz
-import bloscpack as bp
+from blessings import Terminal
 from docopt import docopt
+from mpi4py import MPI
 import numpy as np
 import numexpr as ne
 from pymer import CountMinKmerCounter
 import screed
-from mpi4py import MPI
 
 import itertools as itl
 from glob import glob
@@ -30,8 +29,11 @@ from os import path
 import re
 from sys import stderr, stdout
 
+from .kernelmath import *
+
 
 term = Terminal()
+
 
 def progress(*args, file=stdout):
     file.write(term.move_x(0))
@@ -50,9 +52,14 @@ def warn(*args, file=stdout):
     file.flush()
 
 
+def print_lsmat(matrix, ids, file=None):
+    print('', *ids, sep='\t', file=file)
+    for rowidx, id in enumerate(ids):
+        print(id, *list(matrix[rowidx,:]), sep='\t', file=file)
+
+
 def hash_main():
     cli = '''
-
     USAGE:
         kwipy-hash [options] OUTFILE READFILES ...
 
@@ -84,9 +91,9 @@ def hash_main():
     print("Writing to", outfile)
     counter.write(outfile)
 
+
 def calcweight_main():
     cli = '''
-
     USAGE:
         kwipy-calcweight [options] WEIGHTFILE COUNTFILES ...
 
@@ -129,7 +136,6 @@ def calcweight_main():
 
 def kernel_argparse():
     cli = '''
-
     USAGE:
         kwipy-kernelcalc [options] OUTDIR WEIGHTFILE COUNTFILES ...
 
@@ -194,7 +200,6 @@ def kernel_mpi_main():
 
 def distmat_main():
     cli = '''
-
     USAGE:
         kwipy-distmat [options] KERNELDIR
 
@@ -209,6 +214,8 @@ def distmat_main():
 
     opts = docopt(cli)
     outdir = opts['KERNELDIR']
+    kernfile = opts['-k']
+    distfile = opts['-d']
 
     def _file_to_name(filename):
         filename = path.basename(filename)
@@ -234,22 +241,35 @@ def distmat_main():
                 except KeyError:
                     kernels[a] = {b: kern}
 
-    print(kernels)
-
-    # square up the dictionary
-    for a, b in itl.combinations_with_replacement(samples, 2):
-        try:
-            kernels[b][a] = kern
-        except KeyError:
-            kernels[b] = {a: kern}
-
-    print(kernels)
-
     # Make an ordered array
     num_samples = len(samples)
     kernmat = np.zeros((num_samples, num_samples), dtype=float)
-    for (ia, a), (ib, b) in zip(enumerate(sorted(samples)),
-                                enumerate(sorted(samples))):
-        kernmat[ia, ib] = kernels[a, b]
+    samples = list(sorted(samples))
+    sample_idx = {s:i for i, s in enumerate(samples)}
+    # square up the dictionary
+    for a, b in itl.combinations_with_replacement(sorted(samples), 2):
+        ai = sample_idx[a]
+        bi = sample_idx[b]
+        kernmat[ai, bi] = kernels[a][b]
+        kernmat[bi, ai] = kernels[a][b]
 
-    print(kernmat)
+    if is_psd(kernmat):
+        info("Kernel matrix is positive semi-definite")
+    else:
+        warn("Kernel matrix is NOT positive semi-definite")
+
+    if is_psd(distmat):
+        info("Distance matrix is positive semi-definite")
+    else:
+        warn("Distance matrix is NOT positive semi-definite")
+
+    distmat = kernel_to_distance(kernmat)
+    if distfile:
+        with open(distfile, 'w') as dfh:
+            print_lsmat(distmat, samples, file=dfh)
+
+    if kernfile:
+        with open(kernfile, 'w') as dfh:
+            print_lsmat(kernmat, samples, file=dfh)
+    else:
+        print_lsmat(kernmat, samples)
