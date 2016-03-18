@@ -28,6 +28,7 @@ import re
 from sys import stderr, stdout
 
 from .kernelmath import *
+from .loggging import *
 from .utils import (
     calc_weights,
     count_reads,
