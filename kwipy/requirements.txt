@@ -5,4 +5,4 @@ mpi4py
 numexpr
 numpy
 pymer
-screed
+screed>=0.9
