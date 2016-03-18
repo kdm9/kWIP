@@ -1003,9 +1003,14 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     # _version.py hasn't already been rewritten with a short version string,
     # meaning we're inside a checked out source tree.
 
-    if not os.path.exists(os.path.join(root, ".git")):
+    gitroot = root
+    for _ in range(3):
+        if not os.path.exists(os.path.join(gitroot, ".git")):
+            gitroot = os.path.dirname(gitroot)
+
+    if not os.path.exists(os.path.join(gitroot, ".git")):
         if verbose:
-            print("no .git in %s" % root)
+            print("no .git in %s" % gitroot)
         raise NotThisMethod("no .git directory")
 
     GITS = ["git"]
@@ -1015,12 +1020,12 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     # if there are no tags, this yields HEX[-dirty] (no NUM)
     describe_out = run_command(GITS, ["describe", "--tags", "--dirty",
                                       "--always", "--long"],
-                               cwd=root)
+                               cwd=gitroot)
     # --long was added in git-1.5.5
     if describe_out is None:
         raise NotThisMethod("'git describe' failed")
     describe_out = describe_out.strip()
-    full_out = run_command(GITS, ["rev-parse", "HEAD"], cwd=root)
+    full_out = run_command(GITS, ["rev-parse", "HEAD"], cwd=gitroot)
     if full_out is None:
         raise NotThisMethod("'git rev-parse' failed")
     full_out = full_out.strip()
@@ -1072,7 +1077,7 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
         # HEX: no tags
         pieces["closest-tag"] = None
         count_out = run_command(GITS, ["rev-list", "HEAD", "--count"],
-                                cwd=root)
+                                cwd=gitroot)
         pieces["distance"] = int(count_out)  # total number of commits
 
     return pieces
