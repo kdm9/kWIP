@@ -26,17 +26,21 @@ term = Terminal()
 def progress(*args, file=stdout, end=''):
     file.write(term.move_x(0))
     file.write(term.clear_eol())
+    file.write(term.cyan)
     print(*args, end=end, file=file)
+    file.write(term.normal)
     file.flush()
 
 
 def info(*args, file=stdout, end='\n'):
-    end += term.normal
-    print(term.blue, *args, file=file, end=end)
+    file.write(term.blue)
+    print(*args, file=file, end=end)
+    file.write(term.normal)
     file.flush()
 
 
 def warn(*args, file=stderr, end='\n'):
-    end += term.normal
-    print(term.bold_yellow, *args, file=file, end=end)
+    file.write(term.bold_yellow)
+    print(*args, file=file, end=end)
+    file.write(term.normal)
     file.flush()
