@@ -43,12 +43,12 @@ def progress(*args, file=stdout):
 
 
 def info(*args, file=stdout):
-    print(term.blue, *args, term.normal, file=file)
+    print(term.blue, *args, file=file, end=term.normal + '\n')
     file.flush()
 
 
 def warn(*args, file=stdout):
-    print(term.bold_yellow, *args, term.normal, file=file)
+    print(term.bold_yellow, *args, file=file, end=term.normal + '\n')
     file.flush()
 
 
