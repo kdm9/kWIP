@@ -14,13 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import bcolz
-from blessings import Terminal
 from docopt import docopt
 from mpi4py import MPI
 import numpy as np
 import numexpr as ne
 from pymer import CountMinKmerCounter
-import screed
 
 import itertools as itl
 from glob import glob
@@ -30,43 +28,24 @@ import re
 from sys import stderr, stdout
 
 from .kernelmath import *
+from .utils import (
+    calc_weights,
+    count_reads,
+    print_lsmat,
+)
 
 
-term = Terminal()
-
-
-def progress(*args, file=stdout):
-    file.write(term.move_x(0))
-    file.write(term.clear_eol())
-    print(*args, end='', file=file)
-    file.flush()
-
-
-def info(*args, file=stdout):
-    print(term.blue, *args, file=file, end=term.normal + '\n')
-    file.flush()
-
-
-def warn(*args, file=stdout):
-    print(term.bold_yellow, *args, file=file, end=term.normal + '\n')
-    file.flush()
-
-
-def print_lsmat(matrix, ids, file=None):
-    print('', *ids, sep='\t', file=file)
-    for rowidx, id in enumerate(ids):
-        print(id, *list(matrix[rowidx,:]), sep='\t', file=file)
-
-
-def hash_main():
+def count_main():
     cli = '''
     USAGE:
-        kwipy-hash [options] OUTFILE READFILES ...
+        kwipy-count [options] OUTFILE READFILES ...
 
     OPTIONS:
         -k KSIZE    Kmer length [default: 20]
         -N NTAB     Number of tables [default: 4]
         -x TSIZE    Table size [default: 1e9]
+
+    Counts k-mers in READFILES to a count-min sketch which is saved to OUTFILE.
     '''
 
     opts = docopt(cli)
@@ -76,26 +55,16 @@ def hash_main():
     outfile = opts['OUTFILE']
     readfiles = opts['READFILES']
 
-    counter = CountMinKmerCounter(k, sketchshape=(nt, ts))
+    counts = count_reads(*readfiles, k=k, sketchshape=(nt, ts))
 
-    for readfile in readfiles:
-        print("Consuming:",  readfile)
-        with screed.open(readfile) as reads:
-            for i, read in enumerate(reads):
-                counter.consume(str(read.sequence))
-                if i % 10000 == 0:
-                    progress(i/1000, 'K reads')
-        progress(i/1000, 'K reads')
-        print()
-
-    print("Writing to", outfile)
-    counter.write(outfile)
+    info("Writing counts to", outfile)
+    counts.write(outfile)
 
 
-def calcweight_main():
+def weight_main():
     cli = '''
     USAGE:
-        kwipy-calcweight [options] WEIGHTFILE COUNTFILES ...
+        kwipy-weight [options] WEIGHTFILE COUNTFILES ...
 
     OPTIONS:
         -k KSIZE    Kmer length [default: 20]
@@ -110,49 +79,29 @@ def calcweight_main():
     outfile = opts['WEIGHTFILE']
     countfiles = opts['COUNTFILES']
 
-    popfreq = np.zeros((ts, nt), dtype=float)
-    nsamples = len(countfiles)
-    print(nsamples)
+    weights = calc_weights(*countfiles, k=k, sketchshape=(nt, ts))
 
-    for countfile in countfiles:
-        print("Loading",  countfile, end='... '); stdout.flush()
-        counts = bcolz.open(countfile, mode='r')
-        counts = np.array(counts).reshape(counts.shape)
-        ne.evaluate('popfreq + where(counts > 0, 1, 0)', out=popfreq)
-        print("Done!")
-
-    print("Calculating entropy vector")
-
-    ne.evaluate('popfreq / nsamples', out=popfreq)
-    ne.evaluate('-(popfreq * log(popfreq) + (1 - popfreq) * log((1-popfreq)))',
-                out=popfreq)
-    # workaround for numexpr's lack of isnan(): compare inequality, NaN != NaN
-    ne.evaluate('where(popfreq != popfreq, 0, popfreq)', out=popfreq)
-    print("Writing to", outfile, end='... '); stdout.flush()
-    popfreq = bcolz.carray(popfreq, rootdir=outfile, mode='w')
-    popfreq.flush()
-    print("Done!")
+    info("Writing weights to", outfile, end='... ')
+    weights = bcolz.carray(popfreq, rootdir=outfile, mode='w')
+    weights.flush()
+    info("Done!")
 
 
-def kernel_argparse():
+def kernel_mpi_main():
     cli = '''
     USAGE:
-        kwipy-kernelcalc [options] OUTDIR WEIGHTFILE COUNTFILES ...
+        kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
 
     OPTIONS:
         -c      Resume previous calculation to OUTDIR
-    '''
 
+    '''
     opts = docopt(cli)
     outdir = opts['OUTDIR']
     weightfile = opts['WEIGHTFILE']
     countfiles = opts['COUNTFILES']
     resume = opts['-c']
-    return outdir, weightfile, countfiles, resume
 
-
-def kernel_mpi_main():
-    outdir, weightfile, countfiles, resume = kernel_argparse()
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 

@@ -49,16 +49,8 @@ setup_requires = [
     'cython',
 ]
 
-install_requires = [
-    'blessings',
-    'docopt>=0.6',
-    'screed>=0.9',
-    'pymer',
-    'msgpack-python',
-    'numexpr',
-    'numpy',
-    'mpi4py',
-]
+with open('requirements.txt') as fh:
+    install_requires = [req.strip() for req in fh]
 
 test_requires = [
     'coverage>=3.7',
@@ -73,8 +65,8 @@ setup(
     version=versioneer.get_version(),
     entry_points={
         'console_scripts': [
-            'kwipy-hash = kwipy.scripts:hash_main',
-            'kwipy-calcweight = kwipy.scripts:calcweight_main',
+            'kwipy-count = kwipy.scripts:count_main',
+            'kwipy-weight = kwipy.scripts:weight_main',
             'kwipy-kernel-mpi = kwipy.scripts:kernel_mpi_main',
             'kwipy-distmat = kwipy.scripts:distmat_main',
         ],
