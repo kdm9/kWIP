@@ -44,6 +44,7 @@ def count_reads(*readfiles, k=20, sketchshape=(4, 1e9)):
 
 
 def calc_weights(*countfiles, k=20, sketchshape=(4, 1e9)):
+    nt, ts = sketchshape
     popfreq = np.zeros((ts, nt), dtype=float)
     nsamples = len(countfiles)
 
