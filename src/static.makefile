@@ -20,44 +20,44 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CXX 	 := g++
-CXXFLAGS += -O3 -static -static-libstdc++ -std=c++11 -fopenmp  -DSEQAN_HAS_GZIP=1 -DSEQAN_HAS_BZIP2=1 \
-		   	-I src -I src/ext/ -I src/ext/eigen3 -I src/ext/seqan/core/include
-LDFLAGS  += /usr/local/lib/libz.a /usr/local/lib/libbz2.a
+GPGKEY 		= "E56C E72C 8060 C9F9 5F6B  5E72 0FEB 966A 205B 4780"
+HBB_DOCKER 	= docker run -t -i --rm -v $(shell pwd):/io \
+			  		phusion/holy-build-box-64:latest bash
 
-VER=$(shell git describe --always)
+DEP_TARS_	= libbz2.tar.gz
+DEP_TARS 	= $(foreach dep,$(DEP_TARS_),deps/$(dep))
 
-OXLI_OBJ=src/ext/oxli/read_aligner.o \
-         src/ext/oxli/labelhash.o \
-         src/ext/oxli/MurmurHash3.o \
-         src/ext/oxli/hashbits.o \
-         src/ext/oxli/counting.o \
-         src/ext/oxli/kmer_hash.o \
-         src/ext/oxli/hashtable.o \
-         src/ext/oxli/traversal.o \
-         src/ext/oxli/hllcounter.o \
-         src/ext/oxli/subset.o \
-         src/ext/oxli/read_parsers.o
+VERSION		= $(shell git describe)
+PREFIXDIR	= kwip_$(VERSION)_amd64
+TARS		= $(PREFIXDIR).tar.gz
+TARSUMS 	= $(foreach tar,$(TARS),$(tar).sha512sums)
+SIGS   		= $(foreach tar,$(TARS),$(tar).asc)
 
-KWIP_OBJ=src/countmin.o \
-		 src/kernel.o \
-		 src/kernels/ip.o \
-		 src/kernels/wip.o \
-		 src/kwip-cli.o \
-		 src/kwip-utils.o \
-		 src/population.o \
-		 $(OXLI_OBJ)
+.PHONY: all clean cleandep sign
+all: $(TARS) $(TARSUMS)
 
-
-kwip: $(KWIP_OBJ) src/kwip-config.hh
-	$(CXX) $(CXXFLAGS) -o kwip $(KWIP_OBJ) $(LDFLAGS)
-
-$(KWIP_OBJ): src/kwip-config.hh
-
-src/kwip-config.hh: src/kwip-config.hh.in
-	sed -e 's/^#define KWIP_VERSION.*/#define KWIP_VERSION "$(VER)"/' \
-		-e 's/^#cmakedefine ENABLE_MULTITABLE.*/#undef ENABLE_MULTITABLE/' \
-		$< >$@
+sign: $(SIGS)
 
 clean:
-	rm -f $(KWIP_OBJ) kwip src/kwip-config.hh
+	rm -rf kwip_*_amd64*
+
+cleandep:
+	rm -rf deps
+
+$(PREFIXDIR): src/hbb-build.sh $(DEP_TARS) .git/index
+	$(HBB_DOCKER) /io/$< $(VERSION)
+
+
+%.sha512sums: %
+	sha512sum $< >$@
+
+%.asc: %
+	gpg --armour --local-user $(GPGKEY) --detach-sign $<
+
+
+%.tar.gz: %
+	tar czf $@ $<
+
+deps/libbz2.tar.gz:
+	mkdir -p deps
+	wget -O $@ http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
