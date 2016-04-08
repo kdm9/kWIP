@@ -11,7 +11,6 @@ dist: trusty
 
 compiler:
   - gcc
-  - clang
 
 before_install:
   - sudo apt-get install -yy python3-pip
