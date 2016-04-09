@@ -6,7 +6,7 @@ bash miniconda.sh -b -p $HOME/miniconda
 export PATH="$HOME/miniconda/bin:$PATH"
 conda config --set always_yes yes --set changeps1 no
 conda update -q conda
-conda create -q -n test-environment python=$(which python3) numpy cython numexpr
+conda create -q -n test-environment numpy cython numexpr
 source activate test-environment
 
 python3 setup.py install
