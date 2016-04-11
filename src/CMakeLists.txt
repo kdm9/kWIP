@@ -16,16 +16,6 @@ SET_TARGET_PROPERTIES(libkwip PROPERTIES OUTPUT_NAME kwip)
 TARGET_LINK_LIBRARIES(libkwip ${KMERCLUST_DEPENDS_LIBS})
 
 
-ADD_EXECUTABLE(kmerclust
-               kmerclust/kmerclust-cli.cc
-               kmerclust/js.cc
-               kmerclust/d2freq.cc
-               kmerclust/d2thresh.cc
-               kmerclust/d2pop.cc
-               )
-TARGET_LINK_LIBRARIES(kmerclust ${KMERCLUST_DEPENDS_LIBS} libkwip)
-
-
 ADD_EXECUTABLE(kwip kwip-cli.cc)
 TARGET_LINK_LIBRARIES(kwip ${KMERCLUST_DEPENDS_LIBS} libkwip)
 INSTALL(TARGETS kwip DESTINATION "bin")

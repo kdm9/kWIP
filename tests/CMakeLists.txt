@@ -26,10 +26,6 @@ ADD_TEST(NAME "kWIP-cli"
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	 )
 
-ADD_TEST(NAME "old-cli"
-	 COMMAND bash ${CMAKE_SOURCE_DIR}/tests/test-kmerclust-cli.sh
-         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	 )
 
 SET(COVERAGE_CMD ctest)
 SET(COVERAGE_OUT "${CMAKE_BINARY_DIR}/coverage_html")
