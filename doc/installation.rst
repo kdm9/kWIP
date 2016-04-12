@@ -41,31 +41,29 @@ The easy way
 ------------
 
 Pre-compiled static binaries for 64-bit GNU/Linux are provided on the `GitHub
-releases page <https://github.com/kdmurray91/kWIP/releases>`_ in an archive
-named ``kwip-binaries_VERSION.tar.xz`` or similar (where ``VERSION`` is the
-latest released version). Please download this to your **GNU/Linux** machine,
-and:
+releases page <https://github.com/kdmurray91/kWIP/releases>`_. The following
+commands will obtain and install ``kWIP``.
 
 .. code-block:: shell
 
-    # Assuming you want to install to ~/bin/kwip
-    PREFIX=$HOME
-    cd $PREFIX
-
     # If ~/bin/ is not in $PATH, you won't be able to use kwip.
     # Perform the command below to ensure PATH is set correctly.
-    echo "PATH=\"${PREFIX}/bin:\${PATH}\"" >> ~/.bashrc
+    echo "PATH=\"${HOME}/bin:\${PATH}\"" >> ~/.bashrc
     . ~/.bashrc
 
-    # Below, repace all text in quotes with the URL to the archive
-    # on the GitHub release page
-    wget "URL FROM THE RELEASES PAGE"
+    cd $HOME
+    wget https://github.com/kdmurray91/kWIP/releases/download/0.2.0/kwip-binaries_0.2.0.tar.gz
+    wget https://github.com/kdmurray91/kWIP/releases/download/0.2.0/kwip-binaries_0.2.0.tar.gz.sha256sums
+    sha256sum -c kwip-binaries_0.2.0.tar.gz.sha256sums
 
-    # Extract the precompile binaries and documentation
-    tar xvf kwip-binaries*.tar.xz
+    # Extract the precompiled binaries
+    tar xvf kwip-binaries*.tar.gz
 
     # Check your installation by typing
     kwip --help
 
-    # The HTML documenation is available under ./share/doc/kwip
-    ls $PREFIX/share/doc/kwip
+
+Please note that as these binaries are compiled to be as widely compatible as
+possible, the compiler will use few modern optimisations. Therefore it is
+possible that these static binaries will be slower on modern processors than
+binaries compiled from source.
