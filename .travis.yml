@@ -1,26 +1,23 @@
 language: cpp
 
+sudo: required
+dist: trusty
+
 env:
- matrix:
-  - BUILD_TYPE=Release
-  - BUILD_TYPE=Debug
+  matrix:
+    - BUILD_TYPE=Release
+    - BUILD_TYPE=Debug
 
 compiler:
   - gcc
-  - clang
 
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
-    - python-pip
+      - python-pip
 
 install:
-- export CXX="g++-4.8" CC="gcc-4.8"
-- pip install --user sphinx>=1.3
+  - pip install --user sphinx>=1.3
 
 script:
- - bash util/ci-build.sh
+  - bash util/ci-build.sh
