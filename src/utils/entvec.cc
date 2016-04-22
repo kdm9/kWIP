@@ -79,7 +79,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         }
     }
 
-    *tabstream << "Sample\tSampleSum\tWeightedSampleSum\tWeight\tEntropy\n";
+    *tabstream << "Sample\tSampleSum\tWeightedSampleSum\tEntropy\n";
     #pragma omp parallel for num_threads(_num_threads)
     for (size_t i = 0; i < num_samples; i++) {
         kwip::CountingHashShrPtr ht = _get_hash(hash_fnames[i]);
@@ -91,8 +91,7 @@ calculate_pairwise(std::vector<std::string> &hash_fnames)
         #pragma omp critical
         {
             *tabstream << sample_names[i] << "\t" << sumsamp << "\t"
-                       << sumentsamp << "\t" << sumsamp * sumentsamp << "\t"
-                       << entropy << "\n";
+                       << sumentsamp << "\t" << entropy << "\n";
         }
     }
     if (verbosity > 0) {
