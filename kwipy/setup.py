@@ -72,8 +72,11 @@ setup(
             'kwipy-weight = kwipy.scripts:weight_main',
             'kwipy-kernel = kwipy.scripts:kernel_main',
             'kwipy-distmat = kwipy.scripts:distmat_main',
-            # 'kwipy-kernel-mpi = kwipy.scripts:kernel_mpi_main',
+            'kwipy-kernel-mpi = kwipy.mpiui:kernel_mpi_main [mpi]',
         ],
+    },
+    extras_require={
+        "mpi": ["mpi4py", ],
     },
     ext_modules=cythonize([
         Extension(
