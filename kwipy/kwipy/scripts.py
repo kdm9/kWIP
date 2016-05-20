@@ -92,6 +92,44 @@ def weight_main():
     info("Done!")
 
 
+def kernel_main():
+    cli = '''
+    USAGE:
+        kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
+
+    OPTIONS:
+        -c      Resume previous calculation to OUTDIR
+    '''
+    opts = docopt(cli)
+    outdir = opts['OUTDIR']
+    weightfile = opts['WEIGHTFILE']
+    countfiles = opts['COUNTFILES']
+    resume = opts['-c']
+
+    pairs = list(itl.combinations_with_replacement(countfiles, 2))
+
+    # TODO: name kernel logs by the md5 of input filenames
+    outfile = path.join(outdir, 'kernellog')
+    if resume and path.exists(outfile):
+        pairs_done = set()
+        with open(outfile) as fh:
+            for line in fh:
+                a, b, kern = line.strip().split('\t')
+                pairs_done.add((a, b))
+        pairs = pairs.filter(lambda x: x not in pairs_done)
+    else:
+        with open(outfile, 'w') as fh:
+            pass
+
+    kernfn = partial(calc_kernel, weightfile)
+
+    pool = Pool()
+    for a, b, kernel in pool.imap_unordered(kernfn, pairs, 1):
+        info(a, b, "=>",  kernel)
+        with open(outfile, 'a') as kfh:
+            print(a, b, kernel, sep='\t', file=kfh)
+
+
 def distmat_main():
     cli = '''
     USAGE:
@@ -168,42 +206,3 @@ def distmat_main():
             print_lsmat(kernmat, samples, file=dfh)
     else:
         print_lsmat(kernmat, samples)
-
-
-def kernel_main():
-    cli = '''
-    USAGE:
-        kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
-
-    OPTIONS:
-        -c      Resume previous calculation to OUTDIR
-    '''
-    opts = docopt(cli)
-    outdir = opts['OUTDIR']
-    weightfile = opts['WEIGHTFILE']
-    countfiles = opts['COUNTFILES']
-    resume = opts['-c']
-
-    pairs = list(itl.combinations_with_replacement(countfiles, 2))
-
-    # TODO: name kernel logs by the md5 of input filenames
-    outfile = path.join(outdir, 'kernellog')
-    if resume and path.exists(outfile):
-        pairs_done = set()
-        with open(outfile) as fh:
-            for line in fh:
-                a, b, kern = line.strip().split('\t')
-                pairs_done.add((a, b))
-        pairs = pairs.filter(lambda x: x not in pairs_done)
-    else:
-        with open(outfile, 'w') as fh:
-            pass
-
-    kernfn = partial(calc_kernel, weightfile)
-
-    pool = Pool()
-    for a, b, kernel in pool.imap_unordered(kernfn, pairs, 1):
-    # for a, b, kernel in map(kernfn, pairs):
-        print(a, b, kernel)
-        with open(outfile, 'a') as kfh:
-            print(a, b, kernel, sep='\t', file=kfh)
