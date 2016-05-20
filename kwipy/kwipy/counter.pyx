@@ -31,7 +31,7 @@ cdef class Counter(object):
 
     def __init__(self, k, cmsshape=(4, 1e8), cvsize=2e8):
         self.k = k
-        self.nt, self.ts = cmsshape
+        self.nt, self.ts = map(int, cmsshape)
         self.cvsz = cvsize
         dtype='u2'
         self.dtmax = 2**16 - 1
@@ -39,8 +39,8 @@ cdef class Counter(object):
         if self.nt < 1 or self.nt > 10:
             raise ValueError("Too many or few tables. must be 1 <= nt <= 10")
 
-        self.cms = np.zeros(cmsshape, dtype=dtype)
-        self.cv = np.zeros(cvsize, dtype=dtype)
+        self.cms = np.zeros((self.nt, self.ts), dtype=dtype)
+        self.cv = np.zeros(int(cvsize), dtype=dtype)
 
     @cython.boundscheck(False)
     @cython.overflowcheck(False)
