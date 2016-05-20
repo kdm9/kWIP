@@ -42,8 +42,8 @@ def print_lsmat(matrix, ids, file=None):
         print(id, *list(matrix[rowidx, :]), sep='\t', file=file)
 
 
-def count_reads(readfiles, k=20, sketchshape=(4, 1e8), cvsize=2e8):
-    counter = Counter(k, sketchshape, cvsize)
+def count_reads(readfiles, k=20, cvsize=2e8):
+    counter = Counter(k, cvsize)
 
     for readfile in readfiles:
         info("Consuming:",  readfile)

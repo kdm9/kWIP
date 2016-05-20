@@ -54,20 +54,20 @@ def count_main():
 
     OPTIONS:
         -k KSIZE    Kmer length [default: 20]
-        -N NTAB     Number of tables [default: 4]
-        -x TSIZE    Table size [default: 1e9]
+        -v CVLEN    Count vector length [default: 1e9]
 
     Counts k-mers in READFILES to a count-min sketch which is saved to OUTFILE.
+
+    Will use about 6 * CVLEN bytes of RAM.
     '''
 
     opts = docopt(cli)
     k = int(opts['-k'])
-    nt = int(opts['-N'])
-    ts = int(float(opts['-x']))
+    cvsize = int(float(opts['-v']))
     outfile = opts['OUTFILE']
     readfiles = opts['READFILES']
 
-    counts = count_reads(readfiles, k=k, sketchshape=(nt, ts))
+    counts = count_reads(readfiles, k=k, cvsize=cvsize)
 
     info("Writing counts to", outfile)
     counts.save(outfile)

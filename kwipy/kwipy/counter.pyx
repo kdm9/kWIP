@@ -25,14 +25,15 @@ cdef inline u64 mm64(u64 key, u64 seed):
 
 cdef class Counter(object):
     cdef readonly u64 k
-    cdef readonly u64 nt, ts, cvsz
+    cdef readonly u64 nt, ts, cvsize
     cdef u64 dtmax
     cdef np.ndarray cms, cv
 
-    def __init__(self, k, cmsshape=(4, 1e8), cvsize=2e8):
+    def __init__(self, k, cvsize=2e8):
         self.k = k
-        self.nt, self.ts = map(int, cmsshape)
-        self.cvsz = cvsize
+        self.nt, self.ts = (4, cvsize / 2)
+
+        self.cvsize = cvsize
         dtype='u2'
         self.dtmax = 2**16 - 1
 
@@ -58,7 +59,7 @@ cdef class Counter(object):
             if minv > v:
                 minv = v
             self.cms[tab, i] = v
-        self.cv[hsh % self.cvsz] = minv
+        self.cv[hsh % self.cvsize] = minv
         return minv
 
 
