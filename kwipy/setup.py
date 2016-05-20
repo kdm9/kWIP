@@ -18,12 +18,15 @@
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
-EXT='c'
+from setuptools.extension import Extension
+
+
 try:
     from Cython.Build import cythonize
-    EXT='pyx'
+    EXT = 'pyx'
 except ImportError:
     def cythonize(x): return x
+    EXT = 'c'
 
 import versioneer
 
@@ -56,8 +59,8 @@ test_requires = [
     'coverage>=3.7',
 ]
 
-command_classes=versioneer.get_cmdclass()
-command_classes['test'] =  NoseCommand
+command_classes = versioneer.get_cmdclass()
+command_classes['test'] = NoseCommand
 
 setup(
     name="kwipy",
@@ -67,10 +70,23 @@ setup(
         'console_scripts': [
             'kwipy-count = kwipy.scripts:count_main',
             'kwipy-weight = kwipy.scripts:weight_main',
-            'kwipy-kernel-mpi = kwipy.scripts:kernel_mpi_main',
+            'kwipy-kernel = kwipy.scripts:kernel_main',
             'kwipy-distmat = kwipy.scripts:distmat_main',
+            # 'kwipy-kernel-mpi = kwipy.scripts:kernel_mpi_main',
         ],
     },
+    ext_modules=cythonize([
+        Extension(
+            'kwipy.counter', [
+                'kwipy/counter.{}'.format(EXT),
+            ],
+        ),
+        Extension(
+            'kwipy.internals', [
+                'kwipy/internals.{}'.format(EXT),
+            ],
+        ),
+    ]),
     cmdclass=command_classes,
     install_requires=install_requires,
     tests_require=test_requires,

@@ -21,48 +21,73 @@ import numexpr as ne
 from pymer import CountMinKmerCounter
 import screed
 
-from .logging import *
+from os import path
+
+from .logging import (
+    progress,
+    info,
+    warn,
+)
+from .counter import Counter
+from .internals import (
+    wipkernel,
+    popfreq_add_sample,
+    popfreq_to_weights
+)
 
 
 def print_lsmat(matrix, ids, file=None):
     print('', *ids, sep='\t', file=file)
     for rowidx, id in enumerate(ids):
-        print(id, *list(matrix[rowidx,:]), sep='\t', file=file)
+        print(id, *list(matrix[rowidx, :]), sep='\t', file=file)
 
 
-def count_reads(*readfiles, k=20, sketchshape=(4, 1e9)):
-    counter = CountMinKmerCounter(k, sketchshape=sketchshape)
+def count_reads(readfiles, k=20, sketchshape=(4, 1e8), cvsize=2e8):
+    counter = Counter(k, sketchshape, cvsize)
 
     for readfile in readfiles:
         info("Consuming:",  readfile)
         with screed.open(readfile) as reads:
             for i, read in enumerate(reads):
-                counter.consume(str(read.sequence))
+                counter.consume(read.sequence)
                 if i % 10000 == 0:
                     progress(i/1000, 'K reads')
         progress(i/1000, 'K reads', end='\n')
     return counter
 
 
-def calc_weights(*countfiles, k=20, sketchshape=(4, 1e9)):
-    nt, ts = sketchshape
-    popfreq = np.zeros((ts, nt), dtype=float)
+def calc_weights(countfiles):
+    popfreq = None
     nsamples = len(countfiles)
 
     for countfile in countfiles:
         info("Loading",  countfile, end='... ')
-        counts = bcolz.open(countfile, mode='r')
-        # FIXME: the line below is due to a bug in bcolz, I think
-        counts = np.array(counts).reshape(counts.shape)
-        ne.evaluate('popfreq + where(counts > 0, 1, 0)', out=popfreq)
+        counts = bcolz.open(countfile, mode='r')[:]
+        if popfreq is None:
+            popfreq = np.zeros(counts.shape, dtype=np.float32)
+        popfreq_add_sample(popfreq, counts, counts.shape[0])
         info("Done!")
 
     info("Calculating entropy vector")
+    popfreq_to_weights(popfreq, popfreq.shape[0], nsamples)
+    return popfreq
 
-    # population counts to population freqs
-    ne.evaluate('popfreq / nsamples', out=popfreq)
-    # Population freqs to shannon entropy of pop freqs, i.e. weights
-    ne.evaluate('-(popfreq * log(popfreq) + (1 - popfreq) * log((1-popfreq)))',
-                out=popfreq)
-    # workaround for numexpr's lack of isnan(): compare inequality, NaN != NaN
-    ne.evaluate('where(popfreq != popfreq, 0, popfreq)', out=popfreq)
+
+def calc_kernel(weightsfile, ab):
+    afile, bfile = ab
+    abase = path.basename(afile)
+    bbase = path.basename(bfile)
+
+    A = bcolz.open(afile, mode='r')
+    B = bcolz.open(bfile, mode='r')
+    weights = bcolz.open(weightsfile, mode='r')
+
+    kernel = 0.0
+
+    bl = min([A.chunklen, B.chunklen, weights.chunklen])
+
+    for a, b, w in zip(bcolz.iterblocks(A, blen=bl),
+                       bcolz.iterblocks(B, blen=bl),
+                       bcolz.iterblocks(weights, blen=bl)):
+        kernel += wipkernel(a, b, w, bl)
+    return abase, bbase, kernel

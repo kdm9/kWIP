@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function, division, absolute_import
 import bcolz
 from docopt import docopt
-from mpi4py import MPI
 import numpy as np
 import numexpr as ne
 from pymer import CountMinKmerCounter
@@ -26,11 +26,22 @@ import os
 from os import path
 import re
 from sys import stderr, stdout
+from multiprocessing import Pool
+from functools import partial
 
-from .kernelmath import *
-from .logging import *
+from .kernelmath import (
+    is_psd,
+    normalise_kernel,
+    kernel_to_distance,
+)
+from .logging import (
+    progress,
+    info,
+    warn,
+)
 from .utils import (
     calc_weights,
+    calc_kernel,
     count_reads,
     print_lsmat,
 )
@@ -56,10 +67,10 @@ def count_main():
     outfile = opts['OUTFILE']
     readfiles = opts['READFILES']
 
-    counts = count_reads(*readfiles, k=k, sketchshape=(nt, ts))
+    counts = count_reads(readfiles, k=k, sketchshape=(nt, ts))
 
     info("Writing counts to", outfile)
-    counts.write(outfile)
+    counts.save(outfile)
 
 
 def weight_main():
@@ -67,85 +78,18 @@ def weight_main():
     USAGE:
         kwipy-weight [options] WEIGHTFILE COUNTFILES ...
 
-    OPTIONS:
-        -k KSIZE    Kmer length [default: 20]
-        -N NTAB     Number of tables [default: 4]
-        -x TSIZE    Table size [default: 1e9]
     '''
 
     opts = docopt(cli)
-    k = int(opts['-k'])
-    nt = int(opts['-N'])
-    ts = int(float(opts['-x']))
     outfile = opts['WEIGHTFILE']
     countfiles = opts['COUNTFILES']
 
-    weights = calc_weights(*countfiles, k=k, sketchshape=(nt, ts))
+    weights = calc_weights(countfiles)
 
     info("Writing weights to", outfile, end='... ')
-    weights = bcolz.carray(popfreq, rootdir=outfile, mode='w')
+    weights = bcolz.carray(weights, rootdir=outfile, mode='w')
     weights.flush()
     info("Done!")
-
-
-def kernel_mpi_main():
-    cli = '''
-    USAGE:
-        kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
-
-    OPTIONS:
-        -c      Resume previous calculation to OUTDIR
-
-    '''
-    opts = docopt(cli)
-    outdir = opts['OUTDIR']
-    weightfile = opts['WEIGHTFILE']
-    countfiles = opts['COUNTFILES']
-    resume = opts['-c']
-
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-
-    pairs = list(itl.combinations_with_replacement(countfiles, 2))
-
-    if rank == 0:
-        if resume:
-            existing_kernlogs = glob(path.join(outdir, 'kernellog_*'))
-            pairs_done = set()
-            for kl in existing_kernlogs:
-                with open(kl) as fh:
-                    for line in fh:
-                        a, b, kern = line.strip().split('\t')
-                        pairs_done.add((a, b))
-            pairs = pairs.filter(lambda x: x not in pairs_done)
-        size = comm.Get_size()
-        if size > len(pairs):
-            warn('Number of MPI ranks is greater than number of comparisons')
-            warn('This is harmless but silly')
-        pieces = [list() for x in range(size)]
-        for i, pair in enumerate(pairs):
-            pieces[i%size].append(pair)
-    else:
-        pieces = None
-
-    pairs = comm.scatter(pieces, root=0)
-
-    weights = bcolz.open(weightfile, mode='r')
-
-    outfile = path.join(outdir, 'kernellog_{}'.format(rank))
-    if not resume:
-        with open(outfile, 'w') as fh:
-            pass
-
-    for afile, bfile in pairs:
-        a = bcolz.open(afile, mode='r')
-        b = bcolz.open(bfile, mode='r')
-
-        print(rank, afile, bfile)
-        kernel = bcolz.eval('sum(a * b * weights, axis=0)').min()
-
-        with open(outfile, 'a') as kfh:
-            print(afile, bfile, kernel, sep='\t', file=kfh)
 
 
 def distmat_main():
@@ -195,7 +139,7 @@ def distmat_main():
     num_samples = len(samples)
     kernmat = np.zeros((num_samples, num_samples), dtype=float)
     samples = list(sorted(samples))
-    sample_idx = {s:i for i, s in enumerate(samples)}
+    sample_idx = {s: i for i, s in enumerate(samples)}
     # square up the dictionary
     for a, b in itl.combinations_with_replacement(sorted(samples), 2):
         ai = sample_idx[a]
@@ -208,12 +152,13 @@ def distmat_main():
     else:
         warn("Kernel matrix is NOT positive semi-definite")
 
+    distmat = kernel_to_distance(kernmat)
+
     if is_psd(distmat):
         info("Distance matrix is positive semi-definite")
     else:
         warn("Distance matrix is NOT positive semi-definite")
 
-    distmat = kernel_to_distance(kernmat)
     if distfile:
         with open(distfile, 'w') as dfh:
             print_lsmat(distmat, samples, file=dfh)
@@ -223,3 +168,42 @@ def distmat_main():
             print_lsmat(kernmat, samples, file=dfh)
     else:
         print_lsmat(kernmat, samples)
+
+
+def kernel_main():
+    cli = '''
+    USAGE:
+        kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
+
+    OPTIONS:
+        -c      Resume previous calculation to OUTDIR
+    '''
+    opts = docopt(cli)
+    outdir = opts['OUTDIR']
+    weightfile = opts['WEIGHTFILE']
+    countfiles = opts['COUNTFILES']
+    resume = opts['-c']
+
+    pairs = list(itl.combinations_with_replacement(countfiles, 2))
+
+    # TODO: name kernel logs by the md5 of input filenames
+    outfile = path.join(outdir, 'kernellog')
+    if resume and path.exists(outfile):
+        pairs_done = set()
+        with open(outfile) as fh:
+            for line in fh:
+                a, b, kern = line.strip().split('\t')
+                pairs_done.add((a, b))
+        pairs = pairs.filter(lambda x: x not in pairs_done)
+    else:
+        with open(outfile, 'w') as fh:
+            pass
+
+    kernfn = partial(calc_kernel, weightfile)
+
+    pool = Pool()
+    for a, b, kernel in pool.imap_unordered(kernfn, pairs, 1):
+    # for a, b, kernel in map(kernfn, pairs):
+        print(a, b, kernel)
+        with open(outfile, 'a') as kfh:
+            print(a, b, kernel, sep='\t', file=kfh)

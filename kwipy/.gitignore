@@ -13,6 +13,7 @@
 .coverage
 build
 dist
+.ropeproject
 
 # Cython compiled files (for now)
 *.c
