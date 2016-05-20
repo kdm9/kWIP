@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, division
+from __future__ import print_function, division, absolute_import
 
 from blessings import Terminal
 
@@ -23,11 +23,9 @@ from sys import stdout, stderr
 term = Terminal()
 
 
-def progress(*args, file=stdout, end=''):
-    file.write(term.move_x(0))
-    file.write(term.clear_eol())
+def progress(*args, file=stdout, end='\n'):
     file.write(term.cyan)
-    print(*args, end=end, file=file)
+    print("  ... ", *args, end=end, file=file)
     file.write(term.normal)
     file.flush()
 
