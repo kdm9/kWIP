@@ -1,6 +1,7 @@
 import numpy as np
 cimport numpy as np
 cimport cython
+from libc.math cimport log2
 
 ctypedef unsigned short u16
 ctypedef unsigned long long u64
@@ -24,7 +25,7 @@ def popfreq_to_weights(np.ndarray[float, ndim=1] popfreq, u64 nelem, float nsamp
             popfreq[i] = 0.
             continue
         freq1m = 1 - freq
-        ent = -((freq * np.log2(freq)) + (freq1m) * np.log2(freq1m))
+        ent = -((freq * log2(freq)) + (freq1m) * log2(freq1m))
         popfreq[i] = ent
 
 
