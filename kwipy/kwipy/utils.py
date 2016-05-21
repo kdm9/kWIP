@@ -67,6 +67,8 @@ def calc_weights(countfiles):
             popfreq = np.zeros(counts.shape, dtype=np.float32)
         popfreq_add_sample(popfreq, counts, counts.shape[0])
         info("Done!")
+        # free some ram
+        del counts
 
     info("Calculating entropy vector")
     popfreq_to_weights(popfreq, popfreq.shape[0], nsamples)
