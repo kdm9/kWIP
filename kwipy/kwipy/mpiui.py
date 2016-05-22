@@ -81,6 +81,7 @@ def count_mpi_main():
         base = stripext(readfile, ['fa', 'fq', 'fasta', 'fastq', 'gz', ])
         outfile = path.join(outdir, base + '.kct')
         counts = count_reads([readfile, ], k=k, cvsize=cvsize)
+        info("Writing counts to", outfile)
         counts.save(outfile)
 
 
