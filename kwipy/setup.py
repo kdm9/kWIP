@@ -19,6 +19,7 @@
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.extension import Extension
+import numpy
 
 
 try:
@@ -62,6 +63,7 @@ test_requires = [
 
 command_classes = versioneer.get_cmdclass()
 command_classes['test'] = NoseCommand
+fastmathargs = ['-O3', '-ffastmath']
 
 setup(
     name="kwipy",
@@ -82,14 +84,16 @@ setup(
     },
     ext_modules=cythonize([
         Extension(
-            'kwipy.counter', [
-                'kwipy/counter.{}'.format(EXT),
-            ],
+            'kwipy.counter',
+            ['kwipy/counter.{}'.format(EXT), ],
+            include_dirs=[numpy.get_include(), ],
+            extra_compile_args=fastmathargs,
         ),
         Extension(
-            'kwipy.internals', [
-                'kwipy/internals.{}'.format(EXT),
-            ],
+            'kwipy.internals',
+            ['kwipy/internals.{}'.format(EXT), ],
+            include_dirs=[numpy.get_include(), ],
+            extra_compile_args=fastmathargs,
         ),
     ]),
     cmdclass=command_classes,
