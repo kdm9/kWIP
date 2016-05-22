@@ -63,7 +63,7 @@ test_requires = [
 
 command_classes = versioneer.get_cmdclass()
 command_classes['test'] = NoseCommand
-fastmathargs = ['-O3', '-ffastmath']
+compilerargs = ['-O3', ]
 
 setup(
     name="kwipy",
@@ -87,13 +87,13 @@ setup(
             'kwipy.counter',
             ['kwipy/counter.{}'.format(EXT), ],
             include_dirs=[numpy.get_include(), ],
-            extra_compile_args=fastmathargs,
+            extra_compile_args=compilerargs,
         ),
         Extension(
             'kwipy.internals',
             ['kwipy/internals.{}'.format(EXT), ],
             include_dirs=[numpy.get_include(), ],
-            extra_compile_args=fastmathargs,
+            extra_compile_args=compilerargs,
         ),
     ]),
     cmdclass=command_classes,
