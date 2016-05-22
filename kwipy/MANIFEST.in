@@ -1,3 +1,7 @@
 include versioneer.py
 include kwipy/_version.py
 include requirements.txt
+include kwipy/counter.c
+include kwipy/counter.pyx
+include kwipy/internals.c
+include kwipy/internals.pyx
