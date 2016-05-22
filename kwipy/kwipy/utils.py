@@ -37,6 +37,7 @@ from .internals import (
 
 
 def stripext(filename, extensions):
+    filename = path.basename(filename)
     for ext in extensions:
         # Should handle cases like stripext(.tar.gz, [.tar, .tar.gz]).
         if filename == ext:
