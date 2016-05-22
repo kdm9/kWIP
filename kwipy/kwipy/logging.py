@@ -20,7 +20,15 @@ from blessings import Terminal
 from sys import stdout, stderr
 
 
-term = Terminal()
+
+class MockTerm(object):
+    def __getattr__(self, key):
+        return ""
+
+try:
+    term = Terminal()
+except:
+    term = MockTerm()
 
 
 def progress(*args, file=stdout, end='\n'):
