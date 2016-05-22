@@ -88,5 +88,6 @@ def kernel_mpi_main():
 
     for afile, bfile in pairs:
         a, b, k = calc_kernel(weightfile, (afile, bfile))
+        print(a, b, k)
         with open(outfile, 'a') as kfh:
             print(a, b, k, sep='\t', file=kfh)
