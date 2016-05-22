@@ -36,6 +36,20 @@ from .internals import (
 )
 
 
+def stripext(filename, extensions):
+    for ext in extensions:
+        # Should handle cases like stripext(.tar.gz, [.tar, .tar.gz]).
+        if filename == ext:
+            break
+        # Add a leading dot to the extension if it doesn't have one
+        if not ext.startswith("."):
+            ext = "." + ext
+        # strip away extension
+        if filename.endswith(ext):
+            filename = filename[:-len(ext)]
+    return filename
+
+
 def print_lsmat(matrix, ids, file=None):
     print('', *ids, sep='\t', file=file)
     for rowidx, id in enumerate(ids):
