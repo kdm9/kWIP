@@ -36,7 +36,52 @@ from .logging import (
 )
 from .utils import (
     calc_kernel,
+    count_reads,
+    stripext,
 )
+
+
+def count_mpi_main():
+    cli = '''
+    USAGE:
+        kwipy-count-mpi [options] OUTDIR READFILES ...
+
+    OPTIONS:
+        -k KSIZE    Kmer length [default: 20]
+        -v CVLEN    Count vector length [default: 1e9]
+
+    Counts k-mers into individual count vectors, parallelised using MPI.
+
+    Will use about 6 * CVLEN bytes of RAM.
+    '''
+
+    opts = docopt(cli)
+    k = int(opts['-k'])
+    cvsize = int(float(opts['-v']))
+    outdir = opts['OUTDIR']
+    readfiles = opts['READFILES']
+
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+
+    if rank == 0:
+        size = comm.Get_size()
+        if size > len(readfiles):
+            warn('Number of MPI ranks is greater than number of comparisons')
+            warn('This is harmless but silly')
+        pieces = [list() for x in range(size)]
+        for i, readfile in enumerate(readfiles):
+            pieces[i % size].append(readfile)
+    else:
+        pieces = None
+
+    our_readfiles = comm.scatter(pieces, root=0)
+
+    for readfile in our_readfiles:
+        base = stripext(readfile, ['fa', 'fq', 'fasta', 'fastq', 'gz', ])
+        outfile = path.join(outdir, base + '.kct')
+        counts = count_reads([readfile, ], k=k, cvsize=cvsize)
+        counts.save(outfile)
 
 
 def kernel_mpi_main():

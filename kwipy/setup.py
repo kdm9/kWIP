@@ -48,8 +48,9 @@ kwip in python
 """
 
 setup_requires = [
-    'nose',
     'cython',
+    'nose',
+    'numpy',
 ]
 
 with open('requirements.txt') as fh:
@@ -73,6 +74,7 @@ setup(
             'kwipy-kernel = kwipy.scripts:kernel_main',
             'kwipy-distmat = kwipy.scripts:distmat_main',
             'kwipy-kernel-mpi = kwipy.mpiui:kernel_mpi_main [mpi]',
+            'kwipy-count-mpi = kwipy.mpiui:count_mpi_main [mpi]',
         ],
     },
     extras_require={
