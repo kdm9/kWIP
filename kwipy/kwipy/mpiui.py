@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, division, absolute_import
+
 from mpi4py import MPI
 from docopt import docopt
 import numpy as np
@@ -33,7 +34,9 @@ from .logging import (
     info,
     warn,
 )
-
+from .utils import (
+    calc_kernel,
+)
 
 
 def kernel_mpi_main():
@@ -72,13 +75,11 @@ def kernel_mpi_main():
             warn('This is harmless but silly')
         pieces = [list() for x in range(size)]
         for i, pair in enumerate(pairs):
-            pieces[i%size].append(pair)
+            pieces[i % size].append(pair)
     else:
         pieces = None
 
     pairs = comm.scatter(pieces, root=0)
-
-    weights = bcolz.open(weightfile, mode='r')
 
     outfile = path.join(outdir, 'kernellog_{}'.format(rank))
     if not resume:
@@ -86,12 +87,6 @@ def kernel_mpi_main():
             pass
 
     for afile, bfile in pairs:
-        a = bcolz.open(afile, mode='r')
-        b = bcolz.open(bfile, mode='r')
-
-        print(rank, afile, bfile)
-        kernel = bcolz.eval('sum(a * b * weights, axis=0)').min()
-
+        a, b, k = calc_kernel(weightfile, (afile, bfile))
         with open(outfile, 'a') as kfh:
-            print(afile, bfile, kernel, sep='\t', file=kfh)
-
+            print(a, b, k, sep='\t', file=kfh)
