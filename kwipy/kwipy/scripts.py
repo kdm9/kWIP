@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, division, absolute_import
+
 import bcolz
 from docopt import docopt
 import numpy as np
@@ -158,7 +159,7 @@ def distmat_main():
                  .format(filename))
             return path.splitext(filename)[0]
 
-    kernlogs = glob(path.join(outdir, 'kernellog_*'))
+    kernlogs = glob(path.join(outdir, 'kernellog*'))
     kernels = {}
     samples = set()
     for klfile in kernlogs:
