@@ -21,12 +21,8 @@
 # SOFTWARE.
 
 from __future__ import print_function, division, absolute_import
-import progressbar
-from progressbar import UnknownLength, ProgressBar, FormatLabel
-import sys
 from sys import stdout, stderr
-from time import time, sleep
-from random import random
+from time import time
 from collections import Iterable, Iterator
 
 __all__ = ['ProgressLogger', ]
@@ -34,13 +30,16 @@ __all__ = ['ProgressLogger', ]
 
 def human_readable(count, maxsuffix='M'):
     '''Returns a human-readable representation of the size of something'''
+    count = float(count)
     for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']:
         if abs(count) < 1000.0 or unit == maxsuffix:
             break
         count /= 1000.0
-    if unit != '':
-        return "{i:.1f}{unit}".format(i=count, unit=unit)
-    return "{i:.0f}{unit}".format(i=count, unit=unit)
+    decimals = 1
+    if count.is_integer():
+        decimals = 0
+    return "{i:.{decimals}f}{unit}".format(i=count, unit=unit,
+                                           decimals=decimals)
 
 
 class ProgressLogger(object):
@@ -62,9 +61,10 @@ class ProgressLogger(object):
     '''
     moving_chars = "-\\|/"
 
-    def __init__(self, iterable=None, interval=1000, human_readable=True,
-                 poll_interval=None, file=stderr, format='{value} ({speed}/s)',
-                 noun=''):
+    def __init__(self, iterable=None, noun='items', interval=1000,
+                 human_readable=True, poll_interval=None, file=stderr,
+                 format='{value} {noun} ({speed}/s)'):
+        self.noun = noun
         self.interval = interval
         self.human_readable = human_readable
         self.poll_interval = poll_interval
@@ -73,7 +73,6 @@ class ProgressLogger(object):
         self.file = file
         self.fmt = format
         self.last = None  # holds last call to update
-        self.noun = noun
 
         if self.file.isatty():
             self.print_prefix = '\r\x1b[K\x1b[36m --> '  # clear line, start cyan
@@ -121,7 +120,7 @@ class ProgressLogger(object):
                 return True
         return False
 
-    def _update(self, i, args):
+    def _update(self, i):
         now = time()
         elapsed = now - self.start_time
 
@@ -131,15 +130,16 @@ class ProgressLogger(object):
             value = human_readable(i)
             speed = human_readable(i/elapsed)
 
-        updatestr = self.fmt.format(value=value, time=elapsed, speed=speed)
+        updatestr = self.fmt.format(value=value, time=elapsed, speed=speed,
+                                    noun=self.noun)
 
         self.file.write(self.print_prefix)
-        print(updatestr, *args, end='', file=self.file)
+        print(updatestr, end='', file=self.file)
         self.file.write(self.print_suffix)
         self.file.flush()
         self.last_update = now
 
-    def update(self, i, *args):
+    def update(self, i):
         if not self.start_time:
             # First update
             if i == 0:
@@ -147,12 +147,11 @@ class ProgressLogger(object):
             else:
                 self.first = 1
             self.start_time = time()
-        self.last = (i, args)
+        self.last = i
         if not self._should_update(i):
             return
-        self._update(i, args)
+        self._update(i)
 
     def done(self):
-        i, args = self.last
-        self._update(i, args)
+        self._update(self.last)
         print(file=self.file)
