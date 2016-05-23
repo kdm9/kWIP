@@ -4,4 +4,6 @@ docopt
 numexpr
 numpy
 pymer
+pytest
+pytest-runner
 screed>=0.9

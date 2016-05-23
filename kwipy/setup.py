@@ -32,37 +32,25 @@ except ImportError:
 import versioneer
 
 
-class NoseCommand(TestCommand):
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # Run nose ensuring that argv simulates running nosetests directly
-        import nose
-        nose.run_exit(argv=['nosetests'])
-
-
 desc = """
 kwip in python
 """
 
 setup_requires = [
     'cython',
-    'nose',
     'numpy',
+    'pytest-runner',
 ]
 
 with open('requirements.txt') as fh:
     install_requires = [req.strip() for req in fh]
 
 test_requires = [
-    'coverage>=3.7',
+    'pytest',
+    'pytest-runner',
 ]
 
 command_classes = versioneer.get_cmdclass()
-command_classes['test'] = NoseCommand
 compilerargs = ['-O3', ]
 
 setup(
