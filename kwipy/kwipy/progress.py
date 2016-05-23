@@ -100,7 +100,7 @@ class ProgressLogger(object):
         if self.iterable is None:
             raise ValueError("No iterable given")
         try:
-            self.update(self.i, self.noun)
+            self.update(self.i)
             v = next(self.iterable)
             self.i += 1
             return v
@@ -147,6 +147,9 @@ class ProgressLogger(object):
             else:
                 self.first = 1
             self.start_time = time()
+            # force printing of 0'th item
+            self._update(0)
+
         self.last = i
         if not self._should_update(i):
             return
