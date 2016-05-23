@@ -141,7 +141,7 @@ def distmat_main():
         -d DIST     Output normalised distances to DIST
         -n NAME_RE  Regex to exract name from basename of count files. The
                     first match group is used. The regex must apply to all
-                    files.  [default: (.*)\.(blz|kpy)]
+                    files.  [default: (.*)\.(kct|bcz)]
         --keep      Keep kernel logs in KERNELDIR (which are normally removed)
     '''
 
