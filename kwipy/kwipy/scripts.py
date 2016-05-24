@@ -100,7 +100,7 @@ def kernel_main():
         kwipy-kernel [options] OUTDIR WEIGHTFILE COUNTFILES ...
 
     OPTIONS:
-        -c NAME   Resume previous calculation to OUTDIR, with name of NAME
+        -c      Resume previous calculation to OUTDIR.
     '''
     opts = docopt(cli)
     outdir = opts['OUTDIR']
