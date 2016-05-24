@@ -21,14 +21,19 @@ import numexpr as ne
 from pymer import CountMinKmerCounter
 import screed
 
-from os import path
+from glob import glob
+import itertools as itl
+from os import path, mkdir
+import re
+from shutil import rmtree
 
 from .logging import (
-    progress,
     info,
     warn,
 )
+from .progress import ProgressLogger
 from .counter import Counter
+from .kernelmath import is_psd
 from .internals import (
     wipkernel,
     popfreq_add_sample,
@@ -51,10 +56,32 @@ def stripext(filename, extensions):
     return filename
 
 
+def check_psd(matrix, name):
+    if is_psd(matrix):
+        info(name, "matrix is positive semi-definite")
+    else:
+        warn(name, "matrix is NOT positive semi-definite")
+
+
+def file_to_name(filename, namere=r'(.*)(\.[^.]+)?'):
+    filename = path.basename(filename)
+    try:
+        return re.search(namere, filename).groups()[0]
+    except (TypeError, AttributeError):
+        warn("Name regex did not match", filename, "using basename")
+        return filename
+
+
 def print_lsmat(matrix, ids, file=None):
     print('', *ids, sep='\t', file=file)
     for rowidx, id in enumerate(ids):
         print(id, *list(matrix[rowidx, :]), sep='\t', file=file)
+
+
+def rmmkdir(directory):
+    if path.exists(directory):
+        rmtree(directory)
+    mkdir(directory)
 
 
 def count_reads(readfiles, k=20, cvsize=2e8):
@@ -63,11 +90,8 @@ def count_reads(readfiles, k=20, cvsize=2e8):
     for readfile in readfiles:
         info("Consuming:",  readfile)
         with screed.open(readfile) as reads:
-            for i, read in enumerate(reads):
+            for read in ProgressLogger(reads, 'reads', interval=10000):
                 counter.consume(read.sequence)
-                if i % 10000 == 0:
-                    progress(i/1000, 'K reads')
-        progress(i/1000, 'K reads', end='\n')
     return counter
 
 
@@ -108,3 +132,41 @@ def calc_kernel(weightsfile, ab):
                        bcolz.iterblocks(weights, blen=bl)):
         kernel += wipkernel(a, b, w, bl)
     return abase, bbase, kernel
+
+
+def read_kernlog(outdir):
+    kernlines = []
+    kernlogs = glob(path.join(outdir, 'kernellog*'))
+    for kfn in kernlogs:
+        with open(kfn) as fh:
+            kernlines.extend(fh.readlines())
+    return kernlines
+
+
+def kernlog_to_kernmatrix(kernlog_lines, namere):
+    kernels = {}
+    samples = set()
+    for line in kernlog_lines:
+        a, b, kern = line.rstrip().split('\t')
+        a = file_to_name(a, namere)
+        b = file_to_name(b, namere)
+        samples.add(a)
+        samples.add(b)
+        kern = float(kern)
+        try:
+            kernels[a][b] = kern
+        except KeyError:
+            kernels[a] = {b: kern}
+
+    # Make an ordered array
+    num_samples = len(samples)
+    kernmat = np.zeros((num_samples, num_samples), dtype=float)
+    samples = list(sorted(samples))
+    sample_idx = {s: i for i, s in enumerate(samples)}
+    # square up the dictionary
+    for a, b in itl.combinations_with_replacement(samples, 2):
+        ai = sample_idx[a]
+        bi = sample_idx[b]
+        kernmat[ai, bi] = kernels[a][b]
+        kernmat[bi, ai] = kernels[a][b]
+    return samples, kernmat

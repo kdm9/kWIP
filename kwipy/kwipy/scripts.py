@@ -25,25 +25,26 @@ import itertools as itl
 from glob import glob
 import os
 from os import path
-import re
 from sys import stderr, stdout
 from multiprocessing import Pool
 from functools import partial
 
 from .kernelmath import (
-    is_psd,
     normalise_kernel,
     kernel_to_distance,
 )
 from .logging import (
-    progress,
     info,
     warn,
 )
 from .utils import (
-    calc_weights,
     calc_kernel,
+    calc_weights,
+    check_psd,
     count_reads,
+    file_to_name,
+    kernlog_to_kernmatrix,
+    read_kernlog,
     print_lsmat,
 )
 
@@ -96,10 +97,10 @@ def weight_main():
 def kernel_main():
     cli = '''
     USAGE:
-        kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
+        kwipy-kernel [options] OUTDIR WEIGHTFILE COUNTFILES ...
 
     OPTIONS:
-        -c      Resume previous calculation to OUTDIR
+        -c NAME   Resume previous calculation to OUTDIR, with name of NAME
     '''
     opts = docopt(cli)
     outdir = opts['OUTDIR']
@@ -146,57 +147,15 @@ def distmat_main():
     '''
 
     opts = docopt(cli)
-    outdir = opts['KERNELDIR']
+    kerndir = opts['KERNELDIR']
     kernfile = opts['-k']
     distfile = opts['-d']
 
-    def _file_to_name(filename):
-        filename = path.basename(filename)
-        try:
-            return re.search(opts['-n'], filename).groups()[0]
-        except (TypeError, AttributeError):
-            warn("Name regex did not match '{}', using basename"
-                 .format(filename))
-            return path.splitext(filename)[0]
-
-    kernlogs = glob(path.join(outdir, 'kernellog*'))
-    kernels = {}
-    samples = set()
-    for klfile in kernlogs:
-        with open(klfile) as fh:
-            for line in fh:
-                a, b, kern = line.strip().split('\t')
-                a, b = map(_file_to_name, (a, b))
-                kern = float(kern)
-                samples.update((a, b))  # add a & b
-                try:
-                    kernels[a][b] = kern
-                except KeyError:
-                    kernels[a] = {b: kern}
-
-    # Make an ordered array
-    num_samples = len(samples)
-    kernmat = np.zeros((num_samples, num_samples), dtype=float)
-    samples = list(sorted(samples))
-    sample_idx = {s: i for i, s in enumerate(samples)}
-    # square up the dictionary
-    for a, b in itl.combinations_with_replacement(sorted(samples), 2):
-        ai = sample_idx[a]
-        bi = sample_idx[b]
-        kernmat[ai, bi] = kernels[a][b]
-        kernmat[bi, ai] = kernels[a][b]
-
-    if is_psd(kernmat):
-        info("Kernel matrix is positive semi-definite")
-    else:
-        warn("Kernel matrix is NOT positive semi-definite")
-
+    kernlines = read_kernlog(kerndir)
+    samples, kernmat = kernlog_to_kernmatrix(kernlines)
+    check_psd(kernmat, "Kernel")
     distmat = kernel_to_distance(kernmat)
-
-    if is_psd(distmat):
-        info("Distance matrix is positive semi-definite")
-    else:
-        warn("Distance matrix is NOT positive semi-definite")
+    check_psd(distmat, "Distance")
 
     if distfile:
         with open(distfile, 'w') as dfh:

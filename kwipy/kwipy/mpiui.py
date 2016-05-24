@@ -24,13 +24,11 @@ import bcolz
 
 import itertools as itl
 from glob import glob
-import os
-from os import path
+from os import path, mkdir
 import re
 from sys import stderr, stdout
 
 from .logging import (
-    progress,
     info,
     warn,
 )
@@ -52,7 +50,7 @@ def count_mpi_main():
 
     Counts k-mers into individual count vectors, parallelised using MPI.
 
-    Will use about 6 * CVLEN bytes of RAM.
+    Will use about 6 * CVLEN bytes of RAM per file.
     '''
 
     opts = docopt(cli)
@@ -104,6 +102,9 @@ def kernel_mpi_main():
     rank = comm.Get_rank()
 
     pairs = list(itl.combinations_with_replacement(countfiles, 2))
+
+    if rank == 0 and not path.isdir(outdir):
+        mkdir(outdir)
 
     if rank == 0:
         if resume:
