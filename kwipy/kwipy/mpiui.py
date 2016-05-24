@@ -18,7 +18,6 @@ from __future__ import print_function, division, absolute_import
 from mpi4py import MPI
 from docopt import docopt
 import numpy as np
-import numexpr as ne
 from pymer import CountMinKmerCounter
 import bcolz
 

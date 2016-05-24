@@ -1,7 +1,6 @@
 bcolz
 blessings
 docopt
-numexpr
 numpy
 pymer
 pytest
