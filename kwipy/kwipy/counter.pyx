@@ -69,5 +69,5 @@ cdef class Counter(object):
             self.count(kmer)
 
     def save(self, str filename not None):
-        carray(self.cv, rootdir=filename, mode='w')
+        carray(self.cv, rootdir=filename, mode='w', chunklen=int(1e8)).flush()
 

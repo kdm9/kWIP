@@ -89,7 +89,8 @@ def weight_main():
     weights = calc_weights(countfiles)
 
     info("Writing weights to", outfile, end='... ')
-    weights = bcolz.carray(weights, rootdir=outfile, mode='w')
+    weights = bcolz.carray(weights, rootdir=outfile, mode='w',
+                           chunklen=int(1e8))
     weights.flush()
     info("Done!")
 
