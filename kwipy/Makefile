@@ -1,4 +1,8 @@
 
 .PHONY: test install
-%:
-	python setup.py $@
+
+test:
+	python setup.py test
+
+install:
+	python setup.py install
