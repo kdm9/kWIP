@@ -7,9 +7,6 @@ from .constants import BCOLZ_CHUNKLEN
 
 ctypedef unsigned long long int u64
 
-# de Bruijn DNA sequences of k={2,3}, i.e. contain all 2/3-mers once
-K2_DBS = 'AACAGATCCGCTGGTTA'
-K3_DBS = 'AAACAAGAATACCACGACTAGCAGGAGTATCATGATTCCCGCCTCGGCGTCTGCTTGGGTGTTTAA'
 
 cdef inline u64 mm64(u64 key, u64 seed):
     cdef u64 m = 0xc6a4a7935bd1e995
