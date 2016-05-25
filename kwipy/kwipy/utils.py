@@ -17,7 +17,6 @@ from __future__ import print_function, division
 
 import bcolz
 import numpy as np
-from pymer import CountMinKmerCounter
 import screed
 
 from glob import glob

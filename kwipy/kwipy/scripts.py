@@ -18,7 +18,6 @@ from __future__ import print_function, division, absolute_import
 import bcolz
 from docopt import docopt
 import numpy as np
-from pymer import CountMinKmerCounter
 
 import itertools as itl
 from glob import glob
