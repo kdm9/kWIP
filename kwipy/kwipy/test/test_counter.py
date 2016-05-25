@@ -1,12 +1,18 @@
 import pytest
 from kwipy.counter import (
     iter_kmers,
+    Counter
 )
+
+# de Bruijn DNA sequences of k={2,3}, i.e. contain all 2/3-mers once
+K2_DBS = 'AACAGATCCGCTGGTTA'
+K3_DBS = 'AAACAAGAATACCACGACTAGCAGGAGTATCATGATTCCCGCCTCGGCGTCTGCTTGGGTGTTTAA'
 
 
 def do_test_iter_kmers(seq, expect, k):
     got = list(iter_kmers(seq, k))
     assert got == expect
+
 
 def test_iter_kmers():
     '''Test iter_kmers(seq, k) with valid sequences'''
@@ -52,5 +58,10 @@ def test_iter_kmers_err():
         do_test_iter_kmers(seq, [], 2)
 
 
-def test_counter():
-    pass
+def test_counter_bdd():
+    '''Basic test of counting'''
+    k = 3
+    ctr = Counter(k=k, cvsize=1e5)
+    ctr.consume(K3_DBS)
+    for i in range(4**k):
+        assert ctr.get(i) >= 1

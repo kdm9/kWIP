@@ -7,6 +7,9 @@ from .constants import BCOLZ_CHUNKLEN
 
 ctypedef unsigned long long int u64
 
+# de Bruijn DNA sequences of k={2,3}, i.e. contain all 2/3-mers once
+K2_DBS = 'AACAGATCCGCTGGTTA'
+K3_DBS = 'AAACAAGAATACCACGACTAGCAGGAGTATCATGATTCCCGCCTCGGCGTCTGCTTGGGTGTTTAA'
 
 cdef inline u64 mm64(u64 key, u64 seed):
     cdef u64 m = 0xc6a4a7935bd1e995
@@ -92,6 +95,14 @@ cdef class Counter(object):
             self.cms[tab, i] = v
         self.cv[hsh % self.cvsize] = minv
         return minv
+
+    @cython.boundscheck(False)
+    @cython.overflowcheck(False)
+    @cython.wraparound(False)
+    cpdef get(Counter self, u64 item):
+        cdef u64 hsh
+        hsh = mm64(item, self.nt-1)
+        return self.cv[hsh % self.cvsize]
 
     def consume(self, str seq not None):
         cdef long long hashv = 0
