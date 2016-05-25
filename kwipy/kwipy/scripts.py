@@ -28,6 +28,7 @@ from sys import stderr, stdout
 from multiprocessing import Pool
 from functools import partial
 
+from .constants import BCOLZ_CHUNKLEN
 from .kernelmath import (
     normalise_kernel,
     kernel_to_distance,
@@ -89,7 +90,7 @@ def weight_main():
 
     info("Writing weights to", outfile, end='... ')
     weights = bcolz.carray(weights, rootdir=outfile, mode='w',
-                           chunklen=int(1e8))
+                           chunklen=BCOLZ_CHUNKLEN)
     weights.flush()
     info("Done!")
 

@@ -3,9 +3,11 @@ cimport numpy as np
 from bcolz import carray
 from pymer._hash import iter_kmers
 cimport cython
+from .constants import BCOLZ_CHUNKLEN
 
 
 ctypedef unsigned long long int u64
+
 
 cdef inline u64 mm64(u64 key, u64 seed):
     cdef u64 m = 0xc6a4a7935bd1e995
@@ -62,12 +64,11 @@ cdef class Counter(object):
         self.cv[hsh % self.cvsize] = minv
         return minv
 
-
     def consume(self, str seq not None):
         cdef long long hashv = 0
         for kmer in iter_kmers(seq, self.k):
             self.count(kmer)
 
     def save(self, str filename not None):
-        carray(self.cv, rootdir=filename, mode='w', chunklen=int(1e8)).flush()
-
+        carray(self.cv, rootdir=filename, mode='w',
+               chunklen=BCOLZ_CHUNKLEN).flush()

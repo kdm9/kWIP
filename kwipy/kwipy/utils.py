@@ -32,6 +32,7 @@ from .logging import (
 )
 from .progress import ProgressLogger
 from .counter import Counter
+from .constants import BCOLZ_CHUNKLEN
 from .kernelmath import is_psd
 from .internals import (
     wipkernel,
@@ -124,12 +125,12 @@ def calc_kernel(weightsfile, ab):
 
     kernel = 0.0
 
-    bl = min([A.chunklen, B.chunklen, weights.chunklen])
+    blocklen = int(BCOLZ_CHUNKLEN/4)
 
-    for a, b, w in zip(bcolz.iterblocks(A, blen=bl),
-                       bcolz.iterblocks(B, blen=bl),
-                       bcolz.iterblocks(weights, blen=bl)):
-        kernel += wipkernel(a, b, w, bl)
+    for a, b, w in zip(bcolz.iterblocks(A, blen=blocklen),
+                       bcolz.iterblocks(B, blen=blocklen),
+                       bcolz.iterblocks(weights, blen=blocklen)):
+        kernel += wipkernel(a, b, w, blocklen)
     return abase, bbase, kernel
 
 
