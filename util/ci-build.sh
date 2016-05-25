@@ -28,9 +28,3 @@ then
         make
     popd
 fi
-
-
-if [ -n "$TRAVIS_TAG" ] && [ "${BUILD_TYPE}" == "Release" ]
-then
-    make -f src/Makefile.static
-fi
