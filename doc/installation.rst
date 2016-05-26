@@ -34,8 +34,9 @@ Then, to compile ``kWIP``:
 
 The commands above assume you want to install kWIP to your home directory. This
 is probably required on clusters, and necessary without root privileges. To
-install to, e.g, ``/usr/local/``, replace all occurrences of ``$HOME`` with your
-preferred installation prefix.
+install to, e.g, ``/usr/local/``, replace ``$HOME`` with your preferred
+installation prefix.
+
 
 The easy way
 ------------
