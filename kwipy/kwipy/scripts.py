@@ -150,9 +150,10 @@ def distmat_main():
     kerndir = opts['KERNELDIR']
     kernfile = opts['-k']
     distfile = opts['-d']
+    namere = opts['-n']
 
     kernlines = read_kernlog(kerndir)
-    samples, kernmat = kernlog_to_kernmatrix(kernlines)
+    samples, kernmat = kernlog_to_kernmatrix(kernlines, namere)
     check_psd(kernmat, "Kernel")
     distmat = kernel_to_distance(kernmat)
     check_psd(distmat, "Distance")
