@@ -31,9 +31,11 @@ from .logging import (
     info,
     warn,
 )
+from .progress import ProgressLogger
 from .utils import (
     calc_kernel,
     count_reads,
+    parse_reads_with_precmd,
     stripext,
 )
 
@@ -44,15 +46,25 @@ def count_mpi_main():
         kwipy-count-mpi [options] OUTDIR READFILES ...
 
     OPTIONS:
-        -p PRECMD   Shell pipeline to run on input files before hashing.
         -k KSIZE    Kmer length [default: 20]
         -v CVLEN    Count vector length [default: 1e9]
+        -p PRECMD   Shell pipeline to run on input files before hashing.
         --no-cms    Disable the CMS counter, use only a count vector.
                     [default: False]
 
     Counts k-mers into individual count vectors, parallelised using MPI.
 
-    Will use about 6 * CVLEN bytes of RAM per file.
+    Will use about 6 * CVLEN bytes of RAM per file (or 2x with --no-cms).
+
+    An optional pre-counting command for e.g. QC or SRA dumping can be given
+    with --precmd. The pre-command can be a shell pipeline combining the effects
+    of multiple programs. Interleaved or single ended reads must be printed on
+    stdout by the command(s). The pre-command uses the find/xargs/GNU Parallel
+    convention of using a pair of '{}' to mark where the filename should be
+    placed. Examples of a pre-command include:
+
+        --precmd 'fastq-dump --split-spot --stdout {}'
+        --precmd 'gzcat {} | trimit'
     '''
 
     opts = docopt(cli)
@@ -61,6 +73,7 @@ def count_mpi_main():
     outdir = opts['OUTDIR']
     readfiles = opts['READFILES']
     use_cms = not opts['--no-cms']
+    precmd = opts['--precmd']
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -82,7 +95,12 @@ def count_mpi_main():
         base = stripext(readfile, ['fa', 'fq', 'fasta', 'fastq', 'gz', ])
         outfile = path.join(outdir, base + '.kct')
         counts = Counter(k=k, cvsize=cvsize, use_cms=use_cms)
-        counts = count_reads([readfile, ])
+        if precmd is None:
+            count_reads(counts, [readfile, ])
+        else:
+            reads = parse_reads_with_precmd(readfile, precmd)
+            for read in ProgressLogger(reads, 'reads', interval=10000):
+                counts.consume(read.sequence)
         info("Writing counts to", outfile)
         counts.save(outfile)
 
