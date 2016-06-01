@@ -24,7 +24,9 @@ import itertools as itl
 import os
 from os import path
 import re
+import shlex
 from shutil import rmtree
+from subprocess import DEVNULL, PIPE, Popen
 
 from .constants import BCOLZ_CHUNKLEN
 from .internals import (
@@ -89,6 +91,12 @@ def rmmkdir(directory):
         rmtree(directory)
     mkdir(directory)
 
+def parse_reads_with_precmd(filename, precmd):
+    cmd = precmd.format(' "{}"'.format(filename))
+    with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
+               stdout=PIPE, stderr=None, universal_newlines=True) as proc:
+        for seq in screed.fastq.fastq_iter(proc.stdout):
+            yield seq
 
 def count_reads(counter, readfiles):
     if isinstance(readfiles, str):

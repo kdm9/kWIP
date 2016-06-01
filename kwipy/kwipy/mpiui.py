@@ -44,6 +44,7 @@ def count_mpi_main():
         kwipy-count-mpi [options] OUTDIR READFILES ...
 
     OPTIONS:
+        -p PRECMD   Shell pipeline to run on input files before hashing.
         -k KSIZE    Kmer length [default: 20]
         -v CVLEN    Count vector length [default: 1e9]
         --no-cms    Disable the CMS counter, use only a count vector.
