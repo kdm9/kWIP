@@ -72,7 +72,7 @@ def count_main():
     readfiles = opts['READFILES']
     use_cms = not opts['--no-cms']
 
-    mkdir(path.basename(outfile))
+    mkdir(path.dirname(outfile))
     counter = Counter(k, cvsize, use_cms=use_cms)
     count_reads(counter, readfiles)
 
