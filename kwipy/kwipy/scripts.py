@@ -28,6 +28,7 @@ from multiprocessing import Pool
 from functools import partial
 
 from .constants import BCOLZ_CHUNKLEN
+from .counter import Counter
 from .kernelmath import (
     normalise_kernel,
     kernel_to_distance,
@@ -43,6 +44,7 @@ from .utils import (
     count_reads,
     file_to_name,
     kernlog_to_kernmatrix,
+    mkdir,
     read_kernlog,
     print_lsmat,
 )
@@ -56,6 +58,7 @@ def count_main():
     OPTIONS:
         -k KSIZE    Kmer length [default: 20]
         -v CVLEN    Count vector length [default: 1e9]
+        --no-cms    Disable the CMS counter, use only a count vector.
 
     Counts k-mers in READFILES to a count-min sketch which is saved to OUTFILE.
 
@@ -67,11 +70,14 @@ def count_main():
     cvsize = int(float(opts['-v']))
     outfile = opts['OUTFILE']
     readfiles = opts['READFILES']
+    use_cms = not opts['--no-cms']
 
-    counts = count_reads(readfiles, k=k, cvsize=cvsize)
+    mkdir(path.basename(outfile))
+    counter = Counter(k, cvsize, use_cms=use_cms)
+    count_reads(counter, readfiles)
 
     info("Writing counts to", outfile)
-    counts.save(outfile)
+    counter.save(outfile)
 
 
 def weight_main():

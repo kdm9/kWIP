@@ -58,18 +58,19 @@ cdef class Counter(object):
     cdef readonly u64 k
     cdef readonly u64 nt, ts, cvsize
     cdef u64 dtmax
-    cdef np.ndarray cms, cv
+    cdef readonly np.ndarray cv
+    cdef np.ndarray cms
 
-    def __init__(self, k, cvsize=2e8):
+    def __init__(self, k, cvsize=2e8, use_cms=True):
         self.k = k
-        self.nt, self.ts = (4, cvsize / 2)
+        if use_cms:
+            self.nt, self.ts = (4, cvsize / 2)
+        else:
+            self.nt = self.ts = 0
 
         self.cvsize = cvsize
         dtype='u2'
         self.dtmax = 2**16 - 1
-
-        if self.nt < 1 or self.nt > 10:
-            raise ValueError("Too many or few tables. must be 1 <= nt <= 10")
 
         self.cms = np.zeros((self.nt, self.ts), dtype=dtype)
         self.cv = np.zeros(int(cvsize), dtype=dtype)
@@ -78,27 +79,35 @@ cdef class Counter(object):
     @cython.overflowcheck(False)
     @cython.wraparound(False)
     cdef count(Counter self, u64 item):
-        cdef u64 minv = <u64>-1
-        cdef u64 hsh, v, i
+        cdef u64 count = <u64>-1  # 2**64 - 1
+        cdef u64 hsh, cv_bin, v, i
+
+        cv_bin = mm64(item, 1) % self.cvsize
+        if self.nt == 0:
+            count = self.cv[cv_bin]
+            if count < self.dtmax:
+                count += 1
+            self.cv[cv_bin] = count
+            return count
 
         for tab in range(self.nt):
-            hsh = mm64(item, tab)
+            hsh = mm64(item, tab + 1)
             i = hsh % self.ts
             v = self.cms[tab, i]
-            if v <= self.dtmax:
+            if v < self.dtmax:
                 v += 1
-            if minv > v:
-                minv = v
+            if count > v:
+                count = v
             self.cms[tab, i] = v
-        self.cv[hsh % self.cvsize] = minv
-        return minv
+            self.cv[cv_bin] = count
+        return count
 
     @cython.boundscheck(False)
     @cython.overflowcheck(False)
     @cython.wraparound(False)
     cpdef get(Counter self, u64 item):
         cdef u64 hsh
-        hsh = mm64(item, self.nt-1)
+        hsh = mm64(item, 1)
         return self.cv[hsh % self.cvsize]
 
     def consume(self, str seq not None):

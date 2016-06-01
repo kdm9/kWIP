@@ -26,6 +26,7 @@ from os import path, mkdir
 import re
 from sys import stderr, stdout
 
+from .counter import Counter
 from .logging import (
     info,
     warn,
@@ -45,6 +46,8 @@ def count_mpi_main():
     OPTIONS:
         -k KSIZE    Kmer length [default: 20]
         -v CVLEN    Count vector length [default: 1e9]
+        --no-cms    Disable the CMS counter, use only a count vector.
+                    [default: False]
 
     Counts k-mers into individual count vectors, parallelised using MPI.
 
@@ -56,6 +59,7 @@ def count_mpi_main():
     cvsize = int(float(opts['-v']))
     outdir = opts['OUTDIR']
     readfiles = opts['READFILES']
+    use_cms = not opts['--no-cms']
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -76,7 +80,8 @@ def count_mpi_main():
     for readfile in our_readfiles:
         base = stripext(readfile, ['fa', 'fq', 'fasta', 'fastq', 'gz', ])
         outfile = path.join(outdir, base + '.kct')
-        counts = count_reads([readfile, ], k=k, cvsize=cvsize)
+        counts = Counter(k=k, cvsize=cvsize, use_cms=use_cms)
+        counts = count_reads([readfile, ])
         info("Writing counts to", outfile)
         counts.save(outfile)
 

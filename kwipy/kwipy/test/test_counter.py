@@ -58,10 +58,25 @@ def test_iter_kmers_err():
         do_test_iter_kmers(seq, [], 2)
 
 
-def test_counter_bdd():
+def test_counter_behaviour():
     '''Basic test of counting'''
     k = 3
     ctr = Counter(k=k, cvsize=1e5)
     ctr.consume(K3_DBS)
     for i in range(4**k):
         assert ctr.get(i) >= 1
+
+    # The sum of the CV is not always the same as the number of k-mers. This is
+    # because it is updated to the count-min sketch's estimate of the count of
+    # an item.
+    assert ctr.cv.sum() <= len(K3_DBS) - k + 1
+
+
+def test_counter_nocms():
+    '''Basic test of counting *without* a CMS'''
+    k = 3
+    ctr = Counter(k=k, cvsize=10, use_cms=False)
+    ctr.consume(K3_DBS)
+
+    # The sum of the CV **IS* the number of k-mers here, as the CMS is not used.
+    assert ctr.cv.sum() == len(K3_DBS) - k + 1

@@ -21,23 +21,23 @@ import screed
 
 from glob import glob
 import itertools as itl
-from os import path, mkdir
+import os
+from os import path
 import re
 from shutil import rmtree
 
-from .logging import (
-    info,
-    warn,
-)
-from .progress import ProgressLogger
-from .counter import Counter
 from .constants import BCOLZ_CHUNKLEN
-from .kernelmath import is_psd
 from .internals import (
     wipkernel,
     popfreq_add_sample,
     popfreq_to_weights
 )
+from .kernelmath import is_psd
+from .logging import (
+    info,
+    warn,
+)
+from .progress import ProgressLogger
 
 
 def stripext(filename, extensions):
@@ -77,15 +77,22 @@ def print_lsmat(matrix, ids, file=None):
         print(id, *list(matrix[rowidx, :]), sep='\t', file=file)
 
 
+def mkdir(directory):
+    try:
+        os.mkdir(directory)
+    except OSError:
+        pass
+
+
 def rmmkdir(directory):
     if path.exists(directory):
         rmtree(directory)
     mkdir(directory)
 
 
-def count_reads(readfiles, k=20, cvsize=2e8):
-    counter = Counter(k, cvsize)
-
+def count_reads(counter, readfiles):
+    if isinstance(readfiles, str):
+        readfiles = [readfiles, ]
     for readfile in readfiles:
         info("Consuming:",  readfile)
         with screed.open(readfile) as reads:
