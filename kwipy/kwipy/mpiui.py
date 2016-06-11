@@ -146,9 +146,7 @@ def weight_mpi_main():
         bcolz.carray(popfreq, rootdir=weightfile, mode='w',
                      chunklen=BCOLZ_CHUNKLEN).flush()
         info("Wrote weights to", weightfile)
-
         shutil.rmtree('{}_{}'.format(weightfile, 0))
-
 
 
 def kernel_mpi_main():
@@ -157,11 +155,13 @@ def kernel_mpi_main():
         kwipy-kernel-mpi [options] OUTDIR WEIGHTFILE COUNTFILES ...
 
     OPTIONS:
+        -Q      Quiet mode [default: false]
         -c      Resume previous calculation to OUTDIR
     '''
     opts = docopt(cli)
     outdir = opts['OUTDIR']
     weightfile = opts['WEIGHTFILE']
+    quiet = opts['-Q']
     countfiles = opts['COUNTFILES']
     resume = opts['-c']
 
@@ -185,5 +185,7 @@ def kernel_mpi_main():
 
     for afile, bfile in pairs:
         a, b, k = calc_kernel(weightfile, (afile, bfile))
+        if not quiet:
+            print(a, b, k)
         with open(outfile, 'a') as kfh:
             print(a, b, k, sep='\t', file=kfh)
