@@ -33,13 +33,16 @@ from .kernelmath import (
     normalise_kernel,
     kernel_to_distance,
 )
+from .internals import (
+    popfreq_add_sample,
+    popfreq_to_weights
+)
 from .logging import (
     info,
     warn,
 )
 from .utils import (
     calc_kernel,
-    calc_weights,
     check_psd,
     count_reads,
     file_to_name,
@@ -83,15 +86,29 @@ def count_main():
 def weight_main():
     cli = '''
     USAGE:
-        kwipy-weight [options] WEIGHTFILE COUNTFILES ...
-
+        kwipy-weight WEIGHTFILE COUNTFILES ...
     '''
 
     opts = docopt(cli)
     outfile = opts['WEIGHTFILE']
     countfiles = opts['COUNTFILES']
 
-    weights = calc_weights(countfiles)
+    popfreq = None
+    nsamples = len(countfiles)
+
+    for countfile in countfiles:
+        info("Loading",  countfile, end='... ')
+        counts = bcolz.open(countfile, mode='r')[:]
+        if popfreq is None:
+            popfreq = np.zeros(counts.shape, dtype=np.float32)
+        popfreq_add_sample(popfreq, counts, counts.shape[0])
+        info("Done!")
+        # free some ram
+        del counts
+
+    info("Calculating entropy vector")
+    popfreq_to_weights(popfreq, popfreq.shape[0], nsamples)
+    weights = popfreq
 
     info("Writing weights to", outfile, end='... ')
     weights = bcolz.carray(weights, rootdir=outfile, mode='w',

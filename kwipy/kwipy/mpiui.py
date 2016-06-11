@@ -25,8 +25,18 @@ from glob import glob
 from os import path, mkdir
 import re
 from sys import stderr, stdout
+import shutil
 
 from .counter import Counter
+from .constants import (
+    READFILE_EXTS,
+    BCOLZ_CHUNKLEN,
+)
+from .internals import (
+    popfreq_add_sample,
+    popfreq_to_weights,
+    inplace_append,
+)
 from .logging import (
     info,
     warn,
@@ -36,7 +46,10 @@ from .utils import (
     calc_kernel,
     count_reads,
     parse_reads_with_precmd,
+    read_kernlog,
     stripext,
+    mpisplit,
+    rmmkdir,
 )
 
 
@@ -57,14 +70,14 @@ def count_mpi_main():
     Will use about 6 * CVLEN bytes of RAM per file (or 2x with --no-cms).
 
     An optional pre-counting command for e.g. QC or SRA dumping can be given
-    with --precmd. The pre-command can be a shell pipeline combining the effects
-    of multiple programs. Interleaved or single ended reads must be printed on
+    with `-p`. The pre-command can be a shell pipeline combining the effects of
+    multiple programs. Interleaved or single ended reads must be printed on
     stdout by the command(s). The pre-command uses the find/xargs/GNU Parallel
     convention of using a pair of '{}' to mark where the filename should be
     placed. Examples of a pre-command include:
 
-        --precmd 'fastq-dump --split-spot --stdout {}'
-        --precmd 'gzcat {} | trimit'
+        -p 'fastq-dump --split-spot --stdout {}'
+        -p 'gzcat {} | trimit'
     '''
 
     opts = docopt(cli)
@@ -76,23 +89,10 @@ def count_mpi_main():
     precmd = opts['--precmd']
 
     comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
+    readfiles = mpisplit(readfiles, comm)
 
-    if rank == 0:
-        size = comm.Get_size()
-        if size > len(readfiles):
-            warn('Number of MPI ranks is greater than number of comparisons')
-            warn('This is harmless but silly')
-        pieces = [list() for x in range(size)]
-        for i, readfile in enumerate(readfiles):
-            pieces[i % size].append(readfile)
-    else:
-        pieces = None
-
-    our_readfiles = comm.scatter(pieces, root=0)
-
-    for readfile in our_readfiles:
-        base = stripext(readfile, ['fa', 'fq', 'fasta', 'fastq', 'gz', ])
+    for readfile in readfiles:
+        base = stripext(readfile, READFILE_EXTS)
         outfile = path.join(outdir, base + '.kct')
         counts = Counter(k=k, cvsize=cvsize, use_cms=use_cms)
         if precmd is None:
@@ -105,6 +105,52 @@ def count_mpi_main():
         counts.save(outfile)
 
 
+def weight_mpi_main():
+    cli = '''
+    USAGE:
+        kwipy-weight-mpi WEIGHTFILE COUNTFILES ...
+    '''
+    opts = docopt(cli)
+    weightfile = opts['WEIGHTFILE']
+    countfiles = opts['COUNTFILES']
+    n_samples = len(countfiles)
+
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    countfiles = mpisplit(countfiles, comm)
+
+    # In parallel, we summarise the counts into  a presence/absence table for
+    # each rank
+    popfreq = None
+    for countfile in countfiles:
+        info("Loading", countfile)
+        counts = bcolz.open(countfile, mode='r')[:]
+        if popfreq is None:
+            popfreq = np.zeros(counts.shape, dtype=np.float32)
+        popfreq_add_sample(popfreq, counts, counts.shape[0])
+
+    temp_array = '{}_{}'.format(weightfile, rank)
+    bcolz.carray(popfreq, rootdir=temp_array, mode='w',
+                 chunklen=BCOLZ_CHUNKLEN).flush()
+
+    # Then summarise the summarised counts and turn the freqs into weights
+    if rank == 0:
+        info("Summarising population counts")
+        for i in range(1, comm.Get_size()):
+            arrayfile = '{}_{}'.format(weightfile, i)
+            theirpf = bcolz.open(arrayfile, mode='r')[:]
+            inplace_append(popfreq, theirpf, popfreq.shape[0])
+            shutil.rmtree(arrayfile)
+        info("Calculating weights")
+        popfreq_to_weights(popfreq, popfreq.shape[0], n_samples)
+        bcolz.carray(popfreq, rootdir=weightfile, mode='w',
+                     chunklen=BCOLZ_CHUNKLEN).flush()
+        info("Wrote weights to", weightfile)
+
+        shutil.rmtree('{}_{}'.format(weightfile, 0))
+
+
+
 def kernel_mpi_main():
     cli = '''
     USAGE:
@@ -112,7 +158,6 @@ def kernel_mpi_main():
 
     OPTIONS:
         -c      Resume previous calculation to OUTDIR
-
     '''
     opts = docopt(cli)
     outdir = opts['OUTDIR']
@@ -123,40 +168,22 @@ def kernel_mpi_main():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
-    pairs = list(itl.combinations_with_replacement(countfiles, 2))
-
+    if rank == 0 and not resume:
+        rmmkdir(outdir)
     if rank == 0 and not path.isdir(outdir):
         mkdir(outdir)
 
-    if rank == 0:
-        if resume:
-            existing_kernlogs = glob(path.join(outdir, 'kernellog_*'))
-            pairs_done = set()
-            for kl in existing_kernlogs:
-                with open(kl) as fh:
-                    for line in fh:
-                        a, b, kern = line.strip().split('\t')
-                        pairs_done.add((a, b))
-            pairs = pairs.filter(lambda x: x not in pairs_done)
-        size = comm.Get_size()
-        if size > len(pairs):
-            warn('Number of MPI ranks is greater than number of comparisons')
-            warn('This is harmless but silly')
-        pieces = [list() for x in range(size)]
-        for i, pair in enumerate(pairs):
-            pieces[i % size].append(pair)
+    pairs = list(itl.combinations_with_replacement(countfiles, 2))
+    if resume:
+        kernels = read_kernlog(outdir)
+        pairs = pairs.filter(lambda p: p in kernels)
     else:
-        pieces = None
-
-    pairs = comm.scatter(pieces, root=0)
+        rmmkdir(outdir)
+    pairs = mpisplit(pairs, comm)
 
     outfile = path.join(outdir, 'kernellog_{}'.format(rank))
-    if not resume:
-        with open(outfile, 'w') as fh:
-            pass
 
     for afile, bfile in pairs:
         a, b, k = calc_kernel(weightfile, (afile, bfile))
-        print(a, b, k)
         with open(outfile, 'a') as kfh:
             print(a, b, k, sep='\t', file=kfh)

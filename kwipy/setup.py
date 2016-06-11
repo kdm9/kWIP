@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
-# Copyright  2016  Kevin Murray <spam@kdmurray.id.au>
+#!/usr/bin/env python3
+# Copyright 2016 Kevin Murray <spam@kdmurray.id.au>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,6 +64,7 @@ setup(
             'kwipy-distmat = kwipy.scripts:distmat_main',
             'kwipy-kernel-mpi = kwipy.mpiui:kernel_mpi_main [mpi]',
             'kwipy-count-mpi = kwipy.mpiui:count_mpi_main [mpi]',
+            'kwipy-weight-mpi = kwipy.mpiui:weight_mpi_main [mpi]',
         ],
     },
     extras_require={

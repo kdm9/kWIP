@@ -31,8 +31,6 @@ from subprocess import DEVNULL, PIPE, Popen
 from .constants import BCOLZ_CHUNKLEN
 from .internals import (
     wipkernel,
-    popfreq_add_sample,
-    popfreq_to_weights
 )
 from .kernelmath import is_psd
 from .logging import (
@@ -91,12 +89,14 @@ def rmmkdir(directory):
         rmtree(directory)
     mkdir(directory)
 
+
 def parse_reads_with_precmd(filename, precmd):
     cmd = precmd.format(' "{}"'.format(filename))
     with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
                stdout=PIPE, stderr=None, universal_newlines=True) as proc:
         for seq in screed.fastq.fastq_iter(proc.stdout):
             yield seq
+
 
 def count_reads(counter, readfiles):
     if isinstance(readfiles, str):
@@ -107,25 +107,6 @@ def count_reads(counter, readfiles):
             for read in ProgressLogger(reads, 'reads', interval=10000):
                 counter.consume(read.sequence)
     return counter
-
-
-def calc_weights(countfiles):
-    popfreq = None
-    nsamples = len(countfiles)
-
-    for countfile in countfiles:
-        info("Loading",  countfile, end='... ')
-        counts = bcolz.open(countfile, mode='r')[:]
-        if popfreq is None:
-            popfreq = np.zeros(counts.shape, dtype=np.float32)
-        popfreq_add_sample(popfreq, counts, counts.shape[0])
-        info("Done!")
-        # free some ram
-        del counts
-
-    info("Calculating entropy vector")
-    popfreq_to_weights(popfreq, popfreq.shape[0], nsamples)
-    return popfreq
 
 
 def calc_kernel(weightsfile, ab):
@@ -154,7 +135,11 @@ def read_kernlog(outdir):
     for kfn in kernlogs:
         with open(kfn) as fh:
             kernlines.extend(fh.readlines())
-    return kernlines
+    kernels = {}
+    for line in kernlines:
+        a, b, k = line.strip().split()
+        kernels[(a, b)] = float(k)
+    return kernels
 
 
 def kernlog_to_kernmatrix(kernlog_lines, namere):
@@ -184,3 +169,18 @@ def kernlog_to_kernmatrix(kernlog_lines, namere):
         kernmat[ai, bi] = kernels[a][b]
         kernmat[bi, ai] = kernels[a][b]
     return samples, kernmat
+
+
+def mpisplit(things, comm):
+    '''Split `things` into a chunk for each rank.'''
+    pieces = None
+    rank = comm.Get_rank()
+    if rank == 0:
+        size = comm.Get_size()
+        if size > len(things):
+            warn('Number of MPI ranks is greater than number of items')
+            warn('This is harmless but silly')
+        pieces = [list() for x in range(size)]
+        for i, thing in enumerate(things):
+            pieces[i % size].append(thing)
+    return comm.scatter(pieces, root=0)
