@@ -28,7 +28,7 @@ def is_psd(matrix):
 
 def normalise_kernel(K):
     '''Normalise a kernel matrix such that the diagonal is equal to 1.'''
-    N = np.zeros_like(K)
+    N = np.zeros_like(K, dtype=float)
     for i, j in itl.product(*map(range, K.shape)):
         N[i, j] = K[i, j] / np.sqrt(K[i, i] * K[j, j])
     return N
@@ -38,8 +38,10 @@ def kernel_to_distance(K):
     '''Convert a kernel matrix to a distance matrix.
 
     The kernel matrix need not be normalised, this is done internally.'''
+    if not is_psd(K):
+        raise UserWarning("Converting non-euclidean kernel matrix to distance")
     K = normalise_kernel(K)
-    D = np.zeros_like(K)
+    D = np.zeros_like(K, dtype=float)
     for i, j in itl.product(*map(range, K.shape)):
         D[i, j] = (K[i, i] + K[j, j]) - 2*K[i, j]
     return D
