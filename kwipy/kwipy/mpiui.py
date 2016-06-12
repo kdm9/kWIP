@@ -48,9 +48,23 @@ from .utils import (
     parse_reads_with_precmd,
     read_kernlog,
     stripext,
-    mpisplit,
     rmmkdir,
 )
+
+
+def mpisplit(things, comm):
+    '''Split `things` into a chunk for each MPI rank.'''
+    pieces = None
+    rank = comm.Get_rank()
+    if rank == 0:
+        size = comm.Get_size()
+        if size > len(things):
+            warn('Number of MPI ranks is greater than number of items')
+            warn('This is harmless but silly')
+        pieces = [list() for x in range(size)]
+        for i, thing in enumerate(things):
+            pieces[i % size].append(thing)
+    return comm.scatter(pieces, root=0)
 
 
 def count_mpi_main():

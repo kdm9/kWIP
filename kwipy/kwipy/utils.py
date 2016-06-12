@@ -41,6 +41,22 @@ from .progress import ProgressLogger
 
 
 def stripext(filename, extensions):
+    """Strips each extension in ``extensions`` from ``filename``
+
+    Args
+    ----
+    filename: str
+        path (possibly with leading directories) to a file
+    extensions: list of str
+        extensions to strip. Extensions may start with a '.'; if they do not,
+        one will be added.
+
+    Returns
+    -------
+    str
+        The basename of ``filename`` with any extensions in ``extensions``
+        removed.
+    """
     filename = path.basename(filename)
     for ext in extensions:
         # Should handle cases like stripext(.tar.gz, [.tar, .tar.gz]).
@@ -169,18 +185,3 @@ def kernlog_to_kernmatrix(kernlog_lines, namere):
         kernmat[ai, bi] = kernels[a][b]
         kernmat[bi, ai] = kernels[a][b]
     return samples, kernmat
-
-
-def mpisplit(things, comm):
-    '''Split `things` into a chunk for each rank.'''
-    pieces = None
-    rank = comm.Get_rank()
-    if rank == 0:
-        size = comm.Get_size()
-        if size > len(things):
-            warn('Number of MPI ranks is greater than number of items')
-            warn('This is harmless but silly')
-        pieces = [list() for x in range(size)]
-        for i, thing in enumerate(things):
-            pieces[i % size].append(thing)
-    return comm.scatter(pieces, root=0)
