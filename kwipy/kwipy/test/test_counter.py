@@ -80,3 +80,7 @@ def test_counter_nocms():
 
     # The sum of the CV **IS* the number of k-mers here, as the CMS is not used.
     assert ctr.cv.sum() == len(K3_DBS) - k + 1
+
+    # Check that each k-mers is counted (at least) once
+    for i in range(4**k):
+        assert ctr.get(i) >= 1

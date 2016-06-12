@@ -1,0 +1,2 @@
+[run]
+omit = kwipy/test/*,kwipy/_version.py
