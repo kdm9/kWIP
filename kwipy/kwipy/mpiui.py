@@ -112,7 +112,7 @@ def count_mpi_main():
     for readfile in readfiles:
         base = stripext(readfile, READFILE_EXTS)
         outfile = path.join(args.outdir, base + '.kct')
-        counts = Counter(k=args.k, cvsize=int(args.cvsize),
+        counts = Counter(k=args.ksize, cvsize=int(args.cvsize),
                          use_cms=args.use_cms)
         if args.precmd is None:
             count_reads(counts, [readfile, ])
