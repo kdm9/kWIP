@@ -101,7 +101,7 @@ def count_mpi_main():
     parser.add_argument(
         '--no-cms', action='store_false', dest='use_cms',
         help='Disable the CMS counter, use only a count vector')
-    parser.add_argument('outdir', nargs=1, help='Output directory')
+    parser.add_argument('outdir', help='Output directory')
     parser.add_argument('readfiles', nargs='+', help='Read files')
 
     args = parser.parse_args()
