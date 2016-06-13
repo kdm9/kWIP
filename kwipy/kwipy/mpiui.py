@@ -20,12 +20,15 @@ from docopt import docopt
 import numpy as np
 import bcolz
 
+import argparse
+from argparse import ArgumentParser
 import itertools as itl
 from glob import glob
 from os import path, mkdir
 import re
 from sys import stderr, stdout
 import shutil
+from textwrap import dedent
 
 from .counter import Counter
 from .constants import (
@@ -68,19 +71,9 @@ def mpisplit(things, comm):
 
 
 def count_mpi_main():
-    cli = '''
-    USAGE:
-        kwipy-count-mpi [options] OUTDIR READFILES ...
-
-    OPTIONS:
-        -k KSIZE    Kmer length [default: 20]
-        -v CVLEN    Count vector length [default: 1e9]
-        -p PRECMD   Shell pipeline to run on input files before hashing.
-        --no-cms    Disable the CMS counter, use only a count vector.
-                    [default: False]
-
-    Counts k-mers into individual count vectors, parallelised using MPI.
-
+    desc = dedent("""\
+    Counts k-mers into individual count vectors, parallelised using MPI.""")
+    epilog = dedent('''\
     Will use about 6 * CVLEN bytes of RAM per file (or 2x with --no-cms).
 
     An optional pre-counting command for e.g. QC or SRA dumping can be given
@@ -90,29 +83,41 @@ def count_mpi_main():
     convention of using a pair of '{}' to mark where the filename should be
     placed. Examples of a pre-command include:
 
-        -p 'fastq-dump --split-spot --stdout {}'
-        -p 'gzcat {} | trimit'
-    '''
+        --precmd 'fastq-dump --split-spot --stdout {}'
+        --precmd 'zcat {} | trimit'
+    ''')
 
-    opts = docopt(cli)
-    k = int(opts['-k'])
-    cvsize = int(float(opts['-v']))
-    outdir = opts['OUTDIR']
-    readfiles = opts['READFILES']
-    use_cms = not opts['--no-cms']
-    precmd = opts['--precmd']
+    parser = ArgumentParser(
+        description=desc, prog='kwipy-count-mpi', epilog=epilog)
+    parser.add_argument(
+        '-k', '--ksize', type=int, default=20,
+        help='K-mer length')
+    parser.add_argument(
+        '-v', '--cvsize', type=float, default=5e8,
+        help='Count vector length')
+    parser.add_argument(
+        '-p', '--precmd', required=False,
+        help='Shell pipeline to run on input files before hashing')
+    parser.add_argument(
+        '--no-cms', action='store_false', dest='use_cms',
+        help='Disable the CMS counter, use only a count vector')
+    parser.add_argument('outdir', nargs=1, help='Output directory')
+    parser.add_argument('readfiles', nargs='+', help='Read files')
+
+    args = parser.parse_args()
 
     comm = MPI.COMM_WORLD
-    readfiles = mpisplit(readfiles, comm)
+    readfiles = mpisplit(args.readfiles, comm)
 
     for readfile in readfiles:
         base = stripext(readfile, READFILE_EXTS)
-        outfile = path.join(outdir, base + '.kct')
-        counts = Counter(k=k, cvsize=cvsize, use_cms=use_cms)
-        if precmd is None:
+        outfile = path.join(args.outdir, base + '.kct')
+        counts = Counter(k=args.k, cvsize=int(args.cvsize),
+                         use_cms=args.use_cms)
+        if args.precmd is None:
             count_reads(counts, [readfile, ])
         else:
-            reads = parse_reads_with_precmd(readfile, precmd)
+            reads = parse_reads_with_precmd(readfile, args.precmd)
             for read in ProgressLogger(reads, 'reads', interval=10000):
                 counts.consume(read.sequence)
         info("Writing counts to", outfile)
