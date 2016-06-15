@@ -18,7 +18,6 @@ from __future__ import print_function, division, absolute_import
 from mpi4py import MPI
 from docopt import docopt
 import numpy as np
-import bcolz
 
 import argparse
 from argparse import ArgumentParser
@@ -52,6 +51,8 @@ from .utils import (
     read_kernlog,
     stripext,
     rmmkdir,
+    read_array,
+    write_array,
 )
 
 
@@ -143,27 +144,25 @@ def weight_mpi_main():
     popfreq = None
     for countfile in countfiles:
         info("Loading", countfile)
-        counts = bcolz.open(countfile, mode='r')[:]
+        counts = read_array(countfile)
         if popfreq is None:
             popfreq = np.zeros(counts.shape, dtype=np.float32)
         popfreq_add_sample(popfreq, counts, counts.shape[0])
 
     temp_array = '{}_{}'.format(weightfile, rank)
-    bcolz.carray(popfreq, rootdir=temp_array, mode='w',
-                 chunklen=BCOLZ_CHUNKLEN).flush()
+    write_array(temp_array, popfreq)
 
     # Then summarise the summarised counts and turn the freqs into weights
     if rank == 0:
         info("Summarising population counts")
         for i in range(1, comm.Get_size()):
             arrayfile = '{}_{}'.format(weightfile, i)
-            theirpf = bcolz.open(arrayfile, mode='r')[:]
+            theirpf = read_array(arrayfile)
             inplace_append(popfreq, theirpf, popfreq.shape[0])
             shutil.rmtree(arrayfile)
         info("Calculating weights")
         popfreq_to_weights(popfreq, popfreq.shape[0], n_samples)
-        bcolz.carray(popfreq, rootdir=weightfile, mode='w',
-                     chunklen=BCOLZ_CHUNKLEN).flush()
+        write_array(weightfile, popfreq)
         info("Wrote weights to", weightfile)
         shutil.rmtree('{}_{}'.format(weightfile, 0))
 

@@ -15,7 +15,6 @@
 
 from __future__ import print_function, division, absolute_import
 
-import bcolz
 from docopt import docopt
 import numpy as np
 
@@ -50,6 +49,8 @@ from .utils import (
     mkdir,
     read_kernlog,
     print_lsmat,
+    read_array,
+    write_array,
 )
 
 
@@ -98,7 +99,7 @@ def weight_main():
 
     for countfile in countfiles:
         info("Loading",  countfile, end='... ')
-        counts = bcolz.open(countfile, mode='r')[:]
+        counts = read_array(countfiles)
         if popfreq is None:
             popfreq = np.zeros(counts.shape, dtype=np.float32)
         popfreq_add_sample(popfreq, counts, counts.shape[0])
@@ -111,9 +112,7 @@ def weight_main():
     weights = popfreq
 
     info("Writing weights to", outfile, end='... ')
-    weights = bcolz.carray(weights, rootdir=outfile, mode='w',
-                           chunklen=BCOLZ_CHUNKLEN)
-    weights.flush()
+    write_array(outfile, weights)
     info("Done!")
 
 

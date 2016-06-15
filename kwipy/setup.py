@@ -47,6 +47,7 @@ with open('requirements.txt') as fh:
 test_requires = [
     'pytest',
     'pytest-runner',
+    'tempdir',
 ]
 
 command_classes = versioneer.get_cmdclass()

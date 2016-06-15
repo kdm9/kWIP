@@ -185,3 +185,12 @@ def kernlog_to_kernmatrix(kernlog_lines, namere):
         kernmat[ai, bi] = kernels[a][b]
         kernmat[bi, ai] = kernels[a][b]
     return samples, kernmat
+
+
+def read_array(filename):
+    return bcolz.open(filename, mode='r')[:]
+
+
+def write_array(filename, array):
+    bcolz.carray(array, rootdir=filename, mode='w',
+                 chunklen=BCOLZ_CHUNKLEN).flush()
