@@ -118,7 +118,7 @@ def count_mpi_main():
             count_reads(counts, [readfile, ])
         else:
             reads = parse_reads_with_precmd(readfile, args.precmd)
-            for read in ProgressLogger(reads, 'reads', interval=10000):
+            for read in ProgressLogger(reads, 'reads', interval=100000):
                 counts.consume(read.sequence)
         info("Writing counts to", outfile)
         counts.save(outfile)
