@@ -1,5 +1,6 @@
 bcolz
 blessings
+cython
 docopt
 numpy
 pytest
