@@ -162,15 +162,17 @@ def kernel_mpi_main():
     if rank == 0 and not path.isdir(outdir):
         mkdir(outdir)
 
+    comm.Barrier()
+
     pairs = list(itl.combinations_with_replacement(countfiles, 2))
     if resume:
         kernels = read_kernlog(outdir)
         pairs = pairs.filter(lambda p: p in kernels)
-    else:
-        rmmkdir(outdir)
     pairs = mpisplit(pairs, comm)
 
     outfile = path.join(outdir, 'kernellog_{}'.format(rank))
+
+    comm.Barrier()
 
     for afile, bfile in pairs:
         a, b, k = calc_kernel(weightfile, (afile, bfile))
