@@ -88,7 +88,7 @@ def needs_update(source, dest):
         otherwise True
     '''
     if path.exists(source) and path.exists(dest):
-        return path.getmtime(source) > path.mtime(dest)
+        return path.getmtime(source) > path.getmtime(dest)
     else:
         return True
 

@@ -81,6 +81,7 @@ def count_mpi_main():
         base = stripext(readfile, READFILE_EXTS)
         outfile = path.join(args.outfile, base + '.kct')
         if not needs_update(readfile, outfile):
+            info("Skipping", readfile, "as it is older than", outfile)
             continue
         info("Consuming reads from", readfile)
         counts = Counter(k=args.ksize, cvsize=int(args.cvsize),
