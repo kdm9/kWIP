@@ -71,6 +71,28 @@ def stripext(filename, extensions):
     return filename
 
 
+def needs_update(source, dest):
+    '''Checks if file ``source`` is newer than ``dest``.
+
+    Args
+    ----
+    source: str
+        path to a source file.
+    dest: list of str
+        File, derived from ``source``, that may be older than ``source``
+
+    Returns
+    -------
+    bool:
+        returns mtime(source) > mtime(dest) if both source and dest exist,
+        otherwise True
+    '''
+    if path.exists(source) and path.exists(dest):
+        return path.getmtime(source) > path.mtime(dest)
+    else:
+        return True
+
+
 def check_psd(matrix, name):
     if is_psd(matrix):
         info(name, "matrix is positive semi-definite")

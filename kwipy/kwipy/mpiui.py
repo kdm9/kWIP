@@ -46,10 +46,11 @@ from .progress import ProgressLogger
 from .utils import (
     calc_kernel,
     count_reads,
-    read_kernlog,
-    stripext,
-    rmmkdir,
+    needs_update,
     read_array,
+    read_kernlog,
+    rmmkdir,
+    stripext,
     write_array,
 )
 
@@ -79,15 +80,17 @@ def count_mpi_main():
     for readfile in readfiles:
         base = stripext(readfile, READFILE_EXTS)
         outfile = path.join(args.outfile, base + '.kct')
+        if not needs_update(readfile, outfile):
+            continue
         info("Consuming reads from", readfile)
         counts = Counter(k=args.ksize, cvsize=int(args.cvsize),
                          use_cms=args.use_cms)
         try:
             count_reads(counts, [readfile, ], precmd=args.precmd)
+            info("Writing counts to", outfile)
+            counts.save(outfile)
         except Exception:
             break
-        info("Writing counts to", outfile)
-        counts.save(outfile)
 
 
 def weight_mpi_main():
