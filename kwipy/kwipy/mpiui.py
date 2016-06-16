@@ -108,7 +108,7 @@ def weight_mpi_main():
     rank = comm.Get_rank()
     countfiles = mpisplit(countfiles, comm)
 
-    # In parallel, we summarise the counts into  a presence/absence table for
+    # In parallel, we summarise the counts into a presence/absence table for
     # each rank
     popfreq = None
     for countfile in countfiles:
@@ -121,6 +121,8 @@ def weight_mpi_main():
     temp_array = '{}_{}'.format(weightfile, rank)
     write_array(temp_array, popfreq)
 
+    comm.Barrier()
+
     # Then summarise the summarised counts and turn the freqs into weights
     if rank == 0:
         info("Summarising population counts")
@@ -128,12 +130,12 @@ def weight_mpi_main():
             arrayfile = '{}_{}'.format(weightfile, i)
             theirpf = read_array(arrayfile)
             inplace_append(popfreq, theirpf, popfreq.shape[0])
-            shutil.rmtree(arrayfile)
         info("Calculating weights")
         popfreq_to_weights(popfreq, popfreq.shape[0], n_samples)
         write_array(weightfile, popfreq)
         info("Wrote weights to", weightfile)
-        shutil.rmtree('{}_{}'.format(weightfile, 0))
+        for i in range(comm.Get_size()):
+            shutil.rmtree('{}_{}'.format(weightfile, i))
 
 
 def kernel_mpi_main():
