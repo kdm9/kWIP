@@ -19,16 +19,14 @@ from mpi4py import MPI
 from docopt import docopt
 import numpy as np
 
-import argparse
-from argparse import ArgumentParser
 import itertools as itl
 from glob import glob
 from os import path, mkdir
 import re
 from sys import stderr, stdout
 import shutil
-from textwrap import dedent
 
+from . import cliargs
 from .counter import Counter
 from .constants import (
     READFILE_EXTS,
@@ -40,6 +38,7 @@ from .internals import (
     inplace_append,
 )
 from .logging import (
+    error,
     info,
     warn,
 )
@@ -47,7 +46,6 @@ from .progress import ProgressLogger
 from .utils import (
     calc_kernel,
     count_reads,
-    parse_reads_with_precmd,
     read_kernlog,
     stripext,
     rmmkdir,
@@ -72,39 +70,7 @@ def mpisplit(things, comm):
 
 
 def count_mpi_main():
-    desc = dedent("""\
-    Counts k-mers into individual count vectors, parallelised using MPI.""")
-    epilog = dedent('''\
-    Will use about 6 * CVLEN bytes of RAM per file (or 2x with --no-cms).
-
-    An optional pre-counting command for e.g. QC or SRA dumping can be given
-    with `-p`. The pre-command can be a shell pipeline combining the effects of
-    multiple programs. Interleaved or single ended reads must be printed on
-    stdout by the command(s). The pre-command uses the find/xargs/GNU Parallel
-    convention of using a pair of '{}' to mark where the filename should be
-    placed. Examples of a pre-command include:
-
-        --precmd 'fastq-dump --split-spot --stdout {}'
-        --precmd 'zcat {} | trimit'
-    ''')
-
-    parser = ArgumentParser(
-        description=desc, prog='kwipy-count-mpi', epilog=epilog)
-    parser.add_argument(
-        '-k', '--ksize', type=int, default=20,
-        help='K-mer length')
-    parser.add_argument(
-        '-v', '--cvsize', type=float, default=5e8,
-        help='Count vector length')
-    parser.add_argument(
-        '-p', '--precmd', required=False,
-        help='Shell pipeline to run on input files before hashing')
-    parser.add_argument(
-        '--no-cms', action='store_false', dest='use_cms',
-        help='Disable the CMS counter, use only a count vector')
-    parser.add_argument('outdir', help='Output directory')
-    parser.add_argument('readfiles', nargs='+', help='Read files')
-
+    parser = cliargs.count_args()
     args = parser.parse_args()
 
     comm = MPI.COMM_WORLD
@@ -112,15 +78,14 @@ def count_mpi_main():
 
     for readfile in readfiles:
         base = stripext(readfile, READFILE_EXTS)
-        outfile = path.join(args.outdir, base + '.kct')
+        outfile = path.join(args.outfile, base + '.kct')
+        info("Consuming reads from", readfile)
         counts = Counter(k=args.ksize, cvsize=int(args.cvsize),
                          use_cms=args.use_cms)
-        if args.precmd is None:
-            count_reads(counts, [readfile, ])
-        else:
-            reads = parse_reads_with_precmd(readfile, args.precmd)
-            for read in ProgressLogger(reads, 'reads', interval=100000):
-                counts.consume(read.sequence)
+        try:
+            count_reads(counts, [readfile, ], precmd=args.precmd)
+        except Exception:
+            break
         info("Writing counts to", outfile)
         counts.save(outfile)
 

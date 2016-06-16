@@ -27,6 +27,7 @@ def test_stripext():
     assert utils.stripext('path/to/test.tar.gz', ['.tar', '.tar.gz']) == "test"
     assert utils.stripext('.tar.gz', ['.tar', '.tar.gz']) == ".tar.gz"
 
+
 def test_print_lsmat(capfd):
     utils.print_lsmat(np.array([[1, 0], [0, 1]]), ids=["A", "B"])
     out, err = capfd.readouterr()

@@ -26,6 +26,7 @@ from sys import stderr, stdout
 from multiprocessing import Pool
 from functools import partial
 
+from . import cliargs
 from .constants import BCOLZ_CHUNKLEN
 from .counter import Counter
 from .kernelmath import (
@@ -55,33 +56,17 @@ from .utils import (
 
 
 def count_main():
-    cli = '''
-    USAGE:
-        kwipy-count [options] OUTFILE READFILES ...
+    parser = cliargs.count_args()
+    args = parser.parse_args()
 
-    OPTIONS:
-        -k KSIZE    Kmer length [default: 20]
-        -v CVLEN    Count vector length [default: 1e9]
-        --no-cms    Disable the CMS counter, use only a count vector.
-
-    Counts k-mers in READFILES to a count-min sketch which is saved to OUTFILE.
-
-    Will use about 6 * CVLEN bytes of RAM.
-    '''
-
-    opts = docopt(cli)
-    k = int(opts['-k'])
-    cvsize = int(float(opts['-v']))
-    outfile = opts['OUTFILE']
-    readfiles = opts['READFILES']
-    use_cms = not opts['--no-cms']
-
-    mkdir(path.dirname(outfile))
-    counter = Counter(k, cvsize, use_cms=use_cms)
-    count_reads(counter, readfiles)
-
-    info("Writing counts to", outfile)
-    counter.save(outfile)
+    mkdir(path.dirname(args.outfile))
+    counter = Counter(k=args.ksize, cvsize=args.cvsize, use_cms=args.use_cms)
+    try:
+        count_reads(counter, args.readfiles, precmd=args.precmd)
+        info("Writing counts to", args.outfile)
+        counter.save(args.outfile)
+    except Exception:
+        pass
 
 
 def weight_main():

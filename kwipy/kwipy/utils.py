@@ -106,23 +106,30 @@ def rmmkdir(directory):
     mkdir(directory)
 
 
-def parse_reads_with_precmd(filename, precmd):
-    cmd = precmd.format(' "{}"'.format(filename))
-    with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
-               stdout=PIPE, stderr=None, universal_newlines=True) as proc:
-        for seq in screed.fastq.fastq_iter(proc.stdout):
-            yield seq
+def parse_reads(filename, precmd=None):
+    if precmd is not None:
+        cmd = precmd.format(' "{}"'.format(filename))
+        with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
+                   stdout=PIPE, stderr=None, universal_newlines=True) as proc:
+            for read in screed.fastq.fastq_iter(proc.stdout):
+                yield read
+        if proc.returncode != 0:
+            raise RuntimeError("Precommand exited with non-zero status.")
+    else:
+        with screed.open(filename) as reads:
+            for read in reads:
+                yield read
 
 
-def count_reads(counter, readfiles):
-    if isinstance(readfiles, str):
-        readfiles = [readfiles, ]
+def count_reads(counter, readfiles, precmd=None, interval=50000):
     for readfile in readfiles:
-        info("Consuming:",  readfile)
-        with screed.open(readfile) as reads:
-            for read in ProgressLogger(reads, 'reads', interval=10000):
+        try:
+            reads = parse_reads(readfile, precmd=precmd)
+            for read in ProgressLogger(reads, 'reads', interval=interval):
                 counter.consume(read.sequence)
-    return counter
+        except IOError as exc:
+            raise RuntimeError("An error occured while reading from", readfile,
+                               ". The error was:\n\t", str(exc))
 
 
 def calc_kernel(weightsfile, ab):
