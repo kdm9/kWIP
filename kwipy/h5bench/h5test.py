@@ -6,9 +6,9 @@ import tables
 from time import time
 from sys import stdout
 
-CHUNKSIZE = 1000000
+CHUNKSIZE = 100000000
 NITER = 5
-N = int(2e8)
+N = int(1e9)
 DT = 'f4'
 
 tables.set_blosc_max_threads(1)
@@ -80,7 +80,7 @@ def iter_blocks_pt(filename, _, name='counts'):
     arr = h5f.root.counts
     csize = arr.chunkshape[0]
     for i in range(0, arr.shape[0], csize):
-        assert(np.sum(arr[i:i+csize]) == csize)
+        assert(np.sum(arr.read(i, i+csize)) == csize)
     h5f.close()
 
 
@@ -89,8 +89,8 @@ def timeit(func, outf):
     start = time()
     for i in range(NITER):
         r = func(outf, array)
-        print('.', end='')
-        stdout.flush()
+        #print('.', end='')
+        #stdout.flush()
         if r is not None and i == 0:
             assert (array == r).all(), "Round trip failed"
     took = time() - start
@@ -99,12 +99,12 @@ def timeit(func, outf):
           ' sec/iter')
 
 
-# timeit(write_array_h5, "arr.h5")
-# timeit(read_array_h5, "arr.h5")
-# timeit(write_array_h5s, "arrs.h5")
-# timeit(read_array_h5, "arrs.h5")
-# timeit(write_array_lz4hc, "arrlz4hc.h5")
-# timeit(read_array_pt, "arrlz4hc.h5")
+timeit(write_array_h5, "arr.h5")
+timeit(read_array_h5, "arr.h5")
+timeit(write_array_h5s, "arrs.h5")
+timeit(read_array_h5, "arrs.h5")
+timeit(write_array_lz4hc, "arrlz4hc.h5")
+timeit(read_array_pt, "arrlz4hc.h5")
 timeit(write_array_blosc, "arrlz4.h5")
 timeit(read_array_pt, "arrlz4.h5")
 timeit(iter_blocks_pt, "arrlz4.h5")
