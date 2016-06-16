@@ -57,3 +57,4 @@ def count_args():
         help='Disable the CMS counter, use only a count vector')
     parser.add_argument('outfile', help='Output file/directory')
     parser.add_argument('readfiles', nargs='+', help='Read files')
+    return parser

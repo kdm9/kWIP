@@ -50,3 +50,10 @@ def warn(*args, file=stderr, end='\n'):
     print(*args, file=file, end=end)
     file.write(term.normal)
     file.flush()
+
+
+def error(*args, file=stderr, end='\n'):
+    file.write(term.bold_red)
+    print(*args, file=file, end=end)
+    file.write(term.normal)
+    file.flush()
