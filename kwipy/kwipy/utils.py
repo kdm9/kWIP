@@ -123,9 +123,12 @@ def mkdir(directory):
 
 
 def rmmkdir(directory):
-    if path.exists(directory):
-        rmtree(directory)
-    mkdir(directory)
+    try:
+        if path.exists(directory):
+            rmtree(directory)
+    except OSError:
+        pass
+    os.mkdir(directory)
 
 
 def parse_reads(filename, precmd=None):
@@ -187,16 +190,14 @@ def read_kernlog(outdir):
     return kernels
 
 
-def kernlog_to_kernmatrix(kernlog_lines, namere):
+def kernlog_to_kernmatrix(kernels_raw, namere):
     kernels = {}
     samples = set()
-    for line in kernlog_lines:
-        a, b, kern = line.rstrip().split('\t')
+    for (a, b), kern in kernels_raw.items():
         a = file_to_name(a, namere)
         b = file_to_name(b, namere)
         samples.add(a)
         samples.add(b)
-        kern = float(kern)
         try:
             kernels[a][b] = kern
         except KeyError:
