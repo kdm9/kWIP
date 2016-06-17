@@ -43,7 +43,7 @@ from .logging import (
 from .progress import ProgressLogger
 
 
-READFILE_EXTS = ['fa', 'fq', 'fasta', 'fastq', 'gz', 'sra']
+READFILE_EXTS = ['gz', 'bz2', 'fa', 'fq', 'fasta', 'fastq', 'sra']
 
 
 def stripext(filename, extensions):
