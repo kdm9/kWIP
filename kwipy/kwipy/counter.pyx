@@ -1,7 +1,6 @@
 import numpy as np
 cimport numpy as np
 cimport cython
-from .constants import BCOLZ_CHUNKLEN
 from .arrayio import write_array
 
 
