@@ -26,8 +26,12 @@ from sys import stderr, stdout
 from multiprocessing import Pool
 from functools import partial
 
+from .arrayio import (
+    read_array,
+    write_array,
+    iter_blocks,
+)
 from . import cliargs
-from .constants import BCOLZ_CHUNKLEN
 from .counter import Counter
 from .kernelmath import (
     normalise_kernel,
@@ -50,8 +54,6 @@ from .utils import (
     mkdir,
     read_kernlog,
     print_lsmat,
-    read_array,
-    write_array,
 )
 
 
@@ -84,7 +86,7 @@ def weight_main():
 
     for countfile in countfiles:
         info("Loading",  countfile, end='... ')
-        counts = read_array(countfiles)
+        counts = read_array(countfiles, name='counts')
         if popfreq is None:
             popfreq = np.zeros(counts.shape, dtype=np.float32)
         popfreq_add_sample(popfreq, counts, counts.shape[0])
@@ -97,7 +99,7 @@ def weight_main():
     weights = popfreq
 
     info("Writing weights to", outfile, end='... ')
-    write_array(outfile, weights)
+    write_array(outfile, weights, name='weights')
     info("Done!")
 
 

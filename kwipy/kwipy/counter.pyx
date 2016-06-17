@@ -1,8 +1,8 @@
 import numpy as np
 cimport numpy as np
-from bcolz import carray
 cimport cython
 from .constants import BCOLZ_CHUNKLEN
+from .arrayio import write_array
 
 
 ctypedef unsigned long long int u64
@@ -116,5 +116,4 @@ cdef class Counter(object):
             self.count(kmer)
 
     def save(self, str filename not None):
-        carray(self.cv, rootdir=filename, mode='w',
-               chunklen=BCOLZ_CHUNKLEN).flush()
+        write_array(filename, self.cv, name='counts')

@@ -26,12 +26,14 @@ import re
 from sys import stderr, stdout
 import shutil
 
+from .arrayio import (
+    read_array,
+    write_array,
+    iter_blocks,
+)
 from . import cliargs
 from .counter import Counter
-from .constants import (
-    READFILE_EXTS,
-    BCOLZ_CHUNKLEN,
-)
+from .constants import READFILE_EXTS
 from .internals import (
     popfreq_add_sample,
     popfreq_to_weights,
@@ -47,11 +49,9 @@ from .utils import (
     calc_kernel,
     count_reads,
     needs_update,
-    read_array,
     read_kernlog,
     rmmkdir,
     stripext,
-    write_array,
 )
 
 
@@ -113,13 +113,13 @@ def weight_mpi_main():
     popfreq = None
     for countfile in countfiles:
         info("Loading", countfile)
-        counts = read_array(countfile)
+        counts = read_array(countfile, name='counts')
         if popfreq is None:
             popfreq = np.zeros(counts.shape, dtype=np.float32)
         popfreq_add_sample(popfreq, counts, counts.shape[0])
 
     temp_array = '{}_{}'.format(weightfile, rank)
-    write_array(temp_array, popfreq)
+    write_array(temp_array, popfreq, name='popfreq')
 
     comm.Barrier()
 
@@ -128,11 +128,11 @@ def weight_mpi_main():
         info("Summarising population counts")
         for i in range(1, comm.Get_size()):
             arrayfile = '{}_{}'.format(weightfile, i)
-            theirpf = read_array(arrayfile)
+            theirpf = read_array(arrayfile, name='popfreq')
             inplace_append(popfreq, theirpf, popfreq.shape[0])
         info("Calculating weights")
         popfreq_to_weights(popfreq, popfreq.shape[0], n_samples)
-        write_array(weightfile, popfreq)
+        write_array(weightfile, popfreq, name='weights')
         info("Wrote weights to", weightfile)
         for i in range(comm.Get_size()):
             shutil.rmtree('{}_{}'.format(weightfile, i))

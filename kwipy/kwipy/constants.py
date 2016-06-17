@@ -16,10 +16,8 @@
 from __future__ import print_function, division
 
 __all__ = [
-    'BCOLZ_CHUNKLEN',
+    'READFILE_EXTS',
 ]
 
 # Constants
-'''The chunk size for bcolz IO'''
-BCOLZ_CHUNKLEN = int(1e7)  # 10 MB
 READFILE_EXTS = ['fa', 'fq', 'fasta', 'fastq', 'gz', 'sra']

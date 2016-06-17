@@ -15,7 +15,6 @@
 
 from __future__ import print_function, division
 
-import bcolz
 import numpy as np
 import screed
 
@@ -28,7 +27,11 @@ import shlex
 from shutil import rmtree
 from subprocess import DEVNULL, PIPE, Popen
 
-from .constants import BCOLZ_CHUNKLEN
+from .arrayio import (
+    read_array,
+    write_array,
+    iter_blocks,
+)
 from .internals import (
     wipkernel,
 )
@@ -162,18 +165,18 @@ def calc_kernel(weightsfile, ab):
     abase = path.basename(afile)
     bbase = path.basename(bfile)
 
-    A = bcolz.open(afile, mode='r')
-    B = bcolz.open(bfile, mode='r')
-    weights = bcolz.open(weightsfile, mode='r')
+    A = iter_blocks(afile, name='counts')
+    B = iter_blocks(bfile, name='counts')
+    W = iter_blocks(weightsfile, name='weights')
 
     kernel = 0.0
 
-    blocklen = int(BCOLZ_CHUNKLEN/4)
-
-    for a, b, w in zip(bcolz.iterblocks(A, blen=blocklen),
-                       bcolz.iterblocks(B, blen=blocklen),
-                       bcolz.iterblocks(weights, blen=blocklen)):
-        kernel += wipkernel(a, b, w, blocklen)
+    # A/B/W all are generators returning a tuple of (i, block) where i is the
+    # index in the big array of block[0].
+    # Hence, ai == a's i, aa = a's array and so on.
+    for (ai, aa), (bi, ba), (wi, wa) in zip(A, B, W):
+        assert ai == bi == wi
+        kernel += wipkernel(aa, ba, wa, aa.shape[0])
     return abase, bbase, kernel
 
 
@@ -215,12 +218,3 @@ def kernlog_to_kernmatrix(kernels_raw, namere):
         kernmat[ai, bi] = kernels[a][b]
         kernmat[bi, ai] = kernels[a][b]
     return samples, kernmat
-
-
-def read_array(filename):
-    return bcolz.open(filename, mode='r')[:]
-
-
-def write_array(filename, array):
-    bcolz.carray(array, rootdir=filename, mode='w',
-                 chunklen=BCOLZ_CHUNKLEN).flush()
