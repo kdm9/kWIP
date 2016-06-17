@@ -33,7 +33,6 @@ from .arrayio import (
 )
 from . import cliargs
 from .counter import Counter
-from .constants import READFILE_EXTS
 from .internals import (
     popfreq_add_sample,
     popfreq_to_weights,
@@ -50,6 +49,7 @@ from .utils import (
     count_reads,
     needs_update,
     read_kernlog,
+    READFILE_EXTS,
     rmmkdir,
     stripext,
 )

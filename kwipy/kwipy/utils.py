@@ -43,6 +43,9 @@ from .logging import (
 from .progress import ProgressLogger
 
 
+READFILE_EXTS = ['fa', 'fq', 'fasta', 'fastq', 'gz', 'sra']
+
+
 def stripext(filename, extensions):
     """Strips each extension in ``extensions`` from ``filename``
 
