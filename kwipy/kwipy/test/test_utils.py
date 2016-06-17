@@ -20,6 +20,7 @@ from numpy.testing import assert_allclose, assert_equal
 from tempdir import run_in_tempdir
 
 from kwipy import utils
+from kwipy import arrayio
 
 
 def test_stripext():
@@ -38,6 +39,18 @@ def test_print_lsmat(capfd):
 @run_in_tempdir()
 def test_array_io():
     arr = np.arange(1000, dtype=float)
-    utils.write_array("test.bcz", arr)
-    new_arr = utils.read_array("test.bcz")
+    arrayio.write_array("test.h5", arr)
+    new_arr = arrayio.read_array("test.h5")
     assert_equal(arr, new_arr)
+
+
+@run_in_tempdir()
+def test_array_iter_blocks():
+    arr = np.ones(arrayio.CHUNKSIZE*2, dtype=float)
+    arrayio.write_array("test.h5", arr)
+    next_i = 0
+    for i, block in arrayio.iter_blocks("test.h5"):
+        assert block.shape[0] == arrayio.CHUNKSIZE
+        assert block.sum() == block.shape[0]
+        assert i == next_i
+        next_i += arrayio.CHUNKSIZE
