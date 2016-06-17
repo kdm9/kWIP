@@ -21,10 +21,10 @@ import numpy as np
 
 import itertools as itl
 from glob import glob
+import os
 from os import path, mkdir
 import re
 from sys import stderr, stdout
-import shutil
 
 from .arrayio import (
     read_array,
@@ -135,7 +135,7 @@ def weight_mpi_main():
         write_array(weightfile, popfreq, name='weights')
         info("Wrote weights to", weightfile)
         for i in range(comm.Get_size()):
-            shutil.rmtree('{}_{}'.format(weightfile, i))
+            os.unlink('{}_{}'.format(weightfile, i))
 
 
 def kernel_mpi_main():
