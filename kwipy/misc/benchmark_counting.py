@@ -5,24 +5,28 @@ from sys import argv, stdout, stderr, exit
 from time import time
 import screed
 
+profile = True
+seq = 'ACGT' * 25
 
-def do_it(fname):
+
+def do_it():
     counter = Counter(k=21, cvsize=1e9, use_cms=False)
-    with screed.open(fname) as reads:
-        start = time()
-        for i, read in enumerate(reads):
-            counter.consume(read.sequence)
-        took = time() - start
-        print("Did", i + 1, "reads in {:0.2f}s".format(took))
+    start = time()
+    for i in range(500000):
+        counter.consume(seq)
+    done_c = time()
+    counter.save("test.h5")
+    done_s = time()
+    print("Count: {:0.2f}s, Save: {:0.2f}s".format(done_c - start,
+                                                   done_s - done_c))
 
 
-if len(argv) == 2:
-    do_it(argv[1])
+if not profile:
+    do_it()
 else:
     import pstats
     import cProfile
 
-    cProfile.runctx("do_it('/home/kevin/ws/seqs/paired/test_R1.fastq')",
-                    globals(), locals(), "profile.prof")
+    cProfile.runctx("do_it()", globals(), locals(), "profile.prof")
     st = pstats.Stats("profile.prof")
-    st.strip_dirs().sort_stats("cumtime").print_stats(1000)
+    st.strip_dirs().sort_stats("cumtime").print_stats(30)
