@@ -16,6 +16,7 @@
 from __future__ import print_function, division
 
 import pytest
+import numpy as np
 from kwipy.counter import (
     iter_kmers,
     Counter
@@ -86,7 +87,7 @@ def test_counter_behaviour():
     # The sum of the CV is not always the same as the number of k-mers. This is
     # because it is updated to the count-min sketch's estimate of the count of
     # an item.
-    assert ctr.cv.sum() <= len(K3_DBS) - k + 1
+    assert np.sum(ctr.cv) <= len(K3_DBS) - k + 1
 
 
 def test_counter_nocms():
@@ -96,7 +97,7 @@ def test_counter_nocms():
     ctr.consume(K3_DBS)
 
     # The sum of the CV **IS* the number of k-mers here, as the CMS is not used.
-    assert ctr.cv.sum() == len(K3_DBS) - k + 1
+    assert np.sum(ctr.cv) == len(K3_DBS) - k + 1
 
     # Check that each k-mers is counted (at least) once
     for i in range(4**k):

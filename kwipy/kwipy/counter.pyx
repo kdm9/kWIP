@@ -6,6 +6,7 @@ from .arrayio import write_array
 
 
 ctypedef unsigned long long int u64
+ctypedef unsigned short u16
 
 
 cdef inline u64 mm64(u64 key, u64 seed):
@@ -58,8 +59,8 @@ cdef class Counter(object):
     cdef readonly u64 k
     cdef readonly u64 nt, ts, cvsize
     cdef u64 dtmax
-    cdef readonly np.ndarray cv
-    cdef np.ndarray cms
+    cdef readonly u16[:] cv
+    cdef u16[:,:] cms
 
     def __init__(self, k, cvsize=2e8, use_cms=True):
         self.k = k
@@ -72,8 +73,8 @@ cdef class Counter(object):
         dtype='u2'
         self.dtmax = 2**16 - 1
 
-        self.cms = np.zeros((self.nt, self.ts), dtype=dtype)
         self.cv = np.zeros(int(cvsize), dtype=dtype)
+        self.cms = np.zeros((self.nt, self.ts), dtype=dtype)
 
     @cython.boundscheck(False)
     @cython.overflowcheck(False)
@@ -115,4 +116,4 @@ cdef class Counter(object):
             self.count(kmer)
 
     def save(self, str filename not None):
-        write_array(filename, self.cv, name='counts')
+        write_array(filename, np.asarray(self.cv), name='counts')
