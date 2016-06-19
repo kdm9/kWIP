@@ -80,7 +80,7 @@ class FastxReader(object):
                     sequence.append(line.rstrip())
             elif len(quality) < len(sequence):
                 quality.append(line.rstrip())
-            elif line.startswith(b'@'):
+            else:
                 self.line = line
                 break
         sequence = b''.join(sequence)
