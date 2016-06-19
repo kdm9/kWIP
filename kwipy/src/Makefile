@@ -1,12 +1,14 @@
-CFLAGS ?= -O3
+CFLAGS ?= -O3 -fPIC
 CFLAGS += -std=c11 -I.
+LDFLAGS ?=
+LIBS += -lz
 
-kmerhash: main.o xxhash.o kmerhash.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+kmercount: main.o xxhash.o kmerhash.o kmercount.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 .PHONY: clean
 clean:
-	rm -f *.o kmerhash
+	rm -f *.o kmercount

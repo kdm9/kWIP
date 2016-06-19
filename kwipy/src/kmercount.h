@@ -1,19 +1,23 @@
 #ifndef KMERCOUNT_H_VKHVXZLK
 #define KMERCOUNT_H_VKHVXZLK
+#include <stdlib.h>
+#include <stdint.h>
 
-
-#define kc_eltype_t uint16_t
+#ifndef kc_eltype_t
+    #define kc_eltype_t uint16_t
+#endif
 
 typedef struct {
     kc_eltype_t *cv;
     size_t len;
     size_t k;
+    uint64_t seed;
 } kmer_count_t;
 
-void kmer_count_init(kmer_count_t *ctx, size_t len, size_t k);
+void kmer_count_init(kmer_count_t *ctx, size_t len, size_t k, uint64_t seed);
 
 kc_eltype_t kmer_count_count_h(kmer_count_t *ctx, uint64_t hash);
-void kmer_count_count_s(kmer_count_t *ctx, const char *seq, size_t n, uint64_t seed);
+size_t kmer_count_count_s(kmer_count_t *ctx, const char *seq, size_t n);
 
 kc_eltype_t kmer_count_get_h(kmer_count_t *ctx, uint64_t hash);
 

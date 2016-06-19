@@ -1,5 +1,6 @@
 #include <string.h>
 #include <assert.h>
+
 #include "kmerhash.h"
 #include "xxhash.h"
 

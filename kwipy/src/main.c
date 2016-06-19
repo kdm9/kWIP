@@ -1,50 +1,43 @@
-#include "kmerhash.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
-static const size_t N = 10000000;
+#include <zlib.h>
 
-#define XXHI
+#include "kmercount.h"
+#include "kseq.h"
+
+KSEQ_INIT(gzFile, gzread)
+
 
 int main(int argc, char *argv[])
 {
-    //const char *seq = "ACGTACGTACGTNACGTNACGTACGT";
-    const char *seq = "AAACAAGAATACCACGACTAGCAGGAGTATCATGATTCCCGCCTCGGCGTCTGCTTGGGTGTTTAA";
-    const size_t k = 3;
-    kmer_iter_t ctx;
-
-    uint64_t hash = 0;
-
-    const size_t c_sz = 1024;
-    const size_t seed = 234;
-
-    uint64_t *count = calloc(c_sz, sizeof(*count));
-
-    for (size_t i = 0; i < N; i++) {
-        kmer_iter_init(&ctx, seq, strlen(seq), k);
-#ifdef XXHI
-        while (kmer_iter_next_xxh(&ctx, &hash, seed)) {
-#else
-        while (kmer_iter_next(&ctx, &hash)) {
-#endif
-            count[hash % c_sz]++;
-        }
+    if (argc < 2) {
+       fprintf(stderr, "USAGE: kmercount FASTX_FILE\n"); 
+       return EXIT_FAILURE;
     }
+    const size_t cvsize = 1000000000;
 
-    printf("%llu\n", N);
-    kmer_iter_init(&ctx, seq, strlen(seq), k);
-#ifdef XXHI
-    while (kmer_iter_next_xxh(&ctx, &hash, seed)) {
-#else
-    while (kmer_iter_next(&ctx, &hash)) {
-#endif
-        uint64_t cnt = count[hash % c_sz];
-        if (cnt != N) {
-            printf("h %llx c %llu\n", hash, cnt);
-        }
+    gzFile fp = gzopen(argv[1], "r");
+    kseq_t *seq = kseq_init(fp);
+    kmer_count_t ctr;
+    kmer_count_init(&ctr, cvsize, 21, 123);
+    printf("Counting from %s\n", argv[1]);
+    size_t total_kmers = 0;
+    while(kseq_read(seq) >= 0) {
+        total_kmers += kmer_count_count_s(&ctr, seq->seq.s, seq->seq.l);
     }
+    printf("Done counting (%zu kmers)\n", total_kmers);
 
-    free(count);
+    kc_eltype_t max_c = 0;
+    for (size_t i = 0; i < cvsize; i++) {
+        kc_eltype_t this = ctr.cv[i];
+        max_c = this > max_c ? this : max_c;
+    }
+    printf("max count is %u\n", (unsigned)max_c);
+    kseq_destroy(seq);
+    kmer_count_destroy(&ctr);
+    gzclose(fp);
     return 0;
 }
