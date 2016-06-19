@@ -86,7 +86,7 @@ def weight_main():
 
     for countfile in countfiles:
         info("Loading",  countfile, end='... ')
-        counts = read_array(countfiles, name='counts')
+        counts = read_array(countfile, name='counts')
         if popfreq is None:
             popfreq = np.zeros(counts.shape, dtype=np.float32)
         popfreq_add_sample(popfreq, counts, counts.shape[0])
