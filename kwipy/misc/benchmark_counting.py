@@ -16,8 +16,9 @@ def do_it(fname):
         print("Did", i + 1, "reads in {:0.2f}s".format(took))
 
 
-prof = True
-if prof:
+if len(argv) == 2:
+    do_it(argv[1])
+else:
     import pstats
     import cProfile
 
@@ -25,15 +26,3 @@ if prof:
                     globals(), locals(), "profile.prof")
     st = pstats.Stats("profile.prof")
     st.strip_dirs().sort_stats("cumtime").print_stats(1000)
-else:
-    if len(argv) != 2:
-        print("USAGE: benchmark_counting.py <READFILE>", file=stderr)
-        exit(1)
-    do_it(argv[1])
-if False:
-    seq = 'ACGT'  # * 1000000
-    counter = Counter(k=21, cvsize=1e9, use_cms=False)
-    import line_profiler
-    profile = line_profiler.LineProfiler(counter.consume)
-    profile.runcall(counter.consume, seq)
-    profile.print_stats()
