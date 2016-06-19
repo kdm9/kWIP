@@ -77,6 +77,11 @@ setup(
             include_dirs=[numpy.get_include(), ],
             extra_compile_args=compilerargs,
         ),
+        # Extension(
+        #     'kwipy._fastx',
+        #     ['kwipy/_fastx.{}'.format(EXT), ],
+        #     extra_compile_args=compilerargs,
+        # ),
         Extension(
             'kwipy.internals',
             ['kwipy/internals.{}'.format(EXT), ],
