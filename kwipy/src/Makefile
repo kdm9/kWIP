@@ -36,4 +36,4 @@ blosc/%.o: blosc/%.c | $(wildcard blosc/*.h)
 
 .PHONY: clean
 clean:
-	rm -f *.o kmercount
+	rm -f blosc/*.o *.o kmercount
