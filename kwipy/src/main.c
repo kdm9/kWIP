@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>
+#include <time.h>
 
 #include <zlib.h>
 
@@ -13,22 +14,26 @@ KSEQ_INIT(gzFile, gzread)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
-       fprintf(stderr, "USAGE: kmercount FASTX_FILE\n"); 
+    if (argc < 3) {
+       fprintf(stderr, "USAGE: kmercount COUNTS_FILE FASTX_FILE\n"); 
        return EXIT_FAILURE;
     }
     const size_t cvsize = 1000000000;
+    const char *savefile = argv[1];
 
-    gzFile fp = gzopen(argv[1], "r");
-    kseq_t *seq = kseq_init(fp);
+    clock_t start;
+    double secs;
     kmer_count_t ctr;
     kmer_count_init(&ctr, cvsize, 21, 123);
-    printf("Counting from %s\n", argv[1]);
-    size_t total_kmers = 0;
-    while(kseq_read(seq) >= 0) {
-        total_kmers += kmer_count_count_s(&ctr, seq->seq.s, seq->seq.l);
+    for (int fidx = 2; fidx < argc; fidx++) {
+        const char *readfile = argv[fidx];
+        start = clock();
+        printf("Counting from '%s'...\n", readfile);
+        size_t nreads = kmer_count_consume_readfile(&ctr, readfile);
+        secs = (double)(clock() - start) / CLOCKS_PER_SEC;
+        printf("\t- done! (%zu reads, %0.2fs, %0.1fK r/s)\n", nreads,
+                secs, (double)(nreads / 1000) / secs);
     }
-    printf("Done counting (%zu kmers)\n", total_kmers);
 
     kc_eltype_t max_c = 0;
     for (size_t i = 0; i < cvsize; i++) {
@@ -36,8 +41,10 @@ int main(int argc, char *argv[])
         max_c = this > max_c ? this : max_c;
     }
     printf("max count is %u\n", (unsigned)max_c);
-    kseq_destroy(seq);
+    start = clock();
+    kmer_count_save(&ctr, savefile);
+    secs = (double)(clock() - start) / CLOCKS_PER_SEC;
+    printf("Wrote '%s' in %0.1f sec\n", savefile, secs);
     kmer_count_destroy(&ctr);
-    gzclose(fp);
     return 0;
 }
