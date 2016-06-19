@@ -24,27 +24,32 @@ cdef inline u64 mm64(u64 key, u64 seed):
 
     return h
 
-
-def iter_kmers(str seq not None, int k):
+def iter_kmers(bytes seq not None, int k):
     '''Iterator over hashed k-mers in a string DNA sequence.
     '''
     cdef u64 n
     cdef u64 bitmask = (1 << (2 * k)) - 1  # 4**k - 1
     cdef u64 h = 0
+    cdef char A = 65  # ord('A')
+    cdef char C = 67  # ord('C')
+    cdef char G = 71  # ord('G')
+    cdef char T = 84  # ord('T')
+    cdef unsigned nuc
+
 
     # For each end nucleotide, bit-shift left, OR w/ the end nuc and yield
     cdef u64 skip = 0
     for end in range(len(seq)):
-        nt = seq[end]
+        nuc = seq[end] & 0x5f
         if skip > 0:
             skip -= 1
-        if nt == 'A' or nt == 'a':
+        if nuc == A:
             n = 0
-        elif nt == 'C' or nt == 'c':
+        elif nuc == C:
             n = 1
-        elif nt == 'G' or nt == 'g':
+        elif nuc == G:
             n = 2
-        elif nt == 'T' or nt == 't':
+        elif nuc == T:
             n = 3
         else:
             skip = k
@@ -85,7 +90,7 @@ cdef class Counter(object):
     @cython.wraparound(False)
     cdef count(Counter self, u64 item):
         cdef u64 count = 0xffffffffffffffff  # max value of u64
-        cdef u64 hsh, cv_bin, v, i
+        cdef u64 hsh, cv_bin, v, i, tab
 
         cv_bin = mm64(item, 1) % self.cvsize
         if self.nt == 0:
@@ -115,7 +120,7 @@ cdef class Counter(object):
         hsh = mm64(item, 1)
         return self._cv[hsh % self.cvsize]
 
-    def consume(self, str seq not None):
+    def consume(self, bytes seq not None):
         for kmer in iter_kmers(seq, self.k):
             self.count(kmer)
 
