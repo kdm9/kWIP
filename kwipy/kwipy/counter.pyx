@@ -28,7 +28,7 @@ def iter_kmers(str seq not None, int k):
     '''Iterator over hashed k-mers in a string DNA sequence.
     '''
     cdef u64 n
-    cdef u64 bitmask = 0xffffffffffffffff
+    cdef u64 bitmask = (1 << (2 * k)) - 1  # 4**k - 1
     cdef u64 h = 0
 
     # For each end nucleotide, bit-shift left, OR w/ the end nuc and yield
