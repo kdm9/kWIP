@@ -1,3 +1,4 @@
+
 import numpy as np
 cimport numpy as np
 cimport cython
@@ -27,10 +28,10 @@ def iter_kmers(str seq not None, int k):
     '''Iterator over hashed k-mers in a string DNA sequence.
     '''
     cdef u64 n
-    cdef u64 bitmask = 2**(2*k)-1  # Set lowest 2*k bits
+    cdef u64 bitmask = 0xffffffffffffffff
     cdef u64 h = 0
 
-    # For each kmer's end nucleotide, bit-shift, add the end and yield
+    # For each end nucleotide, bit-shift left, OR w/ the end nuc and yield
     cdef u64 skip = 0
     for end in range(len(seq)):
         nt = seq[end]
@@ -78,7 +79,7 @@ cdef class Counter(object):
     @cython.overflowcheck(False)
     @cython.wraparound(False)
     cdef count(Counter self, u64 item):
-        cdef u64 count = <u64>-1  # 2**64 - 1
+        cdef u64 count = 0xffffffffffffffff  # max value of u64
         cdef u64 hsh, cv_bin, v, i
 
         cv_bin = mm64(item, 1) % self.cvsize
@@ -110,7 +111,6 @@ cdef class Counter(object):
         return self.cv[hsh % self.cvsize]
 
     def consume(self, str seq not None):
-        cdef long long hashv = 0
         for kmer in iter_kmers(seq, self.k):
             self.count(kmer)
 
