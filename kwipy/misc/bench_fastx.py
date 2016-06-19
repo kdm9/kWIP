@@ -10,6 +10,8 @@ import io
 import cProfile
 import pstats
 
+USE_PROFILER = False
+
 if len(argv) != 2:
     print("USAGE: bench_fastx <READFILE>")
     exit(1)
@@ -26,6 +28,8 @@ def count_seqlen(reads):
 
 
 def profileit(func):
+    if not USE_PROFILER:
+        return func()
     pr = cProfile.Profile()
     pr.enable()
     func()
