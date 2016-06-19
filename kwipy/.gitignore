@@ -16,3 +16,4 @@ dist
 .ropeproject
 .cache
 htmlcov
+*.c
