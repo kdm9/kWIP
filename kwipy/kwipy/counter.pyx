@@ -59,8 +59,10 @@ cdef class Counter(object):
     cdef readonly u64 k
     cdef readonly u64 nt, ts, cvsize
     cdef u64 dtmax
-    cdef readonly u16[:] cv
-    cdef u16[:,:] cms
+    cdef readonly np.ndarray cv
+    cdef np.ndarray cms
+    cdef u16[:] _cv
+    cdef u16[:,:] _cms
 
     def __init__(self, k, cvsize=2e8, use_cms=True):
         self.k = k
@@ -75,6 +77,8 @@ cdef class Counter(object):
 
         self.cv = np.zeros(int(cvsize), dtype=dtype)
         self.cms = np.zeros((self.nt, self.ts), dtype=dtype)
+        self._cv = self.cv
+        self._cms = self.cms
 
     @cython.boundscheck(False)
     @cython.overflowcheck(False)
@@ -85,22 +89,22 @@ cdef class Counter(object):
 
         cv_bin = mm64(item, 1) % self.cvsize
         if self.nt == 0:
-            count = self.cv[cv_bin]
+            count = self._cv[cv_bin]
             if count < self.dtmax:
                 count += 1
-            self.cv[cv_bin] = count
+            self._cv[cv_bin] = count
             return count
 
         for tab in range(self.nt):
             hsh = mm64(item, tab + 1)
             i = hsh % self.ts
-            v = self.cms[tab, i]
+            v = self._cms[tab, i]
             if v < self.dtmax:
                 v += 1
             if count > v:
                 count = v
-            self.cms[tab, i] = v
-            self.cv[cv_bin] = count
+            self._cms[tab, i] = v
+            self._cv[cv_bin] = count
         return count
 
     @cython.boundscheck(False)
@@ -109,11 +113,11 @@ cdef class Counter(object):
     cpdef get(Counter self, u64 item):
         cdef u64 hsh
         hsh = mm64(item, 1)
-        return self.cv[hsh % self.cvsize]
+        return self._cv[hsh % self.cvsize]
 
     def consume(self, str seq not None):
         for kmer in iter_kmers(seq, self.k):
             self.count(kmer)
 
     def save(self, str filename not None):
-        write_array(filename, np.asarray(self.cv), name='counts')
+        write_array(filename, self.cv, name='counts')
