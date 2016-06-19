@@ -16,7 +16,6 @@
 from __future__ import print_function, division
 
 import numpy as np
-import screed
 
 from glob import glob
 import itertools as itl
@@ -32,6 +31,7 @@ from .arrayio import (
     write_array,
     iter_blocks,
 )
+from .fastx import FastxReader
 from .internals import (
     wipkernel,
 )
@@ -141,14 +141,14 @@ def parse_reads(filename, precmd=None):
     if precmd is not None:
         cmd = precmd.format(' "{}"'.format(filename))
         with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
-                   stdout=PIPE, stderr=None, universal_newlines=True) as proc:
-            for read in screed.fastq.fastq_iter(proc.stdout):
+                   stdout=PIPE, stderr=None, universal_newlines=False) as proc:
+            for read in FastxReader(proc.stdout):
                 yield read
         if proc.returncode != 0:
             raise RuntimeError("Precommand exited with non-zero status.")
     else:
-        with screed.open(filename) as reads:
-            for read in reads:
+        with open(filename, 'rb') as fh:
+            for read in FastxReader(fh):
                 yield read
 
 

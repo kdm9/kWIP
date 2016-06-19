@@ -100,7 +100,7 @@ class FastxReader(object):
                 line = self.line
                 self.line = None
             else:
-                line = self.stream.readline().rstrip()
+                line = self.stream.readline()
                 if not line:
                     raise StopIteration
 
