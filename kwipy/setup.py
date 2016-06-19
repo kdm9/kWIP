@@ -18,8 +18,9 @@
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.extension import Extension
-import numpy
 
+import numpy
+import versioneer
 
 try:
     from Cython.Build import cythonize
@@ -27,8 +28,6 @@ try:
 except ImportError:
     def cythonize(x): return x
     EXT = 'c'
-
-import versioneer
 
 
 desc = """
