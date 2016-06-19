@@ -7,6 +7,8 @@ import xxhash
 from readfq import readfq
 import io
 
+import cProfile
+import pstats
 
 if len(argv) != 2:
     print("USAGE: bench_fastx <READFILE>")
@@ -22,26 +24,45 @@ def count_seqlen(reads):
         xxh.update(read.sequence)
     return totlen, xxh.hexdigest()
 
-start = time()
-with open(filename, 'rb') as fh:
-    reads = FastxReader(fh)
-    cnt = count_seqlen(reads)
-    print("kwipy:", cnt, "took {:0.2f}s".format(time() - start))
 
-start = time()
-with open(filename, 'rb') as fh:
-    totlen = 0
-    xxh = xxhash.xxh64()
-    for n, s, q in readfq(io.TextIOWrapper(decompress(fh))):
-        totlen += len(s)
-        xxh.update(s)
-    cnt = (totlen, xxh.hexdigest())
-    print("readfq:", cnt, "took {:0.2f}s".format(time() - start))
+def profileit(func):
+    pr = cProfile.Profile()
+    pr.enable()
+    func()
+    pr.disable()
+    s = io.StringIO()
+    pstats.Stats(pr, stream=s).sort_stats('cumtime').print_stats(100)
+    print(s.getvalue())
 
-start = time()
-with screed.open(filename) as reads:
-    cnt = count_seqlen(reads)
-    print("screed:", cnt, "took {:0.2f}s".format(time() - start))
+
+def kpy():
+    start = time()
+    with open(filename, 'rb', buffering=0) as fh:
+        reads = FastxReader(fh)
+        cnt = count_seqlen(reads)
+        print("kwipy:", cnt, "took {:0.2f}s".format(time() - start))
+profileit(kpy)
+
+
+def rfq():
+    start = time()
+    with open(filename, 'rb') as fh:
+        totlen = 0
+        xxh = xxhash.xxh64()
+        for n, s, q in readfq(io.TextIOWrapper(decompress(fh))):
+            totlen += len(s)
+            xxh.update(s)
+        cnt = (totlen, xxh.hexdigest())
+        print("readfq:", cnt, "took {:0.2f}s".format(time() - start))
+profileit(rfq)
+
+
+def scr():
+    start = time()
+    with screed.open(filename) as reads:
+        cnt = count_seqlen(reads)
+        print("screed:", cnt, "took {:0.2f}s".format(time() - start))
+profileit(scr)
 
 
 print('performing sanity check')
