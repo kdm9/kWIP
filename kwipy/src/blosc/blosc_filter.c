@@ -53,12 +53,20 @@ int register_blosc(char **version, char **date){
         (H5Z_func_t)(blosc_filter)
     };
 
-    retval = H5Zregister(&filter_class);
-    if(retval<0){
-        PUSH_ERR("register_blosc", H5E_CANTREGISTER, "Can't register Blosc filter");
+    retval = H5Zfilter_avail(FILTER_BLOSC);
+    if (retval < 0) {
+        PUSH_ERR("register_blosc", H5E_CANTREGISTER, "Can't check if Blosc filter is registered");
     }
-    *version = strdup(BLOSC_VERSION_STRING);
-    *date = strdup(BLOSC_VERSION_DATE);
+    if (!retval) {
+        retval = H5Zregister(&filter_class);
+        if(retval<0){
+            PUSH_ERR("register_blosc", H5E_CANTREGISTER, "Can't register Blosc filter");
+        }
+    }
+    if (version != NULL && date != NULL) {
+        *version = strdup(BLOSC_VERSION_STRING);
+        *date = strdup(BLOSC_VERSION_DATE);
+    }
     return 1; /* lib is available */
 }
 
