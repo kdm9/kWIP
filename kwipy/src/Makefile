@@ -19,7 +19,15 @@ ifneq ($(strip $(AVX)),false)
 	BLOSC_OBJS += blosc/bitshuffle-avx2.o blosc/shuffle-avx2.o
 endif
 
-kmercount: main.o xxhash.o kmerhash.o kmercount.o $(BLOSC_OBJS)
+LIB_OBJS = xxhash.o kmerhash.o kmercount.o $(BLOSC_OBJS)
+
+.PHONY: all
+all: libkwipy.so kmercount
+
+libkwipy.so: $(LIB_OBJS)
+	$(CC) -shared $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+kmercount: main.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 blosc/bitshuffle-avx2.o: CFLAGS += -mavx2
@@ -36,4 +44,4 @@ blosc/%.o: blosc/%.c | $(wildcard blosc/*.h)
 
 .PHONY: clean
 clean:
-	rm -f blosc/*.o *.o kmercount
+	rm -f blosc/*.o *.o kmercount libkwipy.so
