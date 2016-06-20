@@ -92,6 +92,12 @@ array_read(const char *filename, const char *dset_path, void **array, size_t *it
     assert(array != NULL);
     assert(items != NULL);
 
+#ifdef USE_BLOSC
+    /* Register the filter with the library */
+    r = register_blosc(NULL, NULL);
+    if(r<0) goto end;
+#endif
+
     // File
     fid = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
     if(fid<0) goto end;
