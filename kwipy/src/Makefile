@@ -19,7 +19,7 @@ ifneq ($(strip $(AVX)),false)
 	BLOSC_OBJS += blosc/bitshuffle-avx2.o blosc/shuffle-avx2.o
 endif
 
-LIB_OBJS = xxhash.o kmerhash.o kmercount.o $(BLOSC_OBJS)
+LIB_OBJS = xxhash.o kc_array.o kmerhash.o kmercount.o $(BLOSC_OBJS)
 
 .PHONY: all
 all: libkwipy.so kmercount

@@ -16,4 +16,4 @@ dist
 .ropeproject
 .cache
 htmlcov
-*.c
+kwipy/*.c

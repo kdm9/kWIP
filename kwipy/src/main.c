@@ -46,5 +46,15 @@ int main(int argc, char *argv[])
     secs = (double)(clock() - start) / CLOCKS_PER_SEC;
     printf("Wrote '%s' in %0.1f sec\n", savefile, secs);
     kmer_count_destroy(&ctr);
+
+
+    kmer_count_load(&ctr, savefile);
+    max_c = 0;
+    for (size_t i = 0; i < cvsize; i++) {
+        kc_eltype_t this = ctr.cv[i];
+        max_c = this > max_c ? this : max_c;
+    }
+    printf("max count is (still) %u\n", (unsigned)max_c);
+    kmer_count_destroy(&ctr);
     return 0;
 }
