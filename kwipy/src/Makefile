@@ -2,7 +2,7 @@ CFLAGS ?= -O3 -fPIC
 CFLAGS += -pthread -I. $(shell pkg-config --cflags hdf5)
 LDFLAGS ?=
 LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
-LIBS += -lz -llz4 $(shell pkg-config --libs-only-l hdf5)
+LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl
 BLOSC_CFLAGS = -DHAVE_LZ4 -DHAVE_ZLIB -Iblosc -DSHUFFLE_SSE2_ENABLED
 BLOSC_OBJS = blosc/bitshuffle-sse2.o \
 			 blosc/bitshuffle-generic.o \
