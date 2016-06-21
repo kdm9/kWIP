@@ -7,15 +7,12 @@
 #include <zlib.h>
 
 #include "kmercount.h"
-#include "kseq.h"
-
-KSEQ_INIT(gzFile, gzread)
 
 
 int main(int argc, char *argv[])
 {
     if (argc < 3) {
-       fprintf(stderr, "USAGE: kmercount COUNTS_FILE FASTX_FILE\n"); 
+       fprintf(stderr, "USAGE: kmercount COUNTS_FILE FASTX_FILE\n");
        return EXIT_FAILURE;
     }
     const size_t cvsize = 1000000000;
@@ -24,7 +21,7 @@ int main(int argc, char *argv[])
     clock_t start;
     double secs;
     kmer_count_t ctr;
-    kmer_count_init(&ctr, cvsize, 21, 123);
+    kmer_count_init(&ctr, cvsize, 20, 123, true);
     for (int fidx = 2; fidx < argc; fidx++) {
         const char *readfile = argv[fidx];
         start = clock();

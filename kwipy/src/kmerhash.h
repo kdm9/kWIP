@@ -3,17 +3,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct {
-    const char *seq;
+    char *seq;
+    char *rcseq;
     size_t len;
     size_t k;
     size_t i;
     uint64_t last_hash;
     uint64_t mask;
+    bool canonicalise;
 } kmer_iter_t;
 
-void kmer_iter_init(kmer_iter_t *ctx, const char *seq, size_t n, size_t k);
+void kmer_iter_init(kmer_iter_t *ctx, size_t k, bool canonicalise);
+void kmer_iter_set_seq(kmer_iter_t *ctx, char *seq, size_t seqlen);
 
 int kmer_iter_next(kmer_iter_t *ctx, uint64_t *hash);
 

@@ -22,7 +22,7 @@ array_save(const char *filename, const char *dset_path, void *array,
     int r;
     int return_code = 1;
 
-    hid_t fid, sid, dset, plist = 0;
+    hid_t fid = 0, sid = 0, dset = 0, plist = 0;
 
     assert(filename != NULL);
     assert(dset_path != NULL);
@@ -84,7 +84,7 @@ array_read(const char *filename, const char *dset_path, void **array, size_t *it
     int r;
     int return_code = 1;
 
-    hid_t fid, sid, dset, plist = 0;
+    hid_t fid = 0, sid = 0, dset = 0, plist = 0;
     hsize_t shape;
 
     assert(filename != NULL);

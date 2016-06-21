@@ -1,19 +1,66 @@
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "kmerhash.h"
 #include "xxhash.h"
 
+
+
 void
-kmer_iter_init(kmer_iter_t *ctx, const char *seq, size_t n, size_t k)
+kmer_iter_init(kmer_iter_t *ctx, size_t k, bool canonicalise)
 {
     assert(ctx != NULL);
-    assert(k > 1 && k <= 32);
-    ctx->seq = seq;
-    ctx->len = n;
-    ctx->i = 0;
+    assert(k > 0 && k <= 32);
     ctx->k = k;
     ctx->mask = (1 << (2*k)) - 1;
+    ctx->canonicalise = canonicalise;
+    ctx->seq = NULL;
+    ctx->len = 0;
+    ctx->i = 0;
+    ctx->rcseq =  NULL;
+}
+
+void
+kmer_iter_set_seq(kmer_iter_t *ctx, char *seq, size_t seqlen)
+{
+    assert(ctx != NULL);
+    assert(seq != NULL);
+    ctx->i = 0;
+    ctx->seq = seq;
+    for (size_t i = 0; i < seqlen; i++ ) {
+        ctx->seq[i] &= 0x5f;  // Force uppercase
+    }
+    if (ctx->canonicalise) {
+        if (seqlen > ctx->len) {
+            ctx->rcseq = realloc(ctx->rcseq, seqlen + 1);
+        }
+        assert(ctx->rcseq != NULL);
+        for (size_t i = 0; i < seqlen; i++) {
+            char nt = seq[seqlen - i - 1];
+            switch (nt) {
+                case 'A':
+                    ctx->rcseq[i] = 'T';
+                    break;
+                case 'C':
+                    ctx->rcseq[i] = 'G';
+                    break;
+                case 'G':
+                    ctx->rcseq[i] = 'C';
+                    break;
+                case 'T':
+                    ctx->rcseq[i] = 'A';
+                    break;
+                default:
+                    ctx->rcseq[i] = 'N';
+                    break;
+            }
+        }
+        ctx->rcseq[seqlen] = '\0';
+    } else {
+        ctx->rcseq = NULL;
+    }
+    ctx->len = seqlen;
 }
 
 int
@@ -31,7 +78,7 @@ kmer_iter_next(kmer_iter_t *ctx, uint64_t *hash)
         if (skip > 0) {
             skip--;
         }
-        char nucl = ctx->seq[ctx->i++] & 0x5f;  // Force uppercase
+        char nucl = ctx->seq[ctx->i++];
         uint64_t n = 0; // Numeric nucleotide repr
         switch (nucl) {
             case 'A':
@@ -68,7 +115,7 @@ kmer_iter_next_xxh(kmer_iter_t *ctx, uint64_t *hash, uint64_t seed)
             /* Prevent an out-of-bounds read */
             return 0;
         }
-        char nucl = ctx->seq[ctx->i++] & 0x5f;  // Force uppercase
+        char nucl = ctx->seq[ctx->i++];  // Force uppercase
         switch (nucl) {
             case 'A':
             case 'C':
@@ -83,11 +130,25 @@ kmer_iter_next_xxh(kmer_iter_t *ctx, uint64_t *hash, uint64_t seed)
                 break;
         }
     } while (skip > 0 || ctx->i < k);
-    size_t offset = ctx->i - k + 1;
-    *hash = XXH64(ctx->seq + offset, k, seed);
+    size_t offset = ctx->i - k;
+    if (ctx->canonicalise) {
+        uint64_t fwd, rev;
+        fwd = XXH64(ctx->seq + offset, k, seed);
+        rev = XXH64(ctx->rcseq + offset, k, seed);
+        *hash = fwd > rev ? rev : fwd;
+    } else {
+        *hash = XXH64(ctx->seq + offset, k, seed);
+    }
     return 1;
 }
+
 void
 kmer_iter_destroy(kmer_iter_t *ctx)
 {
+    if (ctx->rcseq != NULL) {
+        free(ctx->rcseq);
+        ctx->rcseq = NULL;
+    }
+    ctx->seq = NULL;
+    ctx->len = 0;
 }

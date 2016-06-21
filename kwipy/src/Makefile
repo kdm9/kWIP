@@ -1,5 +1,5 @@
-CFLAGS ?= -O3 -fPIC
-CFLAGS += -pthread -I. $(shell pkg-config --cflags hdf5)
+CFLAGS ?= -O3
+CFLAGS += -fPIC -pthread -I. $(shell pkg-config --cflags hdf5)
 LDFLAGS ?=
 LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
 LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl
