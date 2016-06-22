@@ -6,7 +6,8 @@
 #include "kmerhash.h"
 
 #ifndef kc_eltype_t
-    #define kc_eltype_t uint16_t
+    #define kc_eltype_t uint8_t
+    #define H5T_KMERCOUNT H5T_NATIVE_UINT8
 #endif
 
 typedef struct {

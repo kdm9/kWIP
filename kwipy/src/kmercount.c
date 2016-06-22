@@ -55,13 +55,13 @@ kmer_count_get_h(kmer_count_t *ctx, uint64_t hash)
 int
 kmer_count_save(kmer_count_t *ctx, const char *filename)
 {
-    return array_save(filename, "counts", ctx->cv, ctx->cvlen, H5T_NATIVE_UINT16);
+    return array_save(filename, "counts", ctx->cv, ctx->cvlen, H5T_KMERCOUNT);
 }
 
 int
 kmer_count_load(kmer_count_t *ctx, const char *filename)
 {
-    return array_read(filename, "counts", (void **)&ctx->cv, &ctx->cvlen, H5T_NATIVE_UINT16);
+    return array_read(filename, "counts", (void **)&ctx->cv, &ctx->cvlen, H5T_KMERCOUNT);
 }
 
 static inline ssize_t
