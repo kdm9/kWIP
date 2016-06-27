@@ -1,4 +1,4 @@
 *.o
 *.h5
 kmercount
-test
+test.elf

@@ -22,7 +22,11 @@ endif
 LIB_OBJS = ext/xxhash.o kc_array.o kmerhash.o kmercount.o $(BLOSC_OBJS)
 
 .PHONY: all
-all: libkwipy.so kmercount test
+all: libkwipy.so kmercount test.elf
+
+.PHONY: test
+test: test.elf
+	./test
 
 libkwipy.so: $(LIB_OBJS)
 	$(CC) -shared $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -30,7 +34,7 @@ libkwipy.so: $(LIB_OBJS)
 kmercount: main.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-test: test.o $(LIB_OBJS)
+test.elf: test.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 ext/blosc/bitshuffle-avx2.o: CFLAGS += -mavx2
