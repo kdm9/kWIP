@@ -5,15 +5,13 @@
 
 #ifdef USE_BLOSC
 #include "blosc/blosc_filter.h"
-#endif
-
-static const hsize_t chunkshape = CHUNKSIZE;
 static const unsigned int compress_args[7] = {
     0, 0, 0, 0, /* 0 to 3 (inclusive) param slots are reserved. */
     9,          /* compression level */
     0,          /* 0: shuffle not active, 1: shuffle active */
     BLOSC_BLOSCLZ /* the compressor to use */
 };
+#endif
 
 int
 array_save(const char *filename, const char *dset_path, void *array,
@@ -21,6 +19,7 @@ array_save(const char *filename, const char *dset_path, void *array,
 {
     int r;
     int return_code = 1;
+    const hsize_t chunkshape = CHUNKSIZE;
 
     hid_t fid = 0, sid = 0, dset = 0, plist = 0;
 
@@ -55,7 +54,7 @@ array_save(const char *filename, const char *dset_path, void *array,
     /* Set the filter with 7 params */
     r = H5Pset_filter(plist, FILTER_BLOSC, H5Z_FLAG_OPTIONAL, 7, compress_args);
 #else
-    r = H5Pset_deflate(plist, 9);
+    r = H5Pset_deflate(plist, 1);
 #endif
     if(r<0) goto end;
 
