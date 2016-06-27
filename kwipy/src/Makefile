@@ -1,25 +1,25 @@
 CFLAGS ?= -O3
-CFLAGS += -fPIC -pthread -I. $(shell pkg-config --cflags hdf5)
+CFLAGS += -fPIC -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
 LDFLAGS ?=
 LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
 LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl
-BLOSC_CFLAGS = -DHAVE_LZ4 -DHAVE_ZLIB -Iblosc -DSHUFFLE_SSE2_ENABLED
-BLOSC_OBJS = blosc/bitshuffle-sse2.o \
-			 blosc/bitshuffle-generic.o \
-			 blosc/blosc.o \
-			 blosc/blosc_filter.o \
-			 blosc/blosc_plugin.o \
-			 blosc/blosclz.o \
-			 blosc/shuffle-sse2.o \
-			 blosc/shuffle-generic.o \
-			 blosc/shuffle.o
+BLOSC_CFLAGS = -DHAVE_LZ4 -DHAVE_ZLIB -Iext/blosc -DSHUFFLE_SSE2_ENABLED
+BLOSC_OBJS = ext/blosc/bitshuffle-sse2.o \
+			 ext/blosc/shuffle-sse2.o \
+			 ext/blosc/bitshuffle-generic.o \
+			 ext/blosc/blosc.o \
+			 ext/blosc/blosc_filter.o \
+			 ext/blosc/blosc_plugin.o \
+			 ext/blosc/blosclz.o \
+			 ext/blosc/shuffle-generic.o \
+			 ext/blosc/shuffle.o
 AVX ?= true
 ifneq ($(strip $(AVX)),false)
 	BLOSC_CFLAGS += -DSHUFFLE_AVX2_ENABLED
-	BLOSC_OBJS += blosc/bitshuffle-avx2.o blosc/shuffle-avx2.o
+	BLOSC_OBJS += ext/blosc/bitshuffle-avx2.o ext/blosc/shuffle-avx2.o
 endif
 
-LIB_OBJS = xxhash.o kc_array.o kmerhash.o kmercount.o $(BLOSC_OBJS)
+LIB_OBJS = ext/xxhash.o kc_array.o kmerhash.o kmercount.o $(BLOSC_OBJS)
 
 .PHONY: all
 all: libkwipy.so kmercount
@@ -30,12 +30,12 @@ libkwipy.so: $(LIB_OBJS)
 kmercount: main.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-blosc/bitshuffle-avx2.o: CFLAGS += -mavx2
-blosc/shuffle-avx2.o: CFLAGS += -mavx2
-blosc/bitshuffle-sse2.o: CFLAGS += -msse2
-blosc/shuffle-sse2.o: CFLAGS += -msse2
+ext/blosc/bitshuffle-avx2.o: CFLAGS += -mavx2
+ext/blosc/shuffle-avx2.o: CFLAGS += -mavx2
+ext/blosc/bitshuffle-sse2.o: CFLAGS += -msse2
+ext/blosc/shuffle-sse2.o: CFLAGS += -msse2
 
-blosc/%.o: blosc/%.c | $(wildcard blosc/*.h)
+ext/blosc/%.o: ext/blosc/%.c | $(wildcard ext/blosc/*.h)
 	$(CC) $(BLOSC_CFLAGS) $(CFLAGS) -c -o $@ $^
 
 
@@ -44,4 +44,4 @@ blosc/%.o: blosc/%.c | $(wildcard blosc/*.h)
 
 .PHONY: clean
 clean:
-	rm -f blosc/*.o *.o kmercount libkwipy.so
+	rm -f ext/blosc/*.o ext/*.o *.o kmercount libkwipy.so
