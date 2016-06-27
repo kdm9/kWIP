@@ -22,6 +22,7 @@ TEST array_round_trip(void)
     for (size_t i = 0; i < size_o; i++) {
         ASSERT_EQ(arr[i], arr_out[i]);
     }
+    remove("test.h5");
     PASS();
 }
 

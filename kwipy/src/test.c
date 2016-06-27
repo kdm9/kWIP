@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "greatest.h"
 
 #include "tests/array.c"

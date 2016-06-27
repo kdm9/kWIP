@@ -1,3 +1,4 @@
 *.o
-kmercount
 *.h5
+kmercount
+test
