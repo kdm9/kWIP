@@ -1,5 +1,10 @@
-CeFLAGS ?= -O3
+CFLAGS ?=
 CFLAGS += -fPIC -std=c99 -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
+ifeq ($(DEV),1)
+	CFLAGS += -fsanitize=address -g -O0
+else
+	CFLAGS += -O3
+endif
 LDFLAGS ?=
 LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
 LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl -lpthread
@@ -34,11 +39,9 @@ libkwipy.so: $(LIB_OBJS)
 kmercount: main.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-test.o: test.c $(wildcard tests/*.c)
-	$(CC) -Wall $(CFLAGS) -c -o $@ $<
 
-test.elf: test.o $(LIB_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+test.elf: test.c libkwipy.so| $(wildcard tests/*.c)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< -L. -Wl,-rpath=. $(LIBS) -lkwipy
 
 ext/blosc/bitshuffle-avx2.o: CFLAGS += -mavx2
 ext/blosc/shuffle-avx2.o: CFLAGS += -mavx2
