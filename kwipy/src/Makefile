@@ -1,8 +1,8 @@
-CFLAGS ?= -O3
+CeFLAGS ?= -O3
 CFLAGS += -fPIC -std=c99 -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
 LDFLAGS ?=
 LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
-LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl
+LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl -lpthread
 BLOSC_CFLAGS = -DHAVE_LZ4 -DHAVE_ZLIB -Iext/blosc -DSHUFFLE_SSE2_ENABLED
 BLOSC_OBJS = ext/blosc/bitshuffle-sse2.o \
 			 ext/blosc/shuffle-sse2.o \
@@ -51,4 +51,4 @@ ext/blosc/%.o: ext/blosc/%.c | $(wildcard ext/blosc/*.h)
 
 .PHONY: clean
 clean:
-	rm -f ext/blosc/*.o ext/*.o *.o kmercount libkwipy.so
+	rm -f ext/blosc/*.o ext/*.o *.o kmercount libkwipy.so test.elf
