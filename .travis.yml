@@ -15,7 +15,7 @@ compiler:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y liblzo2-dev liblz4-dev libsnappy-dev libbz2-dev
-                            libhdf5-dev
+                            libhdf5-serial-dev
   - sudo apt-get install -y python3-pip
   - pip3 install --user sphinx>=1.3
 

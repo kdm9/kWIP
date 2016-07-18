@@ -3,7 +3,6 @@ set -xe
 
 cd src
 make test
-./test
 exit 0
 
 test -f miniconda.sh || wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
