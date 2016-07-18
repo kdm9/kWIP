@@ -72,12 +72,13 @@ kmer_count_consume_fp(kmer_count_t *ctx, gzFile fp)
     if (seq == NULL) return -1;
 
     size_t num_reads = 0;
+    size_t num_kmers = 0;
     while(kseq_read(seq) >= 0) {
-        kmer_count_count_s(ctx, seq->seq.s, seq->seq.l);
+        num_kmers += kmer_count_count_s(ctx, seq->seq.s, seq->seq.l);
         num_reads++;
     }
     kseq_destroy(seq);
-    return num_reads;
+    return num_kmers;
 }
 
 ssize_t

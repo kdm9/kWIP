@@ -29,6 +29,7 @@ kc_eltype_t kmer_count_get_h(kmer_count_t *ctx, uint64_t hash);
 int kmer_count_save(kmer_count_t *ctx, const char *filename);
 int kmer_count_load(kmer_count_t *ctx, const char *filename);
 
+// return -1 on fail, or number of kmers
 ssize_t kmer_count_consume_readfile(kmer_count_t *ctx, const char *filename);
 ssize_t kmer_count_consume_fd(kmer_count_t *ctx, int fd);
 
