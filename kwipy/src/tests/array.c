@@ -23,6 +23,8 @@ TEST array_round_trip(void)
         ASSERT_EQ(arr[i], arr_out[i]);
     }
     remove("test.h5");
+    free(arr);
+    free(arr_out);
     PASS();
 }
 
@@ -61,6 +63,8 @@ TEST array_iter(void)
     ASSERT_EQ(i, num_items);
 
     remove("test.h5");
+    free(arr);
+    free(arr_out);
     PASS();
 }
 

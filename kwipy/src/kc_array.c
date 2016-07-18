@@ -215,13 +215,17 @@ array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
     hsize_t start = ctx->chunknum * CHUNKSIZE;
     hsize_t to_end = ctx->shape - start;
     hsize_t count = to_end > CHUNKSIZE ? CHUNKSIZE : to_end;
+    hsize_t capacity = CHUNKSIZE;
+    hid_t memspace = H5Screate_simple(1, &capacity, NULL);
+    assert(memspace != 0);
+    
     res = H5Sselect_hyperslab(space, H5S_SELECT_SET, &start, NULL, &count, NULL);
     if (res < 0) {
         fprintf(stderr, "Error selecting hyperslab\n");
         return -1;
     }
 
-    res = H5Dread(ctx->dset, ctx->dtype, H5S_ALL, space, H5P_DEFAULT, *block);
+    res = H5Dread(ctx->dset, ctx->dtype, memspace, space, H5P_DEFAULT, *block);
     if (res < 0) {
         fprintf(stderr, "Error reading chunk\n");
         return -1;
