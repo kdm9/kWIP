@@ -1,13 +1,12 @@
 CFLAGS ?=
-CFLAGS += -fPIC -std=gnu99 -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
+CFLAGS += -fPIC -std=gnu99 -pthread -I. -Iext -I/usr/include/hdf5/serial/
 ifeq ($(DEV),1)
 	CFLAGS += -fsanitize=address -g -O0
 else
 	CFLAGS += -O3
 endif
 LDFLAGS ?=
-LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
-LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl -lpthread
+LIBS += -llz4 -lhdf5_serial -lm -lz -lsz -ldl -lpthread
 BLOSC_CFLAGS = -DHAVE_LZ4 -DHAVE_ZLIB -Iext/blosc -DSHUFFLE_SSE2_ENABLED
 BLOSC_OBJS = ext/blosc/bitshuffle-sse2.o \
 			 ext/blosc/shuffle-sse2.o \
