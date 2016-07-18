@@ -1,5 +1,5 @@
 CFLAGS ?=
-CFLAGS += -fPIC -std=c99 -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
+CFLAGS += -fPIC -std=gnu99 -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
 ifeq ($(DEV),1)
 	CFLAGS += -fsanitize=address -g -O0
 else
