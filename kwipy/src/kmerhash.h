@@ -25,4 +25,7 @@ int kmer_iter_next_xxh(kmer_iter_t *ctx, uint64_t *hash, uint64_t seed);
 
 void kmer_iter_destroy(kmer_iter_t *ctx);
 
+// One-shot kmer hash
+uint64_t kmer_xxh(char *seq, size_t len, uint64_t seed, bool canonicalise);
+
 #endif /* end of include guard: KMERHASH_H_LDYCLTRK */

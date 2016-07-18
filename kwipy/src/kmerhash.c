@@ -152,3 +152,17 @@ kmer_iter_destroy(kmer_iter_t *ctx)
     ctx->seq = NULL;
     ctx->len = 0;
 }
+
+uint64_t
+kmer_xxh(char *seq, size_t len, uint64_t seed, bool canonicalise)
+{
+    uint64_t hash;
+    kmer_iter_t itr;
+    kmer_iter_init(&itr, len, canonicalise);
+    kmer_iter_set_seq(&itr, seq, len);
+
+    kmer_iter_next_xxh(&itr, &hash, seed);
+
+    kmer_iter_destroy(&itr);
+    return hash;
+}
