@@ -2,6 +2,7 @@
 #define KMERCOUNT_H_VKHVXZLK
 #include <stdlib.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 #include "kmerhash.h"
 
