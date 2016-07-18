@@ -26,13 +26,16 @@ all: libkwipy.so kmercount test.elf
 
 .PHONY: test
 test: test.elf
-	./test
+	./test.elf
 
 libkwipy.so: $(LIB_OBJS)
 	$(CC) -shared $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 kmercount: main.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+test.o: test.c $(wildcard tests/*.c)
+	$(CC) -Wall $(CFLAGS) -c -o $@ $<
 
 test.elf: test.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
