@@ -1,13 +1,14 @@
+PKGCFG_LIBS= hdf5 gsl
 CFLAGS ?=
-CFLAGS += -fPIC -std=gnu99 -pthread -I. -Iext $(shell pkg-config --cflags hdf5)
+CFLAGS += -fPIC -std=gnu99 -pthread -I. -Iext $(shell pkg-config --cflags $(PKGCFG_LIBS))
 ifeq ($(DEV),1)
 	CFLAGS += -fsanitize=address -g -O0
 else
 	CFLAGS += -O3
 endif
 LDFLAGS ?=
-LDFLAGS += $(shell pkg-config --libs-only-L hdf5)
-LIBS += -llz4 $(shell pkg-config --libs-only-l hdf5) -lm -lz -lsz -ldl -lpthread
+LDFLAGS += $(shell pkg-config --libs-only-L $(PKGCFG_LIBS))
+LIBS += -llz4 $(shell pkg-config --libs-only-l $(PKGCFG_LIBS)) -lm -lz -lsz -ldl -lpthread
 BLOSC_CFLAGS = -DHAVE_LZ4 -DHAVE_ZLIB -Iext/blosc -DSHUFFLE_SSE2_ENABLED
 BLOSC_OBJS = ext/blosc/bitshuffle-sse2.o \
 			 ext/blosc/shuffle-sse2.o \
@@ -24,7 +25,7 @@ ifneq ($(strip $(AVX)),false)
 	BLOSC_OBJS += ext/blosc/bitshuffle-avx2.o ext/blosc/shuffle-avx2.o
 endif
 
-LIB_OBJS = ext/xxhash.o kc_array.o kmerhash.o kmercount.o $(BLOSC_OBJS)
+LIB_OBJS = ext/xxhash.o kc_array.o kmerhash.o kmercount.o kernelcalc.o $(BLOSC_OBJS)
 
 .PHONY: all
 all: libkwipy.so kmercount test.elf
