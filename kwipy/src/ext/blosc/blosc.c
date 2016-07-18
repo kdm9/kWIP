@@ -82,6 +82,7 @@
 #if defined(_POSIX_BARRIERS) && ( (_POSIX_BARRIERS - 20012L) >= 0 && _POSIX_BARRIERS != 200112L)
 #define _POSIX_BARRIERS_MINE
 #endif
+#undef _POSIX_BARRIERS_MINE
 /* Synchronization variables */
 
 
