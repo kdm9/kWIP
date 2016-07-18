@@ -40,7 +40,7 @@ kmercount: main.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
-test.elf: test.c libkwipy.so| $(wildcard tests/*.c)
+test.elf: tests/main.c libkwipy.so| $(wildcard tests/*.c)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< -L. -Wl,-rpath=. $(LIBS) -lkwipy
 
 ext/blosc/bitshuffle-avx2.o: CFLAGS += -mavx2
