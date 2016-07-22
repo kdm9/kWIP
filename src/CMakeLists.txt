@@ -24,3 +24,7 @@ INSTALL(TARGETS kwip DESTINATION "bin")
 ADD_EXECUTABLE(kwip-stats utils/kwip-stats.cc)
 TARGET_LINK_LIBRARIES(kwip-stats ${KMERCLUST_DEPENDS_LIBS} libkwip)
 INSTALL(TARGETS kwip-stats DESTINATION "bin")
+
+ADD_EXECUTABLE(oxlicap utils/oxlicap.cc)
+TARGET_LINK_LIBRARIES(oxlicap ${KMERCLUST_DEPENDS_LIBS} libkwip)
+INSTALL(TARGETS oxlicap DESTINATION "bin")
