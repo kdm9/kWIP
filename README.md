@@ -43,4 +43,8 @@ License
 kWIP is Copyright 2015 Kevin Murray, and released under the GNU General Public
 License version 3 (or any later version).
 
-A publication describing kWIP is soon to be released publicly.
+Publication
+===========
+
+A publication describing kWIP has been [submitted to
+Biorxiv](http://biorxiv.org/content/early/2016/09/16/075481).
