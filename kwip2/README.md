@@ -1,9 +1,6 @@
-========
-kWIP 2.0
-========
+# `kWIP` 2.0
 
-Dependencies
-^^^^^^^^^^^^
+# Dependencies
 
 System dependencies are:
 
@@ -14,9 +11,9 @@ System dependencies are:
 
 I.e.:
 
-.. code-block:: shell
-
+```bash
     sudo aptitude install libhdf5-dev zlib1g-dev liblz4-dev libgsl-dev
+```
 
 In addition, these are bundled:
 
@@ -24,4 +21,3 @@ In addition, these are bundled:
 - ``xxhash``
 - ``greatest``
 - ``kseq.h``
-
