@@ -1,0 +1,4 @@
+*.o
+*.h5
+kmercount
+test.elf
