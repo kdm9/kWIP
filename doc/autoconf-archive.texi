@@ -1,0 +1,78 @@
+\input texinfo   @c -*-mode:texinfo;fill-column:79;-*-
+@comment %**start of header
+@setfilename autoconf-archive.info
+@settitle Autoconf Archive
+@ifclear texi2html
+@paragraphindent none
+@end ifclear
+@comment %**end of header
+
+@include version.texi
+
+@copying
+This manual is for GNU Autoconf Archive version @value{VERSION}, a collection of
+freely re-usable Autoconf macros.
+
+Copyright @copyright{} 2016 Autoconf Archive Maintainers
+@email{autoconf-archive-maintainers@@gnu.org}
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A
+copy of the license is included in the section entitled ``GNU Free
+Documentation License''.
+@end copying
+
+@dircategory Software development
+@direntry
+* Autoconf Archive: (autoconf-archive). A collection of re-usable Autoconf macros.
+@end direntry
+
+@titlepage
+@title GNU Autoconf Archive
+@subtitle Version @value{VERSION}
+@author @email{autoconf-archive-maintainers@@gnu.org}
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@c @contents
+
+@ifnottex
+@node Top
+@top GNU Autoconf Archive
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction::                        Project Synopsis, home page links, etc.
+* Downloads::                           How to find git repository and release tarballs.
+* How to contribute::                   Submission Guidelines.
+* The Macros::                          Alphabetic index of all macros.
+* GNU Free Documentation License::      Copying and sharing this manual.
+@end menu
+
+@node Introduction
+@chapter Introduction
+@include introduction.texi
+
+@node Downloads
+@chapter Downloading the GNU Autoconf Archive
+@include downloads.texi
+
+@node How to contribute
+@chapter How to contribute to the GNU Autoconf Archive
+@include contribute.texi
+
+@node The Macros
+@chapter The Macros
+@include all-macros.texi
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+@include fdl-1.3.texi
+
+@bye
