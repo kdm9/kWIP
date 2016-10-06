@@ -4,7 +4,7 @@
 
 
 #ifdef USE_BLOSC
-#include "blosc/blosc_filter.h"
+#include "blosc_filter.h"
 static const unsigned int compress_args[7] = {
     0, 0, 0, 0, /* 0 to 3 (inclusive) param slots are reserved. */
     9,          /* compression level */
