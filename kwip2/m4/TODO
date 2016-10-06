@@ -1,0 +1,279 @@
+#+TITLE: Autoconf Archive TODO                 -*- mode:org;fill-column:79; -*-
+#
+# Copyright (c) 2016 Autoconf Archive Maintainers <autoconf-archive-maintainers@gnu.org>
+#
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice
+# and this notice are preserved. This file is offered as-is, without any
+# warranty.
+
+* TODO Mark obsolete macros as such in the texinfo documentation
+* TODO Improve submission guide lines on the web site
+** Patch submissions should put the original authors on Cc.
+
+   Everyone is welcome to submit patches, bug reports, or suggestions to the
+   Autoconf Archive. If you do, please add the original authors to carbon-copy
+   list in the patch tracker. You don't have to, if you don't want to look
+   their addresses up, but it's considered good practice to give the other
+   authors a heads up when the macro is being changed.
+
+** If possible, submit patches with Git.
+
+   Give a usage example for git format-patch.
+
+   If you have an account Savannah, simply request access to the Autoconf
+   Archive's repository so that you can use git push.
+
+* TODO Recognize cross-links in macro documentation.
+
+  Macros often refer to other entries in the archive. The macro2texi scripts
+  should recognize those references and generate appropriate links in the
+  output.
+
+  The implementation of this feature is not as simple as it may sound, because
+  Texinfo doesn't offer plain and simple cross-references. There is @xref, of
+  course, but use of that macros inserts additional words into the text! The
+  reference =@xref{Node}=, for instance, is rendered as =*Note Node=. This
+  property makes it very hard to insert references automatically.
+
+* TODO Recognize URIs in macro documentation.
+
+  Some macros feature http or mailto URIs. The generator scripts should
+  recognize those and generate appropriate hyperlinks output (where feasible).
+
+* TODO Re-enable disabled sc_* checks from maint.mk [0/6]
+
+  Gnulib wants us to use spelling "file system" and objects when it sees the
+  name ax_boost_filesystem in autoconf-archive.texi. There ought to be a way to
+  avoid that error.
+
+  Progress: The [[bootstrap.sh]] script disable those checks that don't work well
+  for this project. In order to get on, though, some meaningful tests were
+  disable, too. We should re-enable those and fix the macro contents to comply
+  with those rules:
+
+  * [ ] sc_copyright_check
+  * [ ] sc_error_message_uppercase
+  * [ ] sc_file_system
+  * [ ] sc_GPL_version
+  * [ ] sc_m4_quote_check
+  * [ ] sc_prohibit_always-defined_macros
+  * [ ] sc_prohibit_always_true_header_tests
+  * [ ] sc_prohibit_doubled_word
+  * [ ] sc_prohibit_magic_number_exit
+  * [ ] sc_prohibit_strcmp
+  * [ ] sc_prohibit_test_minus_ao
+  * [ ] sc_space_tab
+  * [ ] sc_useless_cpp_parens
+
+* TODO Don't repeat license texts in Texinfo for every macro
+
+  The Texinfo documentation has a section "license" for every macro that
+  contains the complete license disclaimer. In case of the all-permissive
+  license, that's no big deal because that license is very short. In case of
+  GPL + Autoconf exception, however, this leads to a significant amount of
+  redundancy in the generated documentation.
+
+  It would be desirable to have the license texts in the documentation *once*
+  and to have every macro refer to the appropriate section.
+
+* TODO Update infrastructure files from gnulib
+
+  Most of our infrastructure files come from the Automake versions that's used
+  to run =autoreconf -i=. However, there are newer files in gnulib that we
+  should use instead: install-sh got a minor update, ditto the INSTALL file.
+  texinfo.tex has also been updated.
+
+  Karl Berry suggested using =gnulib/config/srclist-update= to keep those files
+  synchronized.
+* TODO Write a script that generates copyright lines from Git
+
+  We have a bunch of administrative files, such as configure.ac or Makefile.am,
+  and those files need some sort of copyright statement. The usual approach is
+  to use "Copyright (c) 2011 Free Software Foundation, Inc.", like this file
+  currently does, but that statement is not accurate, because the rights
+  haven't been actually signed over to the FSF. Instead, it would be nice to
+  generate proper copyright lines from the Git repository, using the authors
+  and date stamps of the commits that modified the file. To some extend, that
+  script could be used to maintain copyright lines in the macros, too, but
+  unfortunately the macro history isn't all too reliable, because oftentimes
+  the "author" of git commit is not necessarily the actual author, but merely
+  the maintainer who's, well, committing it. For the administrative files,
+  however, this shouldn't be a problem.
+
+* TODO Generate HTML pages for obsolete macros and index pages [0/173]
+* TODO Update macros licensed under old GPL+AC-Exception terms to [[file:COPYING.EXCEPTION][version 3.0]] [0/173]
+
+  - [ ] [[file:m4/ax_arg_with_path_style.m4][ax_arg_with_path_style.m4]]
+  - [ ] [[file:m4/ax_blas_f77_func.m4][ax_blas_f77_func.m4]]
+  - [ ] [[file:m4/ax_blas.m4][ax_blas.m4]]
+  - [ ] [[file:m4/ax_boost_python.m4][ax_boost_python.m4]]
+  - [ ] [[file:m4/ax_c___attribute__.m4][ax_c___attribute__.m4]]
+  - [ ] [[file:m4/ax_c_bigendian_cross.m4][ax_c_bigendian_cross.m4]]
+  - [ ] [[file:m4/ax_cc_for_build.m4][ax_cc_for_build.m4]]
+  - [ ] [[file:m4/ax_c_check_flag.m4][ax_c_check_flag.m4]]
+  - [ ] [[file:m4/ax_cc_maxopt.m4][ax_cc_maxopt.m4]]
+  - [ ] [[file:m4/ax_c_compile_value.m4][ax_c_compile_value.m4]]
+  - [ ] [[file:m4/ax_c_declare_block.m4][ax_c_declare_block.m4]]
+  - [ ] [[file:m4/ax_cf_ebcdic.m4][ax_cf_ebcdic.m4]]
+  - [ ] [[file:m4/ax_cflags_aix_option.m4][ax_cflags_aix_option.m4]]
+  - [ ] [[file:m4/ax_cflags_force_c89.m4][ax_cflags_force_c89.m4]]
+  - [ ] [[file:m4/ax_cflags_gcc_option.m4][ax_cflags_gcc_option.m4]]
+  - [ ] [[file:m4/ax_cflags_hpux_option.m4][ax_cflags_hpux_option.m4]]
+  - [ ] [[file:m4/ax_cflags_irix_option.m4][ax_cflags_irix_option.m4]]
+  - [ ] [[file:m4/ax_cflags_no_writable_strings.m4][ax_cflags_no_writable_strings.m4]]
+  - [ ] [[file:m4/ax_cflags_strict_prototypes.m4][ax_cflags_strict_prototypes.m4]]
+  - [ ] [[file:m4/ax_cflags_sun_option.m4][ax_cflags_sun_option.m4]]
+  - [ ] [[file:m4/ax_cflags_warn_all_ansi.m4][ax_cflags_warn_all_ansi.m4]]
+  - [ ] [[file:m4/ax_cflags_warn_all.m4][ax_cflags_warn_all.m4]]
+  - [ ] [[file:m4/ax_check_aligned_access_required.m4][ax_check_aligned_access_required.m4]]
+  - [ ] [[file:m4/ax_check_class.m4][ax_check_class.m4]]
+  - [ ] [[file:m4/ax_check_classpath.m4][ax_check_classpath.m4]]
+  - [ ] [[file:m4/ax_check_compiler_flags.m4][ax_check_compiler_flags.m4]]
+  - [ ] [[file:m4/ax_check_define.m4][ax_check_define.m4]]
+  - [ ] [[file:m4/ax_check_docbook_dtd.m4][ax_check_docbook_dtd.m4]]
+  - [ ] [[file:m4/ax_check_docbook_xslt.m4][ax_check_docbook_xslt.m4]]
+  - [ ] [[file:m4/ax_check_docbook_xslt_min.m4][ax_check_docbook_xslt_min.m4]]
+  - [ ] [[file:m4/ax_check_dos_filesys.m4][ax_check_dos_filesys.m4]]
+  - [ ] [[file:m4/ax_check_func_in.m4][ax_check_func_in.m4]]
+  - [ ] [[file:m4/ax_check_gl.m4][ax_check_gl.m4]]
+  - [ ] [[file:m4/ax_check_glu.m4][ax_check_glu.m4]]
+  - [ ] [[file:m4/ax_check_glut.m4][ax_check_glut.m4]]
+  - [ ] [[file:m4/ax_check_java_home.m4][ax_check_java_home.m4]]
+  - [ ] [[file:m4/ax_check_java_plugin.m4][ax_check_java_plugin.m4]]
+  - [ ] [[file:m4/ax_check_library.m4][ax_check_library.m4]]
+  - [ ] [[file:m4/ax_check_linker_flags.m4][ax_check_linker_flags.m4]]
+  - [ ] [[file:m4/ax_check_mysql_db.m4][ax_check_mysql_db.m4]]
+  - [ ] [[file:m4/ax_check_pathname_style.m4][ax_check_pathname_style.m4]]
+  - [ ] [[file:m4/ax_check_pgsql_db.m4][ax_check_pgsql_db.m4]]
+  - [ ] [[file:m4/ax_check_rqrd_class.m4][ax_check_rqrd_class.m4]]
+  - [ ] [[file:m4/ax_check_symbol.m4][ax_check_symbol.m4]]
+  - [ ] [[file:m4/ax_check_typedef.m4][ax_check_typedef.m4]]
+  - [ ] [[file:m4/ax_check_user.m4][ax_check_user.m4]]
+  - [ ] [[file:m4/ax_check_zlib.m4][ax_check_zlib.m4]]
+  - [ ] [[file:m4/ax_compile_check_sizeof.m4][ax_compile_check_sizeof.m4]]
+  - [ ] [[file:m4/ax_compiler_vendor.m4][ax_compiler_vendor.m4]]
+  - [ ] [[file:m4/ax_compute_relative_paths.m4][ax_compute_relative_paths.m4]]
+  - [ ] [[file:m4/ax_compute_standard_relative_paths.m4][ax_compute_standard_relative_paths.m4]]
+  - [ ] [[file:m4/ax_cond_with_level.m4][ax_cond_with_level.m4]]
+  - [ ] [[file:m4/ax_config_feature.m4][ax_config_feature.m4]]
+  - [ ] [[file:m4/ax_configure_args.m4][ax_configure_args.m4]]
+  - [ ] [[file:m4/ax_cpp_check_flag.m4][ax_cpp_check_flag.m4]]
+  - [ ] [[file:m4/ax_create_generic_config.m4][ax_create_generic_config.m4]]
+  - [ ] [[file:m4/ax_create_pkgconfig_info.m4][ax_create_pkgconfig_info.m4]]
+  - [ ] [[file:m4/ax_create_stdint_h.m4][ax_create_stdint_h.m4]]
+  - [ ] [[file:m4/ax_create_target_h.m4][ax_create_target_h.m4]]
+  - [ ] [[file:m4/ax_c_var_func.m4][ax_c_var_func.m4]]
+  - [ ] [[file:m4/ax_cxx_check_flag.m4][ax_cxx_check_flag.m4]]
+  - [ ] [[file:m4/ax_cxxcpp_check_flag.m4][ax_cxxcpp_check_flag.m4]]
+  - [ ] [[file:m4/ax_cxx_function_try_blocks.m4][ax_cxx_function_try_blocks.m4]]
+  - [ ] [[file:m4/ax_cxx_have_empty_iostream.m4][ax_cxx_have_empty_iostream.m4]]
+  - [ ] [[file:m4/ax_cxx_have_ext_hash_map.m4][ax_cxx_have_ext_hash_map.m4]]
+  - [ ] [[file:m4/ax_cxx_have_ext_hash_set.m4][ax_cxx_have_ext_hash_set.m4]]
+  - [ ] [[file:m4/ax_cxx_have_ext_slist.m4][ax_cxx_have_ext_slist.m4]]
+  - [ ] [[file:m4/ax_cxx_have_freeze_sstream.m4][ax_cxx_have_freeze_sstream.m4]]
+  - [ ] [[file:m4/ax_cxx_have_long_long_for_iostream.m4][ax_cxx_have_long_long_for_iostream.m4]]
+  - [ ] [[file:m4/ax_define_sub_path.m4][ax_define_sub_path.m4]]
+  - [ ] [[file:m4/ax_dirname.m4][ax_dirname.m4]]
+  - [ ] [[file:m4/ax_enable_builddir.m4][ax_enable_builddir.m4]]
+  - [ ] [[file:m4/ax_expand_prefix.m4][ax_expand_prefix.m4]]
+  - [ ] [[file:m4/ax_f77_cmain_fflags.m4][ax_f77_cmain_fflags.m4]]
+  - [ ] [[file:m4/ax_func_accept_argtypes.m4][ax_func_accept_argtypes.m4]]
+  - [ ] [[file:m4/ax_func_fork.m4][ax_func_fork.m4]]
+  - [ ] [[file:m4/ax_func_getopt_long.m4][ax_func_getopt_long.m4]]
+  - [ ] [[file:m4/ax_func_mkdir.m4][ax_func_mkdir.m4]]
+  - [ ] [[file:m4/ax_func_which_gethostbyname_r.m4][ax_func_which_gethostbyname_r.m4]]
+  - [ ] [[file:m4/ax_func_which_getservbyname_r.m4][ax_func_which_getservbyname_r.m4]]
+  - [ ] [[file:m4/ax_gcc_archflag.m4][ax_gcc_archflag.m4]]
+  - [ ] [[file:m4/ax_gcc_const_call.m4][ax_gcc_const_call.m4]]
+  - [ ] [[file:m4/ax_gcc_install_dir.m4][ax_gcc_install_dir.m4]]
+  - [ ] [[file:m4/ax_gcc_libgcc_eh.m4][ax_gcc_libgcc_eh.m4]]
+  - [ ] [[file:m4/ax_gcc_lib.m4][ax_gcc_lib.m4]]
+  - [ ] [[file:m4/ax_gcc_libraries_dir.m4][ax_gcc_libraries_dir.m4]]
+  - [ ] [[file:m4/ax_gcc_libsupcxx.m4][ax_gcc_libsupcxx.m4]]
+  - [ ] [[file:m4/ax_gcc_malloc_call.m4][ax_gcc_malloc_call.m4]]
+  - [ ] [[file:m4/ax_gcc_option.m4][ax_gcc_option.m4]]
+  - [ ] [[file:m4/ax_gcc_version.m4][ax_gcc_version.m4]]
+  - [ ] [[file:m4/ax_gcc_warn_unused_result.m4][ax_gcc_warn_unused_result.m4]]
+  - [ ] [[file:m4/ax_gcc_x86_cpuid.m4][ax_gcc_x86_cpuid.m4]]
+  - [ ] [[file:m4/ax_gxx_version.m4][ax_gxx_version.m4]]
+  - [ ] [[file:m4/ax_have_opengl.m4][ax_have_opengl.m4]]
+  - [ ] [[file:m4/ax_java_check_class.m4][ax_java_check_class.m4]]
+  - [ ] [[file:m4/ax_lapack.m4][ax_lapack.m4]]
+  - [ ] [[file:m4/ax_ld_check_flag.m4][ax_ld_check_flag.m4]]
+  - [ ] [[file:m4/ax_libgcj_jar.m4][ax_libgcj_jar.m4]]
+  - [ ] [[file:m4/ax_lib_wad.m4][ax_lib_wad.m4]]
+  - [ ] [[file:m4/ax_lua.m4][ax_lua.m4]]
+  - [ ] [[file:m4/ax_maintainer_mode_auto_silent.m4][ax_maintainer_mode_auto_silent.m4]]
+  - [ ] [[file:m4/ax_missing_prog.m4][ax_missing_prog.m4]]
+  - [ ] [[file:m4/ax_mpi.m4][ax_mpi.m4]]
+  - [ ] [[file:m4/ax_mpip.m4][ax_mpip.m4]]
+  - [ ] [[file:m4/ax_normalize_path.m4][ax_normalize_path.m4]]
+  - [ ] [[file:m4/ax_not_enable_frame_pointer.m4][ax_not_enable_frame_pointer.m4]]
+  - [ ] [[file:m4/ax_numeric_namedlevel.m4][ax_numeric_namedlevel.m4]]
+  - [ ] [[file:m4/ax_openmp.m4][ax_openmp.m4]]
+  - [ ] [[file:m4/ax_patch_libtool_changing_cmds_ifs.m4][ax_patch_libtool_changing_cmds_ifs.m4]]
+  - [ ] [[file:m4/ax_path_lib_pcre.m4][ax_path_lib_pcre.m4]]
+  - [ ] [[file:m4/ax_pgsql_priv_root.m4][ax_pgsql_priv_root.m4]]
+  - [ ] [[file:m4/ax_pkg_swig.m4][ax_pkg_swig.m4]]
+  - [ ] [[file:m4/ax_prefix_config_h.m4][ax_prefix_config_h.m4]]
+  - [ ] [[file:m4/ax_prog_apache.m4][ax_prog_apache.m4]]
+  - [ ] [[file:m4/ax_prog_bison.m4][ax_prog_bison.m4]]
+  - [ ] [[file:m4/ax_prog_cc_char_subscripts.m4][ax_prog_cc_char_subscripts.m4]]
+  - [ ] [[file:m4/ax_prog_cp_s.m4][ax_prog_cp_s.m4]]
+  - [ ] [[file:m4/ax_prog_crontab.m4][ax_prog_crontab.m4]]
+  - [ ] [[file:m4/ax_prog_fasm.m4][ax_prog_fasm.m4]]
+  - [ ] [[file:m4/ax_prog_fasm_opt.m4][ax_prog_fasm_opt.m4]]
+  - [ ] [[file:m4/ax_prog_flex.m4][ax_prog_flex.m4]]
+  - [ ] [[file:m4/ax_prog_hla.m4][ax_prog_hla.m4]]
+  - [ ] [[file:m4/ax_prog_hla_opt.m4][ax_prog_hla_opt.m4]]
+  - [ ] [[file:m4/ax_prog_httpd.m4][ax_prog_httpd.m4]]
+  - [ ] [[file:m4/ax_prog_java_cc.m4][ax_prog_java_cc.m4]]
+  - [ ] [[file:m4/ax_prog_javac.m4][ax_prog_javac.m4]]
+  - [ ] [[file:m4/ax_prog_javac_works.m4][ax_prog_javac_works.m4]]
+  - [ ] [[file:m4/ax_prog_java.m4][ax_prog_java.m4]]
+  - [ ] [[file:m4/ax_prog_java_works.m4][ax_prog_java_works.m4]]
+  - [ ] [[file:m4/ax_prog_masm.m4][ax_prog_masm.m4]]
+  - [ ] [[file:m4/ax_prog_masm_opt.m4][ax_prog_masm_opt.m4]]
+  - [ ] [[file:m4/ax_prog_mysqladmin.m4][ax_prog_mysqladmin.m4]]
+  - [ ] [[file:m4/ax_prog_mysqld.m4][ax_prog_mysqld.m4]]
+  - [ ] [[file:m4/ax_prog_mysqlimport.m4][ax_prog_mysqlimport.m4]]
+  - [ ] [[file:m4/ax_prog_mysql.m4][ax_prog_mysql.m4]]
+  - [ ] [[file:m4/ax_prog_mysqlshow.m4][ax_prog_mysqlshow.m4]]
+  - [ ] [[file:m4/ax_prog_nasm.m4][ax_prog_nasm.m4]]
+  - [ ] [[file:m4/ax_prog_nasm_opt.m4][ax_prog_nasm_opt.m4]]
+  - [ ] [[file:m4/ax_prog_pgclient.m4][ax_prog_pgclient.m4]]
+  - [ ] [[file:m4/ax_prog_scp.m4][ax_prog_scp.m4]]
+  - [ ] [[file:m4/ax_prog_ssh.m4][ax_prog_ssh.m4]]
+  - [ ] [[file:m4/ax_prog_tasm.m4][ax_prog_tasm.m4]]
+  - [ ] [[file:m4/ax_prog_tasm_opt.m4][ax_prog_tasm_opt.m4]]
+  - [ ] [[file:m4/ax_prog_tcl.m4][ax_prog_tcl.m4]]
+  - [ ] [[file:m4/ax_prog_xsltproc.m4][ax_prog_xsltproc.m4]]
+  - [ ] [[file:m4/ax_prog_yasm.m4][ax_prog_yasm.m4]]
+  - [ ] [[file:m4/ax_prog_yasm_opt.m4][ax_prog_yasm_opt.m4]]
+  - [ ] [[file:m4/ax_prototype_accept.m4][ax_prototype_accept.m4]]
+  - [ ] [[file:m4/ax_prototype_getsockname.m4][ax_prototype_getsockname.m4]]
+  - [ ] [[file:m4/ax_prototype.m4][ax_prototype.m4]]
+  - [ ] [[file:m4/ax_prototype_setsockopt.m4][ax_prototype_setsockopt.m4]]
+  - [ ] [[file:m4/ax_pthread.m4][ax_pthread.m4]]
+  - [ ] [[file:m4/ax_python_devel.m4][ax_python_devel.m4]]
+  - [ ] [[file:m4/ax_python.m4][ax_python.m4]]
+  - [ ] [[file:m4/ax_ruby_devel.m4][ax_ruby_devel.m4]]
+  - [ ] [[file:m4/ax_set_default_paths_system.m4][ax_set_default_paths_system.m4]]
+  - [ ] [[file:m4/ax_spec_file.m4][ax_spec_file.m4]]
+  - [ ] [[file:m4/ax_spec_package_version.m4][ax_spec_package_version.m4]]
+  - [ ] [[file:m4/ax_subdir_files.m4][ax_subdir_files.m4]]
+  - [ ] [[file:m4/ax_subst_with.m4][ax_subst_with.m4]]
+  - [ ] [[file:m4/ax_swig_enable_cxx.m4][ax_swig_enable_cxx.m4]]
+  - [ ] [[file:m4/ax_swig_multi_module_support.m4][ax_swig_multi_module_support.m4]]
+  - [ ] [[file:m4/ax_swig_python.m4][ax_swig_python.m4]]
+  - [ ] [[file:m4/ax_sys_largefile_sensitive.m4][ax_sys_largefile_sensitive.m4]]
+  - [ ] [[file:m4/ax_tls.m4][ax_tls.m4]]
+  - [ ] [[file:m4/ax_type_socklen_t.m4][ax_type_socklen_t.m4]]
+  - [ ] [[file:m4/ax_var_timezone_externals.m4][ax_var_timezone_externals.m4]]
+  - [ ] [[file:m4/ax_very_nice.m4][ax_very_nice.m4]]
+  - [ ] [[file:m4/ax_warning_default_aclocaldir.m4][ax_warning_default_aclocaldir.m4]]
+  - [ ] [[file:m4/ax_warning_default_pkgconfig.m4][ax_warning_default_pkgconfig.m4]]
+  - [ ] [[file:m4/ax_with_curses.m4][ax_with_curses.m4]]
+  - [ ] [[file:m4/ax_xercesc.m4][ax_xercesc.m4]]
+  - [ ] [[file:m4/ax_xtra_classpath.m4][ax_xtra_classpath.m4]]
