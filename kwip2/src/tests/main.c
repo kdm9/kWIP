@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "greatest.h"
 
-#include "tests/array.c"
-#include "tests/kmercount.c"
+#include <greatest.h>
 
 
 GREATEST_MAIN_DEFS();

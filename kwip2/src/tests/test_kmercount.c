@@ -1,21 +1,21 @@
 #include <string.h>
-#include "kmercount.h"
+
+#include "kwip_kmercount.h"
 
 #define K 10
-#define NK 1048576
+#define SKETCHSIZE 1048576
 #define SEED 12345
 #define CANONICAL true
 
 
-
-TEST counter(void)
+TEST kwip_counter(void)
 {
     kmer_count_t ctr;
     char *seq = strdup("ACGTACGTAC");
     uint64_t khash = kmer_xxh(seq, strlen(seq), SEED, CANONICAL);
     ASSERT_EQ(khash, 0xcc5ba50198536bc8);
 
-    kmer_count_init(&ctr, NK, K, SEED, CANONICAL);
+    kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
 
     kmer_count_count_h(&ctr, khash);
     ASSERT_EQ(kmer_count_get_h(&ctr, khash), 1);
@@ -29,14 +29,14 @@ TEST counter(void)
     PASS();
 }
 
-TEST loadsave(void)
+TEST kwip_loadsave(void)
 {
     kmer_count_t ctr;
     int ret = 0;
     char *seq = strdup("ACGTACGTAC");
     uint64_t khash = kmer_xxh(seq, strlen(seq), SEED, CANONICAL);
 
-    kmer_count_init(&ctr, NK, K, SEED, CANONICAL);
+    kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
     // Count kmer
     kmer_count_count_h(&ctr, khash);
     ASSERT_EQ(kmer_count_get_h(&ctr, khash), 1);
@@ -67,7 +67,7 @@ TEST consume_file(void)
     ssize_t ret = 0;
     kmer_count_t ctr;
 
-    kmer_count_init(&ctr, NK, K, SEED, CANONICAL);
+    kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
 
     ret = kmer_count_consume_readfile(&ctr, readfile);
     ASSERT_EQ(ret, 10 /*reads*/ * (20 /*read length*/ - K + 1));

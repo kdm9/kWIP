@@ -1,4 +1,4 @@
-#include "kc_array.h"
+#include "kwip_array.h"
 
 TEST array_round_trip(void)
 {
