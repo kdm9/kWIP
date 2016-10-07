@@ -19,3 +19,5 @@ SET_TARGET_PROPERTIES(kwiplib PROPERTIES OUTPUT_NAME kwip)
 
 ADD_EXECUTABLE(kwip ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
 TARGET_LINK_LIBRARIES(kwip ${KWIP_DEP_LIBS} kwiplib blosc_static)
+
+add_subdirectory(tests)
