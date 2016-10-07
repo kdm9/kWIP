@@ -8,7 +8,7 @@
 #define CANONICAL true
 
 
-TEST kwip_counter(void)
+TEST counter(void)
 {
     kmer_count_t ctr;
     char *seq = strdup("ACGTACGTAC");
@@ -29,7 +29,7 @@ TEST kwip_counter(void)
     PASS();
 }
 
-TEST kwip_loadsave(void)
+TEST loadsave(void)
 {
     kmer_count_t ctr;
     int ret = 0;

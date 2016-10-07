@@ -1,6 +1,5 @@
-FILE(GLOB KWIP_TEST_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
+INCLUDE_DIRECTORIES(ext/greatest/
+                    ${CMAKE_CURRENT_SOURCE_DIR})
 
-INCLUDE_DIRECTORIES(ext/greatest/)
-
-ADD_EXECUTABLE(kwip_tests ${KWIP_TEST_SRCS})
+ADD_EXECUTABLE(kwip_tests ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
 TARGET_LINK_LIBRARIES(kwip_tests ${KWIP_DEP_LIBS} kwiplib blosc_static)

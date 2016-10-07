@@ -3,6 +3,9 @@
 
 #include <greatest.h>
 
+#include "test_array.c"
+#include "test_kmercount.c"
+
 
 GREATEST_MAIN_DEFS();
 
