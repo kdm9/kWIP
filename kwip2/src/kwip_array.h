@@ -1,6 +1,8 @@
 #ifndef ARRAYIO_H_6AYJOGQ7
 #define ARRAYIO_H_6AYJOGQ7
 
+#include "kwip_config.h"
+
 #include <hdf5.h>
 #ifndef CHUNKSIZE
     // #define CHUNKSIZE 67108864 // 64 mebibytes, for use on larger systems

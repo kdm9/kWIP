@@ -1,3 +1,5 @@
+#include "kwip_config.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -6,7 +8,10 @@
 
 #include <zlib.h>
 
-#include "kmercount.h"
+#include <clogged/clogged.h>
+
+#include "kwip_kmercount.h"
+
 
 
 int main(int argc, char *argv[])
@@ -17,18 +22,21 @@ int main(int argc, char *argv[])
     }
     const size_t cvsize = 1000000000;
     const char *savefile = argv[1];
+    clg_logger_t *log = clg_logger_create();
+    clg_logger_default(log, CLG_LOG_DEBUG);
 
     clock_t start;
     double secs;
     kmer_count_t ctr;
     kmer_count_init(&ctr, cvsize, 20, 123, true);
+    kmer_count_set_logger(&ctr, log);
     for (int fidx = 2; fidx < argc; fidx++) {
         const char *readfile = argv[fidx];
         start = clock();
-        printf("Counting from '%s'...\n", readfile);
+        clg_log_fmt_info(log, "Counting from '%s'...\n", readfile);
         size_t nreads = kmer_count_consume_readfile(&ctr, readfile);
         secs = (double)(clock() - start) / CLOCKS_PER_SEC;
-        printf("\t- done! (%zu reads, %0.2fs, %0.1fK r/s)\n", nreads,
+        clg_log_fmt_info(log, "\t- done! (%zu reads, %0.2fs, %0.1fK r/s)\n", nreads,
                 secs, (double)(nreads / 1000) / secs);
     }
 
@@ -38,7 +46,6 @@ int main(int argc, char *argv[])
         max_c = this > max_c ? this : max_c;
     }
     printf("max count is %u\n", (unsigned)max_c);
-    start = clock();
     kmer_count_save(&ctr, savefile);
     secs = (double)(clock() - start) / CLOCKS_PER_SEC;
     printf("Wrote '%s' in %0.1f sec\n", savefile, secs);

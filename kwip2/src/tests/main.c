@@ -1,3 +1,5 @@
+#include "kwip_config.h"
+
 #include <stdio.h>
 #include <string.h>
 

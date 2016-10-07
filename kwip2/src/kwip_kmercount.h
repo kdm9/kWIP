@@ -1,5 +1,9 @@
 #ifndef KMERCOUNT_H_VKHVXZLK
 #define KMERCOUNT_H_VKHVXZLK
+
+#include "kwip_config.h"
+#include "kwip_array.h"
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -17,7 +21,6 @@ typedef struct {
     kc_eltype_t *cv;
     size_t cvlen;
     size_t k;
-    uint64_t seed;
     kmer_iter_t itr;
     clg_logger_t *log;
 } kmer_count_t;

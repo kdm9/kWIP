@@ -1,7 +1,6 @@
-#include <assert.h>
-
 #include "kwip_kmercount.h"
-#include "kwip_array.h"
+
+#include <assert.h>
 
 #include <zlib.h>
 
@@ -18,8 +17,7 @@ kmer_count_init(kmer_count_t *ctx, size_t cvlen, size_t k, uint64_t seed, bool c
     assert(ctx->cv != NULL);
     ctx->cvlen = cvlen;
     ctx->k = k;
-    ctx->seed = seed;
-    kmer_iter_init(&ctx->itr, ctx->k, canonicalise);
+    kmer_iter_init(&ctx->itr, ctx->k, seed, canonicalise);
 }
 
 void
@@ -43,10 +41,9 @@ kmer_count_count_h(kmer_count_t *ctx, uint64_t hash)
 size_t
 kmer_count_count_s(kmer_count_t *ctx, char *seq, size_t n)
 {
-    uint64_t hash = 0;
     size_t num_kmers = 0;
     kmer_iter_set_seq(&ctx->itr, seq, n);
-    for (; kmer_iter_next_xxh(&ctx->itr, &hash, ctx->seed); num_kmers++) {
+    for (uint64_t hash = 0; kmer_iter_next_xxh(&ctx->itr, &hash); num_kmers++) {
         kmer_count_count_h(ctx, hash);
     }
     return num_kmers;

@@ -1,9 +1,10 @@
+#include "kwip_kernelcalc.h"
+
 #include <string.h>
 #include <assert.h>
 
 #include <gsl/gsl_eigen.h>
 
-#include "kwip_kernelcalc.h"
 
 int
 kerncalc_init(kerncalc_t *ctx, size_t num_samples)

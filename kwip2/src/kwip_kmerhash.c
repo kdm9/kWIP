@@ -1,14 +1,15 @@
+#include "kwip_kmerhash.h"
+
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
 
-#include "kwip_kmerhash.h"
-#include "xxhash.h"
+#include <xxhash.h>
 
 
 
 void
-kmer_iter_init(kmer_iter_t *ctx, size_t k, bool canonicalise)
+kmer_iter_init(kmer_iter_t *ctx, size_t k, uint64_t seed, bool canonicalise)
 {
     assert(ctx != NULL);
     assert(k > 0 && k <= 32);
@@ -19,6 +20,7 @@ kmer_iter_init(kmer_iter_t *ctx, size_t k, bool canonicalise)
     ctx->len = 0;
     ctx->i = 0;
     ctx->rcseq =  NULL;
+    ctx->seed = seed;
 }
 
 void
@@ -64,8 +66,10 @@ kmer_iter_set_seq(kmer_iter_t *ctx, char *seq, size_t seqlen)
 }
 
 int
-kmer_iter_next(kmer_iter_t *ctx, uint64_t *hash)
+kmer_iter_next_nthash(kmer_iter_t *ctx, uint64_t *hash)
 {
+    // Numeric encoding of kmer into uint64 in 2-bit encoding, lexographically
+    // ordered
     assert(ctx != NULL);
     assert(hash != NULL);
     size_t len = ctx->len, k = ctx->k;
@@ -104,7 +108,7 @@ kmer_iter_next(kmer_iter_t *ctx, uint64_t *hash)
 }
 
 int
-kmer_iter_next_xxh(kmer_iter_t *ctx, uint64_t *hash, uint64_t seed)
+kmer_iter_next_xxh(kmer_iter_t *ctx, uint64_t *hash)
 {
     assert(ctx != NULL);
     assert(hash != NULL);
@@ -133,11 +137,11 @@ kmer_iter_next_xxh(kmer_iter_t *ctx, uint64_t *hash, uint64_t seed)
     size_t offset = ctx->i - k;
     if (ctx->canonicalise) {
         uint64_t fwd, rev;
-        fwd = XXH64(ctx->seq + offset, k, seed);
-        rev = XXH64(ctx->rcseq + offset, k, seed);
+        fwd = XXH64(ctx->seq + offset, k, ctx->seed);
+        rev = XXH64(ctx->rcseq + offset, k, ctx->seed);
         *hash = fwd > rev ? rev : fwd;
     } else {
-        *hash = XXH64(ctx->seq + offset, k, seed);
+        *hash = XXH64(ctx->seq + offset, k, ctx->seed);
     }
     return 1;
 }
@@ -158,10 +162,10 @@ kmer_xxh(char *seq, size_t len, uint64_t seed, bool canonicalise)
 {
     uint64_t hash;
     kmer_iter_t itr;
-    kmer_iter_init(&itr, len, canonicalise);
+    kmer_iter_init(&itr, len, seed, canonicalise);
     kmer_iter_set_seq(&itr, seq, len);
 
-    kmer_iter_next_xxh(&itr, &hash, seed);
+    kmer_iter_next_xxh(&itr, &hash);
 
     kmer_iter_destroy(&itr);
     return hash;

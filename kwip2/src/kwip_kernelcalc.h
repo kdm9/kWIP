@@ -1,10 +1,12 @@
 #ifndef KERNELCALC_H_B3ZZENI2
 #define KERNELCALC_H_B3ZZENI2
 
+#include "kwip_config.h"
+
 #include <stdio.h>
 #include <stdbool.h>
+#include <gsl/gsl_matrix.h>
 
-#include <gsl/gsl_math.h>
 #include "kwip_array.h"
 #include "kwip_kmercount.h"
 
