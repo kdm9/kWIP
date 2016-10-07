@@ -53,7 +53,7 @@ void _clg_entry_destroy(clg_entry_t *log_entry);
     }                               \
     } while (0)
 
-inline char *
+static inline char *
 clg_strdup(const char *src)
 {
     size_t len = strlen(src);
