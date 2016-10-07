@@ -5,8 +5,8 @@
 #include <stdbool.h>
 
 #include <gsl/gsl_math.h>
-#include "kc_array.h"
-#include "kmercount.h"
+#include "kwip_array.h"
+#include "kwip_kmercount.h"
 
 
 typedef int (*kernelfunc_t)(double *outp, kc_eltype_t *count1,

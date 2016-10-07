@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "kc_array.h"
+#include "kwip_array.h"
 
 
 #ifdef USE_BLOSC

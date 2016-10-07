@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "kmerhash.h"
+#include "kwip_kmerhash.h"
 #include "xxhash.h"
 
 

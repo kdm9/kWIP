@@ -3,7 +3,7 @@
 
 #include <gsl/gsl_eigen.h>
 
-#include "kernelcalc.h"
+#include "kwip_kernelcalc.h"
 
 int
 kerncalc_init(kerncalc_t *ctx, size_t num_samples)

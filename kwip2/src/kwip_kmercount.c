@@ -1,7 +1,7 @@
 #include <assert.h>
 
-#include "kmercount.h"
-#include "kc_array.h"
+#include "kwip_kmercount.h"
+#include "kwip_array.h"
 
 #include <zlib.h>
 
@@ -20,6 +20,13 @@ kmer_count_init(kmer_count_t *ctx, size_t cvlen, size_t k, uint64_t seed, bool c
     ctx->k = k;
     ctx->seed = seed;
     kmer_iter_init(&ctx->itr, ctx->k, canonicalise);
+}
+
+void
+kmer_count_set_logger(kmer_count_t *ctx, clg_logger_t *log)
+{
+    assert(ctx != NULL);
+    ctx->log = log;
 }
 
 kc_eltype_t
@@ -76,9 +83,12 @@ kmer_count_consume_fp(kmer_count_t *ctx, gzFile fp)
     while(kseq_read(seq) >= 0) {
         num_kmers += kmer_count_count_s(ctx, seq->seq.s, seq->seq.l);
         num_reads++;
+        if (ctx->log != NULL && num_reads % 200000 == 0) {
+            clg_log_fmt_progress(ctx->log, "\t- Counted %0.1fM reads ...\n", (float)num_reads / 1000000);
+        }
     }
     kseq_destroy(seq);
-    return num_kmers;
+    return num_reads;
 }
 
 ssize_t

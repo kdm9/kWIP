@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "kmerhash.h"
+#include <clogged/clogged.h>
+
+#include "kwip_kmerhash.h"
 
 #ifndef kc_eltype_t
     #define kc_eltype_t uint8_t
@@ -17,9 +19,12 @@ typedef struct {
     size_t k;
     uint64_t seed;
     kmer_iter_t itr;
+    clg_logger_t *log;
 } kmer_count_t;
 
 void kmer_count_init(kmer_count_t *ctx, size_t len, size_t k, uint64_t seed, bool canonicalise);
+
+void kmer_count_set_logger(kmer_count_t *ctx, clg_logger_t *log);
 
 kc_eltype_t kmer_count_count_h(kmer_count_t *ctx, uint64_t hash);
 size_t kmer_count_count_s(kmer_count_t *ctx, char *seq, size_t n);
