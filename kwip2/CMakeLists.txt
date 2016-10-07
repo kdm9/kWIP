@@ -1,10 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(kwip2)
 
-###############
-# Cmake Blerg #
-###############
-
 # Find the modules
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -73,6 +69,9 @@ SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${KWIP_DEP_CFLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KWIP_DEP_CFLAGS}")
 
+
+
+
 ##########################
 ## Set Compiler Options ##
 ##########################
@@ -89,6 +88,8 @@ ENDIF()
 
 IF(ENABLE_ASAN)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+    MESSAGE(STATUS "Enabling Address Sanitizer")
 ENDIF()
 
 IF(ENABLE_TSAN)
@@ -99,23 +100,21 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 ${WARN_FLAGS} ${OPT_FLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${WARN_FLAGS} ${OPT_FLAGS}")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${REL_OPT_FLAGS}")
 
+#Compiler lang features
+include(CheckFunctionExists)
+include(CheckSymbolExists)
+CHECK_SYMBOL_EXISTS(strdup string.h HAVE_STRDUP)
+
+
 # Headers occur in these dirs
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/src
                     ${KWIP_DEP_INCLUDES})
 
 # Finally, configure the config header
-#CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kwip-config.hh.in
-#               ${CMAKE_BINARY_DIR}/kwip-config.hh)
-
-SET(DEACTIVATE_SNAPPY ON CACHE BOOL "")
-SET(DEACTIVATE_ZSTD ON CACHE BOOL "")
-SET(DEACTIVATE_ZLIB ON CACHE BOOL "")
-SET(BUILD_SHARED OFF CACHE BOOL "")
-SET(BUILD_TESTS OFF CACHE BOOL "")
-SET(BUILD_BENCHMARKS OFF CACHE BOOL "")
-ADD_SUBDIRECTORY(src/ext/blosc)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kwip_config.h.in
+               ${CMAKE_BINARY_DIR}/kwip_config.h)
 
 # Libary sources
 ADD_SUBDIRECTORY(src)
-#ADD_SUBDIRECTORY(tests)
+
