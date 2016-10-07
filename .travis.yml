@@ -1,0 +1,31 @@
+language: cpp
+
+sudo: required
+dist: trusty
+
+env:
+  matrix:
+    - BUILD_TYPE=Release
+    - BUILD_TYPE=Debug
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    packages:
+      - libgsl0-dev
+      - zlib1g-dev
+      - libhdf5-dev
+
+script:
+  - cd kwip2
+  - rm -rf build && mkdir build
+  - pushd build
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+             -DCMAKE_INSTALL_PREFIX=../target
+  - make
+  - ctest --verbose
+  - make install
+  - popd
