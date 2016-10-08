@@ -14,12 +14,17 @@ compiler:
 
 addons:
   apt:
+    sources:
+      - george-edison55/cmake-3.x
     packages:
+      - cmake
+      - cmake-data
       - libgsl0-dev
       - zlib1g-dev
       - libhdf5-dev
 
 script:
+  - cmake --version
   - cd kwip2
   - rm -rf build && mkdir build
   - pushd build
