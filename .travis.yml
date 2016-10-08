@@ -25,7 +25,7 @@ script:
   - pushd build
   - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
              -DCMAKE_INSTALL_PREFIX=../target
-  - make
+  - make VERBOSE=1
   - ctest --verbose
   - make install
   - popd
