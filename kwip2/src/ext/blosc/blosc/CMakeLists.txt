@@ -50,6 +50,7 @@ if (NOT DEACTIVATE_ZSTD)
 endif (NOT DEACTIVATE_ZSTD)
 
 include_directories(${BLOSC_INCLUDE_DIRS})
+message(STATUS "INC ${BLOSC_INCLUDE_DIRS}")
 
 # library sources
 set(SOURCES blosc.c blosclz.c shuffle-generic.c bitshuffle-generic.c)
