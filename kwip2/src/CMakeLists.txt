@@ -27,6 +27,6 @@ ADD_LIBRARY(kwiplib STATIC ${KWIP_SRCS} ${DEP_SRCS})
 SET_TARGET_PROPERTIES(kwiplib PROPERTIES OUTPUT_NAME kwip)
 
 ADD_EXECUTABLE(kwip ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
-TARGET_LINK_LIBRARIES(kwip ${KWIP_DEP_LIBS} kwiplib blosc_static)
+TARGET_LINK_LIBRARIES(kwip kwiplib blosc_static ${KWIP_DEP_LIBS})
 
 add_subdirectory(tests)
