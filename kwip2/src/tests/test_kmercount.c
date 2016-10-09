@@ -19,8 +19,8 @@ TEST counter(void)
     kmer_count_count_h(&ctr, khash);
     ASSERT_EQ(kmer_count_get_h(&ctr, khash), 1);
 
-    size_t ret = kmer_count_count_s(&ctr, seq, strlen(seq));
-    ASSERT_EQ(ret, 1);
+    int ret = kmer_count_count_s(&ctr, seq, strlen(seq));
+    ASSERT_EQ(ret, 0);
     ASSERT_EQ(kmer_count_get_h(&ctr, khash), 2);
 
     kmer_count_destroy(&ctr);
@@ -69,10 +69,12 @@ TEST consume_file(void)
     kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
 
     ret = kmer_count_consume_readfile(&ctr, readfile);
-    ASSERT_EQ(ret, 10 /*reads*/);
+    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(ctr.num_reads, 10);
+    ASSERT_EQ(ctr.num_kmers, 10 * (20 - K + 1));
 
     ret = kmer_count_consume_readfile(&ctr, "/no/file/exists/here");
-    ASSERT_EQ(ret, -1);
+    ASSERT_EQ(ret, 1);
 
     kmer_count_destroy(&ctr);
     PASS();
