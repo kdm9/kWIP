@@ -4,9 +4,8 @@
 #include "kwip_config.h"
 
 #include <hdf5.h>
-#ifndef CHUNKSIZE
-    // #define CHUNKSIZE 67108864 // 64 mebibytes, for use on larger systems
-    #define CHUNKSIZE 1048576 // 1 mebibyte
+#ifndef KWIP_CHUNKSIZE
+    #define KWIP_CHUNKSIZE 1048576 // 1 mebibyte
 #endif
 #define USE_BLOSC
 

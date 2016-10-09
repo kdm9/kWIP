@@ -20,7 +20,7 @@ array_save(const char *filename, const char *dset_path, void *array,
 {
     int r;
     int return_code = 1;
-    const hsize_t chunkshape = CHUNKSIZE;
+    const hsize_t chunkshape = KWIP_CHUNKSIZE;
 
     hid_t fid = 0, sid = 0, dset = 0, plist = 0;
 
@@ -170,7 +170,7 @@ array_blockiter_init(array_blockiter_t *ctx, const char *filename,
     int ndim = H5Sget_simple_extent_dims(ctx->dspace, &ctx->shape, NULL);
     if (ndim != 1) goto end;
 
-    ctx->num_chunks = (ctx->shape + (CHUNKSIZE / 2)) / CHUNKSIZE;
+    ctx->num_chunks = (ctx->shape + (KWIP_CHUNKSIZE / 2)) / KWIP_CHUNKSIZE;
 
     return_code = 0;
 end:
@@ -194,15 +194,15 @@ array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
     assert(ctx != NULL);
     assert(block != NULL);
     assert(blocklen != NULL);
-    assert(maxsz >= CHUNKSIZE);
+    assert(maxsz >= KWIP_CHUNKSIZE);
 
     if (array_blockiter_done(ctx)) {
         // Someone called next on an iterator that has already finished
         return 0;
     }
 
-    if (*block == NULL || *blocklen < CHUNKSIZE) {
-        *block = realloc(*block, CHUNKSIZE * H5Tget_size(ctx->dtype));
+    if (*block == NULL || *blocklen < KWIP_CHUNKSIZE) {
+        *block = realloc(*block, KWIP_CHUNKSIZE * H5Tget_size(ctx->dtype));
         if (*block == NULL) {
             fprintf(stderr, "realloc failed (OUT OF MEMORY?)\n");
             return -1;
@@ -213,10 +213,10 @@ array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
     // setup dataspace & hyperslab for read
     hid_t space = H5Dget_space(ctx->dset);
     assert(space != 0);
-    hsize_t start = ctx->chunknum * CHUNKSIZE;
+    hsize_t start = ctx->chunknum * KWIP_CHUNKSIZE;
     hsize_t to_end = ctx->shape - start;
-    hsize_t count = to_end > CHUNKSIZE ? CHUNKSIZE : to_end;
-    hsize_t capacity = CHUNKSIZE;
+    hsize_t count = to_end > KWIP_CHUNKSIZE ? KWIP_CHUNKSIZE : to_end;
+    hsize_t capacity = KWIP_CHUNKSIZE;
     hid_t memspace = H5Screate_simple(1, &capacity, NULL);
     assert(memspace != 0);
     

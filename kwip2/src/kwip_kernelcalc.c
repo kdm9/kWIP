@@ -98,9 +98,9 @@ calculate_kernel(kerncalc_t *ctx, size_t row, size_t col)
            !array_blockiter_done(&Bitr)) {
         double block_kern = 0;
 
-        res = array_blockiter_next(&Aitr, (void*)&A, &Alen, CHUNKSIZE);
+        res = array_blockiter_next(&Aitr, (void*)&A, &Alen, KWIP_CHUNKSIZE);
         if (res != 0) return res;
-        res = array_blockiter_next(&Bitr, (void*)&B, &Blen, CHUNKSIZE);
+        res = array_blockiter_next(&Bitr, (void*)&B, &Blen, KWIP_CHUNKSIZE);
         if (res != 0) return res;
 
         if (Alen != Blen) return -1;

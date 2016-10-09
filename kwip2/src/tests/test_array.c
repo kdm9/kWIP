@@ -3,21 +3,21 @@
 TEST array_round_trip(void)
 {
     int res = 0;
-    uint8_t *arr = calloc(CHUNKSIZE, sizeof(uint8_t));
+    uint8_t *arr = calloc(KWIP_CHUNKSIZE, sizeof(uint8_t));
     uint8_t *arr_out = NULL;
     size_t size_out = 0;
 
-    for (size_t i = 0; i < CHUNKSIZE; i++) {
+    for (size_t i = 0; i < KWIP_CHUNKSIZE; i++) {
         arr[i] = i % (1<<8);
     }
 
-    res = array_save("test.h5", "test", arr, CHUNKSIZE, H5T_NATIVE_UINT8);
+    res = array_save("test.h5", "test", arr, KWIP_CHUNKSIZE, H5T_NATIVE_UINT8);
     ASSERT_EQ(res, 0);
 
     res = array_read("test.h5", "test", (void *)&arr_out, &size_out,
                      H5T_NATIVE_UINT8);
     ASSERT_EQ(res, 0);
-    ASSERT_EQ(size_out, CHUNKSIZE);
+    ASSERT_EQ(size_out, KWIP_CHUNKSIZE);
 
     for (size_t i = 0; i < size_out; i++) {
         ASSERT_EQ(arr[i], arr_out[i]);
@@ -32,8 +32,8 @@ TEST array_iter(void)
 {
     int res = 0;
     const size_t num_chunks = 3;
-    const size_t num_items = num_chunks * CHUNKSIZE;
-    uint8_t *arr = calloc(CHUNKSIZE * num_chunks, sizeof(uint8_t));
+    const size_t num_items = num_chunks * KWIP_CHUNKSIZE;
+    uint8_t *arr = calloc(KWIP_CHUNKSIZE * num_chunks, sizeof(uint8_t));
     uint8_t *arr_out = NULL;
     size_t size_out = 0;
     array_blockiter_t itr;
@@ -51,12 +51,12 @@ TEST array_iter(void)
 
     size_t i = 0;
     while (!array_blockiter_done(&itr)) {
-        res = array_blockiter_next(&itr, (void *)&arr_out, &size_out, CHUNKSIZE);
+        res = array_blockiter_next(&itr, (void *)&arr_out, &size_out, KWIP_CHUNKSIZE);
         ASSERT_EQ(res, 0);
-        /* we have an even number of chunks, so size will always be CHUNKSIZE */
+        /* we have an even number of chunks, so size will always be KWIP_CHUNKSIZE */
         ASSERT(arr_out != NULL);
-        ASSERT_EQ(size_out, CHUNKSIZE);
-        for (size_t j = 0; i < num_items && j < CHUNKSIZE; j++, i++) {
+        ASSERT_EQ(size_out, KWIP_CHUNKSIZE);
+        for (size_t j = 0; i < num_items && j < KWIP_CHUNKSIZE; j++, i++) {
             ASSERT_EQ(arr_out[j], i % (1<<8));
         }
     }
