@@ -39,6 +39,8 @@ MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}
 OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
 OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
 OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
+OPTION(KWIP_CHUNKSIZE "Size of chunks in blocked iteraton (MiB)" 1048576)
+
 
 ###############################
 ## Find Packages and Headers ##
@@ -49,7 +51,7 @@ FIND_PACKAGE(HDF5 REQUIRED)
 SET(KWIP_DEP_INCLUDES ${KWIP_DEP_INCLUDES} ${HDF5_INCLUDE_DIRS})
 SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${HDF5_C_LIBRARIES})
 
-FIND_PACKAGE(ZLIB 1.2.3 REQUIRED)
+FIND_PACKAGE(ZLIB 1.2.0 REQUIRED)
 SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${ZLIB_C_FLAGS}")
 SET(KWIP_DEP_INCLUDES ${KWIP_DEP_INCLUDES} ${ZLIB_INCLUDE_DIRS})
 SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${ZLIB_LIBRARIES})
@@ -70,15 +72,15 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${KWIP_DEP_CFLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KWIP_DEP_CFLAGS}")
 
 
-
-
 ##########################
 ## Set Compiler Options ##
 ##########################
 
 # Set CFLAGS
-SET(WARN_FLAGS "${WARN_FLAGS} -Wall -Wextra -Wno-ignored-qualifiers")
-SET(OPT_FLAGS "${OPT_FLAGS} -march=native")
+SET(CMAKE_C_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 11)
+SET(WARN_FLAGS "${WARN_FLAGS} -Wall")
+SET(OPT_FLAGS "${OPT_FLAGS}")
 
 SET(REL_OPT_FLAGS "-O3")
 
@@ -96,14 +98,13 @@ IF(ENABLE_TSAN)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
 ENDIF()
 
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 ${WARN_FLAGS} ${OPT_FLAGS}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${WARN_FLAGS} ${OPT_FLAGS}")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARN_FLAGS} ${OPT_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS} ${OPT_FLAGS}")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${REL_OPT_FLAGS}")
 
 #Compiler lang features
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-CHECK_SYMBOL_EXISTS(strdup string.h HAVE_STRDUP)
 
 
 # Headers occur in these dirs
@@ -115,6 +116,6 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kwip_config.h.in
                ${CMAKE_BINARY_DIR}/kwip_config.h)
 
+
 # Libary sources
 ADD_SUBDIRECTORY(src)
-

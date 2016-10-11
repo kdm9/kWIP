@@ -1,14 +1,8 @@
 #ifndef KWIP_CONFIG_H_IN_IGJZGN83
 #define KWIP_CONFIG_H_IN_IGJZGN83
 
-#cmakedefine KWIP_HAVE_STRDUP
+#cmakedefine KWIP_CHUNKSIZE
 
-#ifndef KWIP_HAVE_STRDUP
-#define _POSIX_C_SOURCE 200809L
-#include <string.h>
-#undef _POSIX_C_SOURCE
-#endif
-
-
+#define kwip_free(ptr) do {if ((ptr) != NULL) { free(ptr); ptr = NULL; }} while(0)
 
 #endif /* end of include guard: KWIP_CONFIG_H_IN_IGJZGN83 */
