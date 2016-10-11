@@ -29,8 +29,6 @@ script:
   - rm -rf build && mkdir build
   - pushd build
   - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-             -DCMAKE_INSTALL_PREFIX=../target
   - make VERBOSE=1
-  - ctest --verbose
-  - make install
+  - ./bin/kwip_tests -v
   - popd
