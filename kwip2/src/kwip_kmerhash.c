@@ -160,7 +160,7 @@ kmer_iter_destroy(kmer_iter_t *ctx)
 uint64_t
 kmer_xxh(char *seq, size_t len, uint64_t seed, bool canonicalise)
 {
-    uint64_t hash;
+    uint64_t hash = 0;
     kmer_iter_t itr;
     kmer_iter_init(&itr, len, seed, canonicalise);
     kmer_iter_set_seq(&itr, seq, len);
