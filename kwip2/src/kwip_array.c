@@ -179,7 +179,7 @@ end:
 
 inline int array_blockiter_done(array_blockiter_t *ctx)
 {
-    if (ctx != NULL) return -1;
+    if (ctx == NULL) return -1;
     if (ctx->chunknum >= ctx->num_chunks) {
         return 1;
     }
