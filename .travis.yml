@@ -10,12 +10,9 @@ env:
 
 compiler:
   - gcc
-  - clang
 
 addons:
   apt:
-    sources:
-      - george-edison55/cmake-3.x
     packages:
       - cmake
       - cmake-data
