@@ -9,7 +9,7 @@
 static const unsigned int compress_args[7] = {
     0, 0, 0, 0, /* 0 to 3 (inclusive) param slots are reserved. */
     9,          /* compression level */
-    0,          /* 0: shuffle not active, 1: shuffle active */
+    1,          /* 0: shuffle not active, 1: shuffle active */
     BLOSC_BLOSCLZ /* the compressor to use */
 };
 #endif
