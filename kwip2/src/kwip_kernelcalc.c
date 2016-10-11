@@ -1,5 +1,6 @@
 #include "kwip_kernelcalc.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
@@ -7,26 +8,57 @@
 
 
 int
-kerncalc_init(kerncalc_t *ctx, size_t num_samples)
+kerncalc_init(kwip_kerncalc_t *ctx)
 {
-    assert(ctx != NULL);
-
-    if (num_samples > 0) {
-        ctx->num_samples_alloced = num_samples;
-        ctx->files = calloc(num_samples, sizeof(*ctx->files));
-        ctx->samplenames = calloc(num_samples, sizeof(*ctx->samplenames));
-    }
-    ctx->have_finalised = false;
+    if (ctx == NULL) return -1;
+    memset(ctx, 0, sizeof(*ctx));
     return 0;
 }
 
-int kerncalc_set_threads(kerncalc_t *ctx, int num_threads);
+void
+kerncalc_destroy(kwip_kerncalc_t *ctx)
+{
+    if (ctx == NULL) return;
+    for (size_t i = 0; i < ctx->num_samples; i++) {
+        kwip_free(ctx->files[i]);
+        kwip_free(ctx->samplenames[i]);
+    }
+    kwip_free(ctx->files);
+    kwip_free(ctx->samplenames);
+    kwip_free(ctx->checkpoint_dir);
+    kwip_free(ctx->kernelvalues);
+}
+
+
+char *
+kerncalc_filename_to_samplename(const char *filename) {
+    if (filename == NULL) return NULL;
+    const char *start = strrchr(filename, '/');
+    if (start == NULL) {
+        start = filename;
+    } else {
+        start += 1;
+    }
+
+    size_t name_len = strlen(start);
+    // Strip known extensions, leave others
+    const char *extensions[] = {".kct", ".h5"};
+    const size_t n_ext = sizeof(extensions) / sizeof(*extensions);
+    for (size_t i = 0; i < n_ext; i++) {
+        const char *found = NULL;
+        found = strstr(start, extensions[i]);
+        if (found != NULL) {
+            name_len = found - start;
+            break;
+        }
+    }
+    return strndup(start, name_len);
+}
 
 int
-kerncalc_add_sample(kerncalc_t *ctx, const char *filename, const char *samplename)
+kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samplename)
 {
-    assert(ctx != NULL);
-    assert(filename != NULL);
+    if (ctx == NULL || filename == NULL) return -1;
 
     if (ctx->have_finalised) {
         return -1; // error if calculation in progress
@@ -35,11 +67,11 @@ kerncalc_add_sample(kerncalc_t *ctx, const char *filename, const char *samplenam
     // reallocate if out of space
     if (ctx->num_samples + 1 > ctx->num_samples_alloced) {
         size_t nalloc = ctx->num_samples_alloced;
-        nalloc = nalloc > 0 ? nalloc * 2 : 2;
+        nalloc = nalloc > 0 ? nalloc * 2 : 8;
         ctx->files = realloc(ctx->files, nalloc * sizeof(*ctx->files));
-        assert(ctx->files);
+        if (ctx->files == NULL) return -1;
         ctx->samplenames = realloc(ctx->samplenames, nalloc * sizeof(*ctx->samplenames));
-        assert(ctx->files);
+        if (ctx->samplenames == NULL) return -1;
         ctx->num_samples_alloced = nalloc;
     }
 
@@ -47,8 +79,11 @@ kerncalc_add_sample(kerncalc_t *ctx, const char *filename, const char *samplenam
     assert(ctx->files[ctx->num_samples] != NULL);
     if (samplename != NULL) {
         ctx->samplenames[ctx->num_samples] = strdup(samplename);
-        assert(ctx->samplenames[ctx->num_samples] != NULL);
+    } else {
+        ctx->samplenames[ctx->num_samples] = kerncalc_filename_to_samplename(filename);
     }
+    if (ctx->samplenames[ctx->num_samples] == NULL) return -1;
+        
     ctx->num_samples += 1;
     return 0;
 }
@@ -56,14 +91,17 @@ kerncalc_add_sample(kerncalc_t *ctx, const char *filename, const char *samplenam
 
 // call finalise after adding samples, before calling kerncalc_pairwise
 int
-kerncalc_finalise(kerncalc_t *ctx, kerncalc_prepfunc_t prepfunc)
+kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
 {
     assert(ctx != NULL);
 
-    ctx->kmat = gsl_matrix_calloc(ctx->num_samples, ctx->num_samples);
+    uint64_t n_samp = ctx->num_samples;
+    uint64_t n_compares = n_samp * (n_samp + 1) / 2; // Binomial coeff., including diagonal
+    ctx->kernelvalues = calloc(n_compares, sizeof(*ctx->kernelvalues));
     if (prepfunc != NULL) {
-        if (prepfunc(ctx) != 0) {
-            return -1;
+        int ret = prepfunc(ctx);
+        if (ret != 0) {
+            return ret;
         }
     }
     ctx->have_finalised = true;
@@ -74,8 +112,9 @@ kerncalc_finalise(kerncalc_t *ctx, kerncalc_prepfunc_t prepfunc)
 *                             Kernel calculation                              *
 *******************************************************************************/
 
+#if 0
 static int
-calculate_kernel(kerncalc_t *ctx, size_t row, size_t col)
+calculate_kernel(kwip_kerncalc_t *ctx, size_t row, size_t col)
 {
     assert(ctx != NULL);
     assert(row < ctx->num_samples);
@@ -117,7 +156,7 @@ calculate_kernel(kerncalc_t *ctx, size_t row, size_t col)
 }
 
 int
-kerncalc_pairwise(kerncalc_t *ctx)
+kerncalc_pairwise(kwip_kerncalc_t *ctx)
 {
     assert(ctx != NULL);
     int res = 0;
@@ -134,15 +173,16 @@ kerncalc_pairwise(kerncalc_t *ctx)
 }
 
 int
-kerncalc_pairwise_subset(kerncalc_t *ctx, size_t block, size_t num_blocks)
+kerncalc_pairwise_subset(kwip_kerncalc_t *ctx, size_t block, size_t num_blocks)
 {
     return 0;
 }
 
-int kerncalc_kern2dist(kerncalc_t *ctx); // called internally
+int kerncalc_kern2dist(kwip_kerncalc_t *ctx); // called internally
 
-int kerncalc_printdist(kerncalc_t *ctx, FILE *fp);
-int kerncalc_printkernel(kerncalc_t *ctx, FILE *fp);
+int kerncalc_printdist(kwip_kerncalc_t *ctx, FILE *fp);
+int kerncalc_printkernel(kwip_kerncalc_t *ctx, FILE *fp);
 
-void kerncalc_destroy(kerncalc_t *ctx);
+void kerncalc_destroy(kwip_kerncalc_t *ctx);
+#endif
 
