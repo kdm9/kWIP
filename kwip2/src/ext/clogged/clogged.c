@@ -101,6 +101,12 @@ int clg_logger_default(clg_logger_t *logger, clg_loglevel_t level)
     return ret;
 }
 
+int clg_logger_set_level(clg_logger_t *logger, clg_loglevel_t level)
+{
+    if (logger == NULL) return 1;
+    logger->level = level;
+}
+
 int
 clg_logger_add_destination_formatted(clg_logger_t      *logger,
                                      FILE              *stream,
@@ -150,6 +156,7 @@ clg_log_entry_init(clg_entry_t        *entry,
 
     entry->level = level;
     entry->message = clg_strdup(message);
+    entry->formatted = NULL;
     return 0;
 }
 

@@ -64,6 +64,7 @@ typedef struct clg_logger {
 
 clg_logger_t *clg_logger_create(void);
 int clg_logger_init(clg_logger_t *logger, clg_loglevel_t level);
+int clg_logger_set_level(clg_logger_t *logger, clg_loglevel_t level);
 int clg_logger_add_destination_formatted(clg_logger_t *logger,
                                          FILE *stream,
                                          clg_loglevel_t level,
