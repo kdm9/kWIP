@@ -1,6 +1,11 @@
 #ifndef KWIP_CONFIG_H_IN_IGJZGN83
 #define KWIP_CONFIG_H_IN_IGJZGN83
 
+#ifndef kc_eltype_t
+    #define kc_eltype_t uint8_t
+    #define H5T_KMERCOUNT H5T_NATIVE_UINT8
+#endif
+
 #cmakedefine KWIP_CHUNKSIZE
 
 #define kwip_free(ptr) do {if ((ptr) != NULL) { free(ptr); ptr = NULL; }} while(0)

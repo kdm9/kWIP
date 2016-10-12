@@ -12,11 +12,6 @@
 
 #include "kwip_kmerhash.h"
 
-#ifndef kc_eltype_t
-    #define kc_eltype_t uint8_t
-    #define H5T_KMERCOUNT H5T_NATIVE_UINT8
-#endif
-
 typedef struct {
     kc_eltype_t *cv;
     size_t cvlen;

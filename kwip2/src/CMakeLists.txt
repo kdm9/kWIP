@@ -21,13 +21,19 @@ INCLUDE_DIRECTORIES(ext/blosc-h5/src/
                     )
 
 
-FILE(GLOB KWIP_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/kwip_*.c)
+SET(KWIP_SRCS
+    kwip_array.c
+    kwip_kernelcalc.c
+    kwip_kmercount.c
+    kwip_kmerhash.c
+    kwip_utils.c
+)
 
 ADD_LIBRARY(kwiplib STATIC ${KWIP_SRCS} ${DEP_SRCS})
 TARGET_LINK_LIBRARIES(kwiplib blosc_static ${KWIP_DEP_LIBS})
 SET_TARGET_PROPERTIES(kwiplib PROPERTIES OUTPUT_NAME kwip)
 
-ADD_EXECUTABLE(kwip ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
-TARGET_LINK_LIBRARIES(kwip kwiplib ${KWIP_DEP_LIBS})
+ADD_EXECUTABLE(kwip omp_main.c)
+TARGET_LINK_LIBRARIES(kwip kwiplib ${KWIP_DEP_LIBS} m)
 
 add_subdirectory(tests)
