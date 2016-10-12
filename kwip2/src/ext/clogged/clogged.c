@@ -57,7 +57,7 @@ static inline char *
 clg_strdup(const char *src)
 {
     size_t len = strlen(src);
-    char *dst = malloc(len);
+    char *dst = malloc(len + 1);
     memcpy(dst, src, len);
     dst[len] = '\0';
     return dst;
