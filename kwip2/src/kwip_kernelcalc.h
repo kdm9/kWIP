@@ -5,15 +5,15 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 #include <gsl/gsl_matrix.h>
 
 #include "kwip_array.h"
 #include "kwip_kmercount.h"
 
 
-typedef int (*kwip_kern_fn_t)(double *outp, kc_eltype_t *count1,
-                              kc_eltype_t *count2, void *extra,
-                              size_t length);
+typedef int (*kwip_kern_fn_t)(double *outp, const char *file1,
+                              const char *file2, void *extra);
 
 typedef struct {
     size_t num_samples;
@@ -25,14 +25,12 @@ typedef struct {
     // All below here are filled in after finalisation
    
     bool have_finalised;
-    // vector of length n * (n+1)/2, condensed pairwise matrix
+    size_t num_compares;
+    // vectors of length num_compares (n * (n+1)/2), condensed pairwise matrix
     double *kernelvalues;
-
+    bool *havekernel;
 
     kwip_kern_fn_t kernfunc;
-
-    void *extra; // weights, etc
-    size_t extra_size; // in bytes
 } kwip_kerncalc_t;
 
 typedef int (*kwip_kerncalc_finalise_fn_t)(kwip_kerncalc_t *ctx);
@@ -45,7 +43,7 @@ int kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *
 // call finalise after adding samples, before calling kerncalc_pairwise
 int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc);
 
-int kerncalc_pair(kwip_kerncalc_t *ctx); // called internally
+int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t i, size_t j, void *extra);
 
 
 // Checkpointing serialisation
@@ -54,5 +52,32 @@ int kerncalc_load(kwip_kerncalc_t *ctx, const char *filename);
 
 
 void kerncalc_destroy(kwip_kerncalc_t *ctx);
+
+
+static inline size_t
+kernmatrix_ij_to_condensed(size_t i, size_t j)
+{
+    if (i < j) {
+        size_t tmp = i;
+        i = j;
+        j = tmp;
+    }
+
+    return (i * (i + 1) / 2) + j;
+}
+
+static inline int
+kernmatrix_condensed_to_ij(size_t *i, size_t *j, size_t n)
+{
+    if (i == NULL || j == NULL) return -1;
+
+    // This solves (i * (i+1)/2) = n - j for i
+    size_t i_ = (size_t)(sqrt(8. * n + 1.) - 1.)/2;
+    size_t j_ = n - (i_ * (i_ + 1) / 2);
+    *i = i_;
+    *j = j_;
+
+    return 0;
+}
 
 #endif /* end of include guard: KERNELCALC_H_B3ZZENI2 */

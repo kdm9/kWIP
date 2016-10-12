@@ -27,6 +27,7 @@ kerncalc_destroy(kwip_kerncalc_t *ctx)
     kwip_free(ctx->samplenames);
     kwip_free(ctx->checkpoint_dir);
     kwip_free(ctx->kernelvalues);
+    kwip_free(ctx->havekernel);
 }
 
 
@@ -98,6 +99,9 @@ kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
     uint64_t n_samp = ctx->num_samples;
     uint64_t n_compares = n_samp * (n_samp + 1) / 2; // Binomial coeff., including diagonal
     ctx->kernelvalues = calloc(n_compares, sizeof(*ctx->kernelvalues));
+    if (ctx->kernelvalues == NULL) return -1;
+    ctx->havekernel = calloc(n_compares, sizeof(*ctx->havekernel));
+    if (ctx->havekernel == NULL) return -1;
     if (prepfunc != NULL) {
         int ret = prepfunc(ctx);
         if (ret != 0) {
@@ -106,6 +110,16 @@ kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
     }
     ctx->have_finalised = true;
     return 0;
+}
+
+
+int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t i, size_t j, void *extra)
+{
+    if (ctx == NULL || ! ctx->have_finalised) return -1;
+    if (i > ctx->num_samples || j > ctx->num_samples) return -1;
+
+
+    
 }
 
 /*******************************************************************************
