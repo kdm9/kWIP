@@ -18,8 +18,20 @@ addons:
       - cmake-data
       - libgsl0-dev
       - zlib1g-dev
-      - libcmocka-dev
       - libhdf5-dev
+
+before_install:
+  - wget -O cmocka.tar.xz https://cmocka.org/files/1.1/cmocka-1.1.0.tar.xz
+  - tar -xvf cmocka.tar.xz
+  - cd cmocka-*
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug ..
+  - make
+  - sudo make install
+  - cd ../..
+  - rm -rf cmocka*
+
 
 script:
   - cmake --version
