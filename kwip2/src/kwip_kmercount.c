@@ -77,6 +77,8 @@ kmer_count_consume_fp(kmer_count_t *ctx, gzFile fp)
     if (fp == NULL) return 1;
     kseq_t *seq = kseq_init(fp);
     if (seq == NULL) return 1;
+    ctx->num_reads = 0;
+    ctx->num_kmers = 0;
 
     while(kseq_read(seq) >= 0) {
         kmer_count_count_s(ctx, seq->seq.s, seq->seq.l);
