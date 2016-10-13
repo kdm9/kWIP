@@ -20,17 +20,15 @@ ENDIF()
 
 
 # Version jiggery-pokery
-IF ("${KWIP_VERSION}")  # Manually set the version
-	SET(VERSION "${KWIP_VERSION}")
-ELSE()
-        # git describe as versioning
-        EXECUTE_PROCESS(COMMAND git describe --always
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        OUTPUT_VARIABLE VERSION
-                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+IF (NOT "${KWIP_VERSION}")  # Manually set the version
+# git describe as versioning
+EXECUTE_PROCESS(COMMAND git describe --always
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE KWIP_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 ENDIF()
 
-MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}")
+MESSAGE("${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${KWIP_VERSION}")
 
 ############################
 ## User-definable options ##

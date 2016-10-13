@@ -6,6 +6,7 @@
     #define H5T_KMERCOUNT H5T_NATIVE_UINT8
 #endif
 
+#cmakedefine KWIP_VERSION
 #cmakedefine KWIP_CHUNKSIZE
 
 #define kwip_free(ptr) do {if ((ptr) != NULL) { free(ptr); ptr = NULL; }} while(0)
