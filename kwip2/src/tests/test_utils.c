@@ -2,7 +2,7 @@
 #include <math.h>
 
 
-TEST test_parse_size(void)
+void test_parse_size(void **state)
 {
     const char *cases[] = {
         "1e6", "1m", "1M", "1000000",
@@ -16,17 +16,14 @@ TEST test_parse_size(void)
 
     for (size_t i = 0; i < ntest; i++) {
         size_t got = kwip_parse_size(cases[i]);
-        ASSERT_EQ(got, expectations[i]);
+        assert_int_equal(got, expectations[i]);
     }
-
-    PASS();
 }
 
 /*******************************************************************************
 *                                    Suite                                    *
 *******************************************************************************/
 
-SUITE(suite_utils)
-{
-    RUN_TEST(test_parse_size);
-}
+static const struct CMUnitTest suite_utils[] = {
+    cmocka_unit_test(test_parse_size),
+};

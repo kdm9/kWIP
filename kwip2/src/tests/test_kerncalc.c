@@ -7,7 +7,7 @@
 char *kerncalc_filename_to_samplename(const char *filename);
 
 
-TEST test_kerncalc_fn2sn(void)
+void test_kerncalc_fn2sn(void **ctx)
 {
     const char *cases[][2] = {
         {"test.kct", "test"},
@@ -22,15 +22,12 @@ TEST test_kerncalc_fn2sn(void)
         const char *fname = cases[i][0];
         const char *expect = cases[i][1];
         char *got = kerncalc_filename_to_samplename(fname);
-        int res = strcmp(got, expect);
-        ASSERT_EQ(res, 0);
+        assert_string_equal(got, expect);
         free(got);
     }
-
-    PASS();
 }
 
-TEST test_kernmatrix_ij_condensed(void)
+void test_kernmatrix_ij_condensed(void **ctx)
 {
     const int8_t matrix[6][6] = {
         {0 ,1 ,3 ,6 ,10,15},
@@ -45,7 +42,7 @@ TEST test_kernmatrix_ij_condensed(void)
     for (size_t i = 0; i < N; i++) {
         for (size_t j = 0; j < N; j++) {
             size_t n = kernmatrix_ij_to_condensed(i, j);
-            ASSERT_EQ(n, matrix[i][j]);
+            assert_int_equal(n, matrix[i][j]);
         }
     }
 
@@ -56,22 +53,18 @@ TEST test_kernmatrix_ij_condensed(void)
             size_t i_, j_;
             int ret = 0;
             ret = kernmatrix_condensed_to_ij(&i_, &j_, n);
-            ASSERT_EQ(ret, 0);
-            ASSERT_EQ(i_, i);
-            ASSERT_EQ(j_, j);
+            assert_int_equal(ret, 0);
+            assert_int_equal(i_, i);
+            assert_int_equal(j_, j);
         }
     }
-
-    PASS();
 }
 
 /*******************************************************************************
 *                                    Suite                                    *
 *******************************************************************************/
 
-
-SUITE(kerncalc)
-{
-    RUN_TEST(test_kerncalc_fn2sn);
-    RUN_TEST(test_kernmatrix_ij_condensed);
-}
+static const struct CMUnitTest suite_kernelcalc[] = {
+    cmocka_unit_test(test_kerncalc_fn2sn),
+    cmocka_unit_test(test_kernmatrix_ij_condensed),
+};

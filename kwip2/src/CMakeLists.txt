@@ -5,20 +5,18 @@ SET(BUILD_SHARED OFF CACHE BOOL "")
 SET(BUILD_TESTS OFF CACHE BOOL "")
 SET(BUILD_BENCHMARKS OFF CACHE BOOL "")
 ADD_SUBDIRECTORY(ext/blosc)
-INCLUDE_DIRECTORIES(ext/blosc/blosc)
 
 FILE(GLOB DEP_SRCS
-     ext/blosc-h5/src/blosc_*.c
-     ext/xxhash.c
-     ext/clogged/clogged.c
-     ext/commander/commander.c
-     )
+    ext/blosc-h5/src/blosc_*.c
+    ext/xxhash.c
+    ext/clogged/clogged.c
+)
 
-INCLUDE_DIRECTORIES(ext/blosc-h5/src/
-                    ext/commander/
-                    ext/clogged/
-                    ext/
-                    )
+INCLUDE_DIRECTORIES(SYSTEM
+    ext/blosc/blosc
+    ext/blosc-h5/src
+    ext/
+)
 
 
 SET(KWIP_SRCS
@@ -36,4 +34,10 @@ SET_TARGET_PROPERTIES(kwiplib PROPERTIES OUTPUT_NAME kwip)
 ADD_EXECUTABLE(kwip omp_main.c)
 TARGET_LINK_LIBRARIES(kwip kwiplib ${KWIP_DEP_LIBS} m)
 
-add_subdirectory(tests)
+pkg_search_module(CMOCKA cmocka)
+
+if (CMOCKA_FOUND)
+    add_subdirectory(tests)
+else()
+    message(STATUS "CMocka not found, disabling tests")
+endif()

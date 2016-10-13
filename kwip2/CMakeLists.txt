@@ -39,12 +39,14 @@ MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}
 OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
 OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
 OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
-OPTION(KWIP_CHUNKSIZE "Size of chunks in blocked iteraton (MiB)" 1048576)
+OPTION(KWIP_CHUNKSIZE "Size of chunks in blocked iteraton (Default 1 MiB)" 1048576)
 
 
 ###############################
 ## Find Packages and Headers ##
 ###############################
+
+FIND_PACKAGE(PkgConfig REQUIRED)
 
 #SET(HDF5_USE_STATIC_LIBRARIES ON)
 FIND_PACKAGE(HDF5 REQUIRED)
@@ -66,7 +68,6 @@ SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 FIND_PACKAGE(OpenMP REQUIRED)
 SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${OpenMP_C_FLAGS}")
-
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${KWIP_DEP_CFLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KWIP_DEP_CFLAGS}")

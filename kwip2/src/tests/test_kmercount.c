@@ -6,29 +6,28 @@
 #define CANONICAL true
 
 
-TEST counter(void)
+void test_kmercount_counter(void **ctx)
 {
     kmer_count_t ctr;
     char *seq = strdup("ACGTACGTAC");
-    ASSERT(seq != NULL);
+    assert_non_null(seq);
     uint64_t khash = kmer_xxh(seq, strlen(seq), SEED, CANONICAL);
-    ASSERT_EQ(khash, 0xcc5ba50198536bc8);
+    assert_int_equal(khash, 0xcc5ba50198536bc8);
 
     kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
 
     kmer_count_count_h(&ctr, khash);
-    ASSERT_EQ(kmer_count_get_h(&ctr, khash), 1);
+    assert_int_equal(kmer_count_get_h(&ctr, khash), 1);
 
     int ret = kmer_count_count_s(&ctr, seq, strlen(seq));
-    ASSERT_EQ(ret, 0);
-    ASSERT_EQ(kmer_count_get_h(&ctr, khash), 2);
+    assert_int_equal(ret, 0);
+    assert_int_equal(kmer_count_get_h(&ctr, khash), 2);
 
     kmer_count_destroy(&ctr);
     free(seq);
-    PASS();
 }
 
-TEST loadsave(void)
+void test_kmercount_loadsave(void **ctx)
 {
     kmer_count_t ctr;
     int ret = 0;
@@ -38,29 +37,28 @@ TEST loadsave(void)
     kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
     // Count kmer
     kmer_count_count_h(&ctr, khash);
-    ASSERT_EQ(kmer_count_get_h(&ctr, khash), 1);
+    assert_int_equal(kmer_count_get_h(&ctr, khash), 1);
 
     // Save current state
     ret = kmer_count_save(&ctr, "counts.h5");
-    ASSERT_EQ(ret, 0);
+    assert_int_equal(ret, 0);
     // Count another to check that we can distinguish current state from loaded
     // state.
     kmer_count_count_h(&ctr, khash);
-    ASSERT_EQ(kmer_count_get_h(&ctr, khash), 2);
+    assert_int_equal(kmer_count_get_h(&ctr, khash), 2);
 
     // Load counts
     ret = kmer_count_load(&ctr, "counts.h5");
-    ASSERT_EQ(ret, 0);
+    assert_int_equal(ret, 0);
     // Check state (should be 1, we saved before counting a 2nd time)
-    ASSERT_EQ(kmer_count_get_h(&ctr, khash), 1);
+    assert_int_equal(kmer_count_get_h(&ctr, khash), 1);
 
     kmer_count_destroy(&ctr);
     remove("counts.h5");
     free(seq);
-    PASS();
 }
 
-TEST consume_file(void)
+void test_kmercount_consume_file(void **ctx)
 {
     const char *readfile = "data/10seq.fa";
     ssize_t ret = 0;
@@ -69,21 +67,19 @@ TEST consume_file(void)
     kmer_count_init(&ctr, SKETCHSIZE, K, SEED, CANONICAL);
 
     ret = kmer_count_consume_readfile(&ctr, readfile);
-    ASSERT_EQ(ret, 0);
-    ASSERT_EQ(ctr.num_reads, 10);
-    ASSERT_EQ(ctr.num_kmers, 10 * (20 - K + 1));
+    assert_int_equal(ret, 0);
+    assert_int_equal(ctr.num_reads, 10);
+    assert_int_equal(ctr.num_kmers, 10 * (20 - K + 1));
 
     ret = kmer_count_consume_readfile(&ctr, "/no/file/exists/here");
-    ASSERT_EQ(ret, 1);
+    assert_int_equal(ret, 1);
 
     kmer_count_destroy(&ctr);
-    PASS();
 }
 
 
-SUITE(counting)
-{
-    RUN_TEST(counter);
-    RUN_TEST(loadsave);
-    RUN_TEST(consume_file);
-}
+static const struct CMUnitTest suite_kmercount[] = {
+    cmocka_unit_test(test_kmercount_counter),
+    cmocka_unit_test(test_kmercount_consume_file),
+    cmocka_unit_test(test_kmercount_loadsave),
+};
