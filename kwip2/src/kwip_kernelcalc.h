@@ -6,10 +6,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
-#include <gsl/gsl_matrix.h>
-
-#include "kwip_array.h"
-#include "kwip_kmercount.h"
 
 
 typedef int (*kwip_kern_fn_t)(double *outp, const char *file1,
@@ -43,7 +39,9 @@ int kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *
 // call finalise after adding samples, before calling kerncalc_pairwise
 int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc);
 
-int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t i, size_t j, void *extra);
+
+// Computes the idx'th kernel value
+int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx, void *extra);
 
 
 // Checkpointing serialisation

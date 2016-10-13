@@ -1,11 +1,11 @@
 #include "kwip_kernelcalc.h"
 
+#include "kwip_array.h"
+#include "kwip_kmercount.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
-#include <gsl/gsl_eigen.h>
-
 
 int
 kerncalc_init(kwip_kerncalc_t *ctx)
@@ -77,7 +77,7 @@ kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samp
     }
 
     ctx->files[ctx->num_samples] = strdup(filename);
-    assert(ctx->files[ctx->num_samples] != NULL);
+    if (ctx->files[ctx->num_samples] == NULL) return -1;
     if (samplename != NULL) {
         ctx->samplenames[ctx->num_samples] = strdup(samplename);
     } else {
@@ -113,90 +113,23 @@ kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
 }
 
 
-int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t i, size_t j, void *extra)
+int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx, void *extra)
 {
     if (ctx == NULL || ! ctx->have_finalised) return -1;
-    if (i > ctx->num_samples || j > ctx->num_samples) return -1;
 
-
-    
-}
-
-/*******************************************************************************
-*                             Kernel calculation                              *
-*******************************************************************************/
-
-#if 0
-static int
-calculate_kernel(kwip_kerncalc_t *ctx, size_t row, size_t col)
-{
-    assert(ctx != NULL);
-    assert(row < ctx->num_samples);
-    assert(col < ctx->num_samples);
     int res;
-    const char *Afile = ctx->files[row], *Bfile = ctx->files[col];
-    array_blockiter_t Aitr, Bitr;
-    kc_eltype_t *A, *B;
-    size_t Alen = 0, Blen = 0;
+    size_t row, col;
 
-
-    res = array_blockiter_init(&Aitr, Afile, "counts");
-    if (res != 0) return res;
-    res = array_blockiter_init(&Bitr, Bfile, "counts");
+    // Get row and col into distance matrix from the comparison index.
+    res = kernmatrix_condensed_to_ij(&row, &col, idx);
     if (res != 0) return res;
 
-    double kernel = 0.;
-    size_t offset = 0;
-    while (!array_blockiter_done(&Aitr) &&
-           !array_blockiter_done(&Bitr)) {
-        double block_kern = 0;
+    if (row > ctx->num_samples || col > ctx->num_samples) return -1;
 
-        res = array_blockiter_next(&Aitr, (void*)&A, &Alen, KWIP_CHUNKSIZE);
-        if (res != 0) return res;
-        res = array_blockiter_next(&Bitr, (void*)&B, &Blen, KWIP_CHUNKSIZE);
-        if (res != 0) return res;
+    const char *Afile = ctx->files[row];
+    const char *Bfile = ctx->files[col];
+    res = ctx->kernfunc(&ctx->kernelvalues[idx], Afile, Bfile, extra);
+    if (res != 0) return res;
 
-        if (Alen != Blen) return -1;
-
-        res = ctx->kernfunc(&block_kern, A, B, ctx->extra, ctx->extra_size, offset, Alen);
-        if (res != 0) return res;
-        offset += Alen;
-        kernel += block_kern;
-    }
-
-    gsl_matrix_set(ctx->kmat, row, col, kernel);
-    gsl_matrix_set(ctx->kmat, col, row, kernel); // symmetric!
     return 0;
 }
-
-int
-kerncalc_pairwise(kwip_kerncalc_t *ctx)
-{
-    assert(ctx != NULL);
-    int res = 0;
-
-    for (size_t i = 0; i < ctx->num_samples; i++) {
-        for (size_t j = 0; j < ctx->num_samples; j++) {
-            if (j < i) continue; // upper triangle only!
-
-            res = calculate_kernel(ctx, i, j);
-            if (res != 0) return res;
-        }
-    }
-    return 0;
-}
-
-int
-kerncalc_pairwise_subset(kwip_kerncalc_t *ctx, size_t block, size_t num_blocks)
-{
-    return 0;
-}
-
-int kerncalc_kern2dist(kwip_kerncalc_t *ctx); // called internally
-
-int kerncalc_printdist(kwip_kerncalc_t *ctx, FILE *fp);
-int kerncalc_printkernel(kwip_kerncalc_t *ctx, FILE *fp);
-
-void kerncalc_destroy(kwip_kerncalc_t *ctx);
-#endif
-
