@@ -8,9 +8,9 @@
 #include "blosc_filter.h"
 static const unsigned int compress_args[7] = {
     0, 0, 0, 0, /* 0 to 3 (inclusive) param slots are reserved. */
-    9,          /* compression level */
+    5,          /* compression level */
     1,          /* 0: shuffle not active, 1: shuffle active */
-    BLOSC_BLOSCLZ /* the compressor to use */
+    BLOSC_ZSTD /* the compressor to use */
 };
 #endif
 
