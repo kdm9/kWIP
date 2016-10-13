@@ -24,6 +24,8 @@ SET(KWIP_SRCS
     kwip_kernelcalc.c
     kwip_kmercount.c
     kwip_kmerhash.c
+    kwip_metric_ip.c
+    kwip_omp_kernel.c
     kwip_utils.c
 )
 

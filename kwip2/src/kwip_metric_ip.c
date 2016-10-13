@@ -17,6 +17,7 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
     if (res != 0) return res;
 
     double kernel = 0.;
+    size_t offset = 0;
     while (!array_blockiter_done(&Aitr) && !array_blockiter_done(&Bitr)) {
         res = array_blockiter_next(&Aitr, (void*)&A, &Alen, KWIP_CHUNKSIZE);
         if (res != 0) return res;
@@ -25,6 +26,7 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
 
         if (Alen != Blen) return -1;
 
+        offset += Alen;
         for (size_t i = 0; i < Alen; i++) {
             double a = A[i], b = B[i];
             kernel += a * b;
