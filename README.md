@@ -47,4 +47,4 @@ Publication
 ===========
 
 A publication describing kWIP has been [submitted to
-Biorxiv](http://biorxiv.org/content/early/2016/09/16/075481).
+PLOS Computational Biology](http://biorxiv.org/content/early/2016/10/04/075481).
