@@ -105,6 +105,7 @@ int clg_logger_set_level(clg_logger_t *logger, clg_loglevel_t level)
 {
     if (logger == NULL) return 1;
     logger->level = level;
+    return 0;
 }
 
 int
