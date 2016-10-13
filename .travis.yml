@@ -18,6 +18,7 @@ addons:
       - cmake-data
       - libgsl0-dev
       - zlib1g-dev
+      - libcmocka-dev
       - libhdf5-dev
 
 script:
