@@ -89,19 +89,39 @@ kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samp
     return 0;
 }
 
+int kerncalc_set_kernelfunction(kwip_kerncalc_t *ctx, kwip_kern_fn_t kernfunc)
+{
+    if (ctx == NULL) return -1;
+
+    ctx->kernfunc = kernfunc;
+    return 0;
+}
+
+int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir)
+{
+    if (ctx == NULL) return -1;
+
+    ctx->checkpoint_dir = strdup(dir);
+    return 0;
+}
 
 // call finalise after adding samples, before calling kerncalc_pairwise
 int
 kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
 {
-    assert(ctx != NULL);
+    if (ctx == NULL) return -1;
+
+    if (ctx->kernfunc == NULL) return -1;
 
     uint64_t n_samp = ctx->num_samples;
+    if (n_samp < 2) return -1;
+
     uint64_t n_compares = n_samp * (n_samp + 1) / 2; // Binomial coeff., including diagonal
     ctx->kernelvalues = calloc(n_compares, sizeof(*ctx->kernelvalues));
     if (ctx->kernelvalues == NULL) return -1;
     ctx->havekernel = calloc(n_compares, sizeof(*ctx->havekernel));
     if (ctx->havekernel == NULL) return -1;
+    ctx->num_compares = n_compares;
     if (prepfunc != NULL) {
         int ret = prepfunc(ctx);
         if (ret != 0) {
@@ -113,7 +133,7 @@ kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
 }
 
 
-int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx, void *extra)
+int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx)
 {
     if (ctx == NULL || ! ctx->have_finalised) return -1;
 
@@ -128,8 +148,38 @@ int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx, void *extra)
 
     const char *Afile = ctx->files[row];
     const char *Bfile = ctx->files[col];
-    res = ctx->kernfunc(&ctx->kernelvalues[idx], Afile, Bfile, extra);
+    res = ctx->kernfunc(&ctx->kernelvalues[idx], Afile, Bfile, ctx->extra);
     if (res != 0) return res;
+    ctx->havekernel[idx] = true;
 
+    return 0;
+}
+
+int kerncalc_save(kwip_kerncalc_t *ctx)
+{
+    if (ctx == NULL || ctx->checkpoint_dir == NULL) return -1;
+
+    char filename[4096] = "";
+    int res = 0;
+
+    res = snprintf(filename, 4096, "%s/kernellog.tab", ctx->checkpoint_dir);
+    if (res >= 4096 || res < 0) return -1;
+
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL) return -1;
+
+    fprintf(fp, "# Kernel values generated with kWIP version %s\n", KWIP_VERSION);
+    for (size_t i = 0; i < ctx->num_compares; i++) {
+        size_t row, col;
+        // Get row and col into distance matrix from the comparison index.
+        res = kernmatrix_condensed_to_ij(&row, &col, i);
+        if (res != 0) return -1;
+
+        if (ctx->havekernel[i]) {
+            fprintf(fp, "%s\t%s\t%zu\t%0.17g\n", ctx->samplenames[row],
+                    ctx->samplenames[col], i, ctx->kernelvalues[i]);
+        }
+    }
+    fclose(fp);
     return 0;
 }

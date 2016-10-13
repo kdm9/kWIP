@@ -21,6 +21,8 @@ typedef struct {
     // All below here are filled in after finalisation
    
     bool have_finalised;
+    void *extra;  // Additional info, e.g. weights
+
     size_t num_compares;
     // vectors of length num_compares (n * (n+1)/2), condensed pairwise matrix
     double *kernelvalues;
@@ -34,19 +36,22 @@ typedef int (*kwip_kerncalc_finalise_fn_t)(kwip_kerncalc_t *ctx);
 
 // set num_samples to 0 if unknown
 int kerncalc_init(kwip_kerncalc_t *ctx);
-int kerncalc_set_threads(kwip_kerncalc_t *ctx, int num_threads);
 int kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samplename);
 // call finalise after adding samples, before calling kerncalc_pairwise
+int kerncalc_set_kernelfunction(kwip_kerncalc_t *ctx, kwip_kern_fn_t kernfunc);
+
+int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir);
+
 int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc);
 
 
 // Computes the idx'th kernel value
-int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx, void *extra);
+int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx);
 
 
 // Checkpointing serialisation
-int kerncalc_save(kwip_kerncalc_t *ctx, const char *filename);
-int kerncalc_load(kwip_kerncalc_t *ctx, const char *filename);
+int kerncalc_save(kwip_kerncalc_t *ctx);
+//int kerncalc_load(kwip_kerncalc_t *ctx, const char *filename);
 
 
 void kerncalc_destroy(kwip_kerncalc_t *ctx);
