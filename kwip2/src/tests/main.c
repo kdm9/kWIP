@@ -7,13 +7,6 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-// Patch in V1.0 cmocka defs for travis ci
-#ifndef cmocka_run_group_tests_name
-#define cmocka_run_group_tests_name(n, f, s, t) run_tests(t)
-#define cmocka_unit_test unit_test
-#define CMUnitTest UnitTest
-#endif
-
 
 #include "test_utils.c"
 #include "test_array.c"
