@@ -1,9 +1,11 @@
 #include "kwip_metric_ip.h"
+#include <math.h>
 
 int
 metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra)
 {
     if (outp == NULL || file1 == NULL || file2 == NULL) return -1;
+    (void) extra;
 
     int res;
     array_blockiter_t Aitr, Bitr;
@@ -16,7 +18,8 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
     res = array_blockiter_init(&Bitr, file2, "counts");
     if (res != 0) return res;
 
-    double kernel = 0.;
+    double dist = 0.;
+    double anorm = 0, bnorm = 0;
     size_t offset = 0;
     while (!array_blockiter_done(&Aitr) && !array_blockiter_done(&Bitr)) {
         res = array_blockiter_next(&Aitr, (void*)&A, &Alen, KWIP_CHUNKSIZE);
@@ -28,21 +31,19 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
 
         offset += Alen;
         for (size_t i = 0; i < Alen; i++) {
-            double a = A[i], b = B[i];
-            kernel += a * b;
+            float a = A[i], b = B[i];
+            dist += powf(fabsf(a - b), 2.f);
+            anorm += powf(a, 2);
+            bnorm += powf(b, 2);
         }
     }
+    double normdist = dist / sqrt(anorm * bnorm);
     if (array_blockiter_done(&Aitr) && array_blockiter_done(&Bitr)) {
         // Check that both iterators have finished
-        *outp = kernel;
+        *outp = normdist;
         return 0;
     } else {
         *outp = 0.0;
         return -1;
     }
-}
-
-int metric_ip_normalise(double *kernelvalues, void *extra)
-{
-    return 0;
 }
