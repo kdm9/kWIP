@@ -170,7 +170,7 @@ array_blockiter_init(array_blockiter_t *ctx, const char *filename,
     int ndim = H5Sget_simple_extent_dims(ctx->dspace, &ctx->shape, NULL);
     if (ndim != 1) goto end;
 
-    ctx->num_chunks = (ctx->shape + (KWIP_CHUNKSIZE / 2)) / KWIP_CHUNKSIZE;
+    ctx->num_chunks = (ctx->shape + KWIP_CHUNKSIZE - 1) / KWIP_CHUNKSIZE;
 
     return_code = 0;
 end:
@@ -201,14 +201,6 @@ array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
         return 0;
     }
 
-    if (*block == NULL || *blocklen < KWIP_CHUNKSIZE) {
-        *block = realloc(*block, KWIP_CHUNKSIZE * H5Tget_size(ctx->dtype));
-        if (*block == NULL) {
-            fprintf(stderr, "realloc failed (OUT OF MEMORY?)\n");
-            return -1;
-        }
-    }
-
 
     // setup dataspace & hyperslab for read
     hid_t space = H5Dget_space(ctx->dset);
@@ -216,19 +208,25 @@ array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
     hsize_t start = ctx->chunknum * KWIP_CHUNKSIZE;
     hsize_t to_end = ctx->shape - start;
     hsize_t count = to_end > KWIP_CHUNKSIZE ? KWIP_CHUNKSIZE : to_end;
-    hsize_t capacity = KWIP_CHUNKSIZE;
+    hsize_t capacity = count;
+
     hid_t memspace = H5Screate_simple(1, &capacity, NULL);
     assert(memspace != 0);
-    
+
+    if (*block == NULL || *blocklen < count) {
+        *block = realloc(*block, count * H5Tget_size(ctx->dtype));
+        if (*block == NULL) {
+            return -1;
+        }
+    }
+
     res = H5Sselect_hyperslab(space, H5S_SELECT_SET, &start, NULL, &count, NULL);
     if (res < 0) {
-        fprintf(stderr, "Error selecting hyperslab\n");
         return -1;
     }
 
     res = H5Dread(ctx->dset, ctx->dtype, memspace, space, H5P_DEFAULT, *block);
     if (res < 0) {
-        fprintf(stderr, "Error reading chunk\n");
         return -1;
     }
     *blocklen = count;
