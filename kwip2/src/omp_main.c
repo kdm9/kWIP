@@ -266,7 +266,7 @@ int kernel_main(int argc, char *argv[])
             retval = -1; goto exit;
         }
     }
-    res = kerncalc_finalise(&ctx, NULL);
+    res = kerncalc_finalise(&ctx, NULL, NULL);
     if (res != 0) {
         clg_log_msg_error(log, "ERROR: Failed to finalise kernel calculator.\n");
         retval = -1; goto exit;

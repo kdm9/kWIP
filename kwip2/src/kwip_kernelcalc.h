@@ -19,7 +19,6 @@ typedef struct {
     char *checkpoint_dir;
 
     // All below here are filled in after finalisation
-   
     bool have_finalised;
     void *extra;  // Additional info, e.g. weights
 
@@ -31,7 +30,7 @@ typedef struct {
     kwip_kern_fn_t kernfunc;
 } kwip_kerncalc_t;
 
-typedef int (*kwip_kerncalc_finalise_fn_t)(kwip_kerncalc_t *ctx);
+typedef int (*kwip_kerncalc_finalise_fn_t)(kwip_kerncalc_t *ctx, void *extra);
 
 
 // set num_samples to 0 if unknown
@@ -42,7 +41,7 @@ int kerncalc_set_kernelfunction(kwip_kerncalc_t *ctx, kwip_kern_fn_t kernfunc);
 
 int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir);
 
-int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc);
+int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc, void *prepfunc_extra);
 
 
 // Computes the idx'th kernel value

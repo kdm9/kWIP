@@ -106,8 +106,8 @@ int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir)
 }
 
 // call finalise after adding samples, before calling kerncalc_pairwise
-int
-kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
+int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc,
+                      void *prepfunc_extra)
 {
     if (ctx == NULL) return -1;
 
@@ -123,7 +123,7 @@ kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc)
     if (ctx->havekernel == NULL) return -1;
     ctx->num_compares = n_compares;
     if (prepfunc != NULL) {
-        int ret = prepfunc(ctx);
+        int ret = prepfunc(ctx, prepfunc_extra);
         if (ret != 0) {
             return ret;
         }
