@@ -7,6 +7,7 @@
 
 size_t kwip_parse_size(const char *sizestr);
 
+void kwip_print_banner(FILE *stream);
 void kwip_print_version(FILE *stream);
 
 int kwip_mkdirp(const char *dir);

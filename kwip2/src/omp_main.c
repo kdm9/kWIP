@@ -89,17 +89,17 @@ int count_main(int argc, char *argv[])
     }
 
     if (sketchsize < 1<<10) {
-        fprintf(stderr, "ERROR: Sketch size far too small. Increase to at least 1M.\n\n");
+        clg_log_msg_error(log, "ERROR: Sketch size far too small. Increase to at least 1M.\n\n");
         count_help(stderr);
         return EXIT_FAILURE;
     }
     if (ksize < 10 || ksize > 32) {
-        fprintf(stderr, "ERROR: kmer size must be 10 <= k <= 32.\n\n");
+        clg_log_msg_error(log, "ERROR: kmer size must be 10 <= k <= 32.\n\n");
         count_help(stderr);
         return EXIT_FAILURE;
     }
     if (optind >= argc) {
-        fprintf(stderr, "ERROR: must provide Output and Input file names\n\n");
+        clg_log_msg_error(log, "ERROR: must provide Output and Input file names\n\n");
         count_help(stderr);
         return EXIT_FAILURE;
     }
@@ -326,6 +326,8 @@ int main(int argc, char *argv[])
         kwip_print_version(stdout);
         return EXIT_SUCCESS;
     }
+
+    kwip_print_banner(stderr);
 
     if (strcmp(argv[1], "count") == 0) {
         return count_main(argc - 1, argv + 1);
