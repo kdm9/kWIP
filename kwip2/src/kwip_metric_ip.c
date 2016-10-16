@@ -1,4 +1,5 @@
 #include "kwip_metric_ip.h"
+#include <stdlib.h>
 #include <math.h>
 
 int
@@ -29,13 +30,21 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
 
         if (Alen != Blen) return -1;
 
+        // Block-level variables to avoid floating point round error
+        double _dist = 0.;
+        double _anorm = 0., _bnorm = 0.;
+
         offset += Alen;
         for (size_t i = 0; i < Alen; i++) {
-            float a = A[i], b = B[i];
-            dist += powf(fabsf(a - b), 2.f);
-            anorm += powf(a, 2);
-            bnorm += powf(b, 2);
+            int32_t a = A[i], b = B[i];
+            if (a == 0 && b == 0) continue;
+            _dist += pow(abs(a - b), 2.);
+            _anorm += pow(a, 2);
+            _bnorm += pow(b, 2);
         }
+        dist += _dist;
+        anorm += _anorm;
+        bnorm += _bnorm;
     }
     double normdist = dist / sqrt(anorm * bnorm);
     if (array_blockiter_done(&Aitr) && array_blockiter_done(&Bitr)) {
