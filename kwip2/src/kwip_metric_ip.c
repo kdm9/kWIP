@@ -35,6 +35,8 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
         double _anorm = 0., _bnorm = 0.;
 
         offset += Alen;
+
+        #pragma omp simd reduction(+: _dist, _anorm, _bnorm)
         for (size_t i = 0; i < Alen; i++) {
             int32_t a = A[i], b = B[i];
             if (a == 0 && b == 0) continue;
