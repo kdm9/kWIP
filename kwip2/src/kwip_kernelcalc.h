@@ -2,6 +2,7 @@
 #define KERNELCALC_H_B3ZZENI2
 
 #include "kwip_config.h"
+#include "kwip_utils.h"
 
 #include <stdio.h>
 #include <stdbool.h>

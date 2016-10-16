@@ -7,6 +7,7 @@ SET(BUILD_SHARED OFF CACHE BOOL "")
 SET(BUILD_TESTS OFF CACHE BOOL "")
 SET(BUILD_BENCHMARKS OFF CACHE BOOL "")
 ADD_SUBDIRECTORY(ext/blosc)
+set_target_properties(blosc_static PROPERTIES COMPILE_FLAGS -w)
 
 FILE(GLOB DEP_SRCS
     ext/blosc-h5/src/blosc_*.c

@@ -34,10 +34,16 @@ MESSAGE("${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${KWIP_VERSION}")
 ## User-definable options ##
 ############################
 
-OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
-OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
+OPTION(USE_ASAN "Build with AddressSanitizer" OFF)
+OPTION(USE_TSAN "Build with ThreadSanitizer" OFF)
 OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
-OPTION(KWIP_CHUNKSIZE "Size of chunks in blocked iteraton (Default 1 MiB)" 1048576)
+OPTION(USE_BLOSC "Use BLOSC for HDF5 compression" ON)
+
+# Sets the chunk size in MiB
+if (NOT CHUNKSIZE)
+    SET(CHUNKSIZE 1)
+endif()
+math(EXPR KWIP_CHUNKSIZE "${CHUNKSIZE} * 1048576")
 
 
 ###############################
@@ -79,20 +85,20 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KWIP_DEP_CFLAGS}")
 SET(CMAKE_C_STANDARD 11)
 SET(CMAKE_CXX_STANDARD 11)
 SET(WARN_FLAGS "${WARN_FLAGS} -Wall -Wextra")
-SET(OPT_FLAGS "-Ofast -march=native -funroll-loops")
+SET(OPT_FLAGS "-O3 -march=native -funroll-loops -fassociative-math")
 
 
-IF(ENABLE_ASAN AND ENABLE_TSAN)
+IF(USE_ASAN AND USE_TSAN)
     MESSAGE(FATAL_ERROR "Cannot enable both ThreadSanitizer and AddressSanitizer")
 ENDIF()
 
-IF(ENABLE_ASAN)
+IF(USE_ASAN)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
     MESSAGE(STATUS "Enabling Address Sanitizer")
 ENDIF()
 
-IF(ENABLE_TSAN)
+IF(USE_TSAN)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
 ENDIF()
 

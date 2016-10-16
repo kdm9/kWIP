@@ -1,13 +1,9 @@
-#ifndef ARRAYIO_H_6AYJOGQ7
-#define ARRAYIO_H_6AYJOGQ7
+#ifndef KWIP_ARRAY_H_J1IUDTGQ
+#define KWIP_ARRAY_H_J1IUDTGQ
 
 #include "kwip_config.h"
 
 #include <hdf5.h>
-#ifndef KWIP_CHUNKSIZE
-    #define KWIP_CHUNKSIZE 1048576 // 1 mebibyte
-#endif
-#define USE_BLOSC
 
 
 int array_save(const char *filename, const char *dset_path, void *array,
@@ -33,4 +29,4 @@ int array_blockiter_next(array_blockiter_t *ctx, void **block,
                          size_t *blocklen, size_t maxsize);
 void array_blockiter_destroy(array_blockiter_t *ctx);
 
-#endif /* end of include guard: ARRAYIO_H_6AYJOGQ7 */
+#endif /* end of include guard: KWIP_ARRAY_H_J1IUDTGQ */

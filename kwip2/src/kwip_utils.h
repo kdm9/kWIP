@@ -12,5 +12,7 @@ void kwip_print_version(FILE *stream);
 
 int kwip_mkdirp(const char *dir);
 
+#define kwip_free(ptr) do {if ((ptr) != NULL) { free(ptr); ptr = NULL; }} while(0)
+
 
 #endif /* end of include guard: KWIP_UTILS_H_GNLDS27X */
