@@ -85,7 +85,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KWIP_DEP_CFLAGS}")
 SET(CMAKE_C_STANDARD 11)
 SET(CMAKE_CXX_STANDARD 11)
 SET(WARN_FLAGS "${WARN_FLAGS} -Wall -Wextra")
-SET(OPT_FLAGS "-O3 -march=native -funroll-loops -fassociative-math")
+SET(OPT_FLAGS "-O3 -march=native -funroll-loops -ffast-math")
 
 
 IF(USE_ASAN AND USE_TSAN)
