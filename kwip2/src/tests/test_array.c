@@ -55,7 +55,7 @@ void test_array_iter(void **suite)
     size_t i = 0;
     size_t chunks = 0;
     while (!array_blockiter_done(&itr)) {
-        res = array_blockiter_next(&itr, (void *)&arr_out, &size_out, KWIP_CHUNKSIZE);
+        res = array_blockiter_next(&itr, (void *)&arr_out, &size_out);
         assert_int_equal(res, 0);
         /* we have an even number of chunks, so size will always be KWIP_CHUNKSIZE */
         assert_non_null(arr_out);

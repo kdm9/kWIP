@@ -1,6 +1,6 @@
 #include "kwip_array.h"
 
-#include <assert.h>
+#include <unistd.h>
 
 
 
@@ -19,15 +19,13 @@ array_save(const char *filename, const char *dset_path, void *array,
            size_t items, hid_t dtype)
 {
     int r;
-    int return_code = 1;
+    int return_code = -1;
     const hsize_t chunkshape = KWIP_CHUNKSIZE;
 
     hid_t fid = 0, sid = 0, dset = 0, plist = 0;
 
-    assert(filename != NULL);
-    assert(dset_path != NULL);
-    assert(array != NULL);
-    assert(items > 0);
+    if (filename == NULL || dset_path == NULL || array == NULL || items == 0)
+        return -1;
 
     const hsize_t shape = items;
 
@@ -82,15 +80,13 @@ int
 array_read(const char *filename, const char *dset_path, void **array, size_t *items, hid_t dtype)
 {
     int r;
-    int return_code = 1;
+    int return_code = -1;
 
     hid_t fid = 0, sid = 0, dset = 0, plist = 0;
     hsize_t shape;
 
-    assert(filename != NULL);
-    assert(dset_path != NULL);
-    assert(array != NULL);
-    assert(items != NULL);
+    if (filename == NULL || dset_path == NULL || array == NULL || items == NULL)
+        return -1;
 
 #ifdef USE_BLOSC
     /* Register the filter with the library */
@@ -115,7 +111,7 @@ array_read(const char *filename, const char *dset_path, void **array, size_t *it
     if (ndim != 1) goto end;
     if (shape > *items) {
         *array = realloc(*array, shape * H5Tget_size(dtype));
-        assert(*array != NULL);
+        if (*array == NULL) goto end;
         *items = shape;
     }
 
@@ -139,12 +135,11 @@ int
 array_blockiter_init(array_blockiter_t *ctx, const char *filename,
                      const char *dset_path)
 {
-    assert(filename != NULL);
-    assert(dset_path != NULL);
+    if (filename == NULL || dset_path == NULL) return -1;
     ctx->chunknum = 0;
 
     int r;
-    int return_code = 1;
+    int return_code = -1;
 #ifdef USE_BLOSC
     /* Register the filter with the library */
     r = register_blosc(NULL, NULL);
@@ -187,14 +182,11 @@ inline int array_blockiter_done(array_blockiter_t *ctx)
 }
 
 int
-array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
-                     size_t maxsz)
+array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen)
 {
     herr_t res;
-    assert(ctx != NULL);
-    assert(block != NULL);
-    assert(blocklen != NULL);
-    assert(maxsz >= KWIP_CHUNKSIZE);
+    if(ctx == NULL || block == NULL || blocklen == NULL)
+        return -1;
 
     if (array_blockiter_done(ctx)) {
         // Someone called next on an iterator that has already finished
@@ -204,17 +196,22 @@ array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen,
 
     // setup dataspace & hyperslab for read
     hid_t space = H5Dget_space(ctx->dset);
-    assert(space != 0);
+    if (space == 0) return -1;
     hsize_t start = ctx->chunknum * KWIP_CHUNKSIZE;
     hsize_t to_end = ctx->shape - start;
     hsize_t count = to_end > KWIP_CHUNKSIZE ? KWIP_CHUNKSIZE : to_end;
     hsize_t capacity = count;
 
     hid_t memspace = H5Screate_simple(1, &capacity, NULL);
-    assert(memspace != 0);
+    if (memspace == 0) return -1;
 
     if (*block == NULL || *blocklen < count) {
-        *block = realloc(*block, count * H5Tget_size(ctx->dtype));
+        size_t newsize = count * H5Tget_size(ctx->dtype);
+        size_t pagesize = sysconf(_SC_PAGESIZE);
+        if (newsize % pagesize != 0) {
+            newsize += pagesize - (newsize % pagesize);
+        }
+        *block = aligned_alloc(pagesize, newsize);
         if (*block == NULL) {
             return -1;
         }

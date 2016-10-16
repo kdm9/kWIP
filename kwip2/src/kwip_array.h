@@ -25,8 +25,7 @@ int array_blockiter_init(array_blockiter_t *ctx, const char *filename,
                          const char *dset_path);
 // array_blockiter_done returns -1 on error, 1 if done, 0 otherwise
 extern int array_blockiter_done(array_blockiter_t *ctx);
-int array_blockiter_next(array_blockiter_t *ctx, void **block,
-                         size_t *blocklen, size_t maxsize);
+int array_blockiter_next(array_blockiter_t *ctx, void **block, size_t *blocklen);
 void array_blockiter_destroy(array_blockiter_t *ctx);
 
 #endif /* end of include guard: KWIP_ARRAY_H_J1IUDTGQ */

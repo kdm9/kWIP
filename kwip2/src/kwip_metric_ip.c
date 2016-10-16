@@ -23,9 +23,9 @@ metric_ip_kernel(double *outp, const char *file1, const char *file2, void *extra
     double anorm = 0, bnorm = 0;
     size_t offset = 0;
     while (!array_blockiter_done(&Aitr) && !array_blockiter_done(&Bitr)) {
-        res = array_blockiter_next(&Aitr, (void*)&A, &Alen, KWIP_CHUNKSIZE);
+        res = array_blockiter_next(&Aitr, (void*)&A, &Alen);
         if (res != 0) return res;
-        res = array_blockiter_next(&Bitr, (void*)&B, &Blen, KWIP_CHUNKSIZE);
+        res = array_blockiter_next(&Bitr, (void*)&B, &Blen);
         if (res != 0) return res;
 
         if (Alen != Blen) return -1;
