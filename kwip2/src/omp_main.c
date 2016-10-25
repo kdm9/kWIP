@@ -19,6 +19,7 @@
 #include "kwip_kernelcalc.h"
 #include "kwip_omp_kernel.h"
 #include "kwip_metric_ip.h"
+#include "kwip_metric_manhattan.h"
 
 
 /*******************************************************************************
@@ -237,18 +238,19 @@ int kernel_main(int argc, char *argv[])
         retval = -1; goto exit;
     }
 
+    res = -2;
     if (strcasecmp(metric, "ip") == 0) {
-        // TODO add normalisation etc. here if we use that
         res = kerncalc_set_kernelfunction(&ctx, metric_ip_kernel);
-        if (res != 0) {
+    } else if (strcasecmp(metric, "manhattan") == 0) {
+        res = kerncalc_set_kernelfunction(&ctx, metric_manhattan_kernel);
+    }
+    if (res == -2) {
+        clg_log_fmt_error(log, "ERROR: Unknown metric '%s'\n", metric);
+        retval = -1; goto exit;
+    }
+    if (res != 0) {
             clg_log_msg_error(log, "ERROR: Can't set kernel function.\n");
-            retval = -1; goto exit;
-        }
-    } else {
-        if (res != 0) {
-            clg_log_fmt_error(log, "ERROR: Unknown metric '%s'\n", metric);
-            retval = -1; goto exit;
-        }
+        retval = -1; goto exit;
     }
 
     res = kerncalc_set_checkpoint_dir(&ctx, outdir);

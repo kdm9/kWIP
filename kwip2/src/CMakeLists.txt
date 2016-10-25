@@ -28,6 +28,7 @@ SET(KWIP_SRCS
     kwip_kmercount.c
     kwip_kmerhash.c
     kwip_metric_ip.c
+    kwip_metric_manhattan.c
     kwip_omp_kernel.c
     kwip_utils.c
 )
