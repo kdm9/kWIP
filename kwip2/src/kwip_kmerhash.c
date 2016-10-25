@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <xxhash.h>
+#include "xxhash.h"
 
 
 

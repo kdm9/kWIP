@@ -1,13 +1,13 @@
-#include "kwip_kernelcalc.h"
+#include "kwip_distcalc.h"
 
 /*******************************************************************************
 *                     Declarations for private functions                      *
 *******************************************************************************/
 
-char *kerncalc_filename_to_samplename(const char *filename);
+char *distcalc_filename_to_samplename(const char *filename);
 
 
-void test_kerncalc_fn2sn(void **ctx)
+void test_distcalc_fn2sn(void **ctx)
 {
     const char *cases[][2] = {
         {"test.kct", "test"},
@@ -21,7 +21,7 @@ void test_kerncalc_fn2sn(void **ctx)
     for (size_t i = 0; i < ntest; i++) {
         const char *fname = cases[i][0];
         const char *expect = cases[i][1];
-        char *got = kerncalc_filename_to_samplename(fname);
+        char *got = distcalc_filename_to_samplename(fname);
         assert_string_equal(got, expect);
         free(got);
     }
@@ -64,7 +64,7 @@ void test_kernmatrix_ij_condensed(void **ctx)
 *                                    Suite                                    *
 *******************************************************************************/
 
-static const struct CMUnitTest suite_kernelcalc[] = {
-    cmocka_unit_test(test_kerncalc_fn2sn),
+static const struct CMUnitTest suite_distcalc[] = {
+    cmocka_unit_test(test_distcalc_fn2sn),
     cmocka_unit_test(test_kernmatrix_ij_condensed),
 };

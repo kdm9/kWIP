@@ -16,10 +16,9 @@
 #include "kwip_utils.h"
 
 #include "kwip_kmercount.h"
-#include "kwip_kernelcalc.h"
-#include "kwip_omp_kernel.h"
-#include "kwip_metric_ip.h"
-#include "kwip_metric_manhattan.h"
+#include "kwip_distcalc.h"
+#include "kwip_omp_dist.h"
+#include "kwip_metrics.h"
 
 
 /*******************************************************************************
@@ -145,24 +144,24 @@ int count_main(int argc, char *argv[])
 
 
 /*******************************************************************************
-*                                    kernel                                    *
+*                                    dist                                    *
 *******************************************************************************/
 
-static void kernel_help(FILE *stream)
+static void dist_help(FILE *stream)
 {
     fprintf(stream, "USAGE:\n");
-    fprintf(stream, "    kwip kernel [options] COUNT_FILE ...\n");
+    fprintf(stream, "    kwip dist [options] COUNT_FILE ...\n");
     fprintf(stream, "\n");
     fprintf(stream, "OPTIONS:\n");
-    fprintf(stream, "    -m, --metric   Metric for kernel calculation. Must be one of\n");
+    fprintf(stream, "    -m, --metric   Metric for distance calculation. Must be one of\n");
     fprintf(stream, "                   wip, ip or manhattan. [default: ip]\n"); //TODO: change to wip
     fprintf(stream, "    -d, --outdir   Output directory (REQUIRED) \n");
     fprintf(stream, "    -v, --verbose  Be verbose (default)\n");
     fprintf(stream, "    -q, --quiet    Be quiet\n");
 }
 
-static const char kernel_optstring[] = "m:o:t:vqh";
-static const struct option kernel_options[] = {
+static const char dist_optstring[] = "m:o:t:vqh";
+static const struct option dist_options[] = {
     {"threads" , required_argument , NULL , 't'},
     {"metric"  , required_argument , NULL , 'm'},
     {"outdir"  , required_argument , NULL , 'o'},
@@ -172,10 +171,10 @@ static const struct option kernel_options[] = {
     {NULL      , 0                 , NULL , 0}
 };
 
-int kernel_main(int argc, char *argv[])
+int dist_main(int argc, char *argv[])
 {
     char *metric = strdup("ip");
-    char *outdir = strdup("kernel_out");
+    char *outdir = strdup("dist_out");
     int threads = 1;
     int retval = 0;
     clg_logger_t *log = clg_logger_create();
@@ -184,7 +183,7 @@ int kernel_main(int argc, char *argv[])
     int c = 0;
     while (1) {
         int option_index = 0;
-        c = getopt_long(argc, argv, kernel_optstring, kernel_options, &option_index);
+        c = getopt_long(argc, argv, dist_optstring, dist_options, &option_index);
         if (c < 0) break;
 
         switch(c) {
@@ -204,12 +203,12 @@ int kernel_main(int argc, char *argv[])
                 clg_logger_set_level(log, CLG_LOG_INFO);
                 break;
             case 'h':
-                kernel_help(stdout);
+                dist_help(stdout);
                 retval = 0; goto exit;
             case '?':
                 break;
             default:
-                kernel_help(stderr);
+                dist_help(stderr);
                 retval = -1; goto exit;
         }
     }
@@ -227,33 +226,31 @@ int kernel_main(int argc, char *argv[])
         clg_log_msg_error(log,
                 "ERROR: must provide at least two sketch files to compare\n\n");
 
-        kernel_help(stderr);
+        dist_help(stderr);
         retval = -1; goto exit;
     }
 
-    kwip_kerncalc_t ctx;
-    res = kerncalc_init(&ctx);
+    kwip_distcalc_t ctx;
+    res = distcalc_init(&ctx);
     if (res != 0) {
-        clg_log_msg_error(log, "ERROR: Could not initialise kernel calculator.\n");
+        clg_log_msg_error(log, "ERROR: Could not initialise distance calculator.\n");
         retval = -1; goto exit;
     }
 
-    res = -2;
     if (strcasecmp(metric, "ip") == 0) {
-        res = kerncalc_set_kernelfunction(&ctx, metric_ip_kernel);
+        res = distcalc_set_distfunction(&ctx, metric_ip_dist);
     } else if (strcasecmp(metric, "manhattan") == 0) {
-        res = kerncalc_set_kernelfunction(&ctx, metric_manhattan_kernel);
-    }
-    if (res == -2) {
-        clg_log_fmt_error(log, "ERROR: Unknown metric '%s'\n", metric);
+        res = distcalc_set_distfunction(&ctx, metric_manhattan_dist);
+    } else {
+        clg_log_fmt_error(log, "ERROR: Unknown distance metric '%s'\n", metric);
         retval = -1; goto exit;
     }
     if (res != 0) {
-            clg_log_msg_error(log, "ERROR: Can't set kernel function.\n");
+        clg_log_msg_error(log, "ERROR: Can't set distance metric.\n");
         retval = -1; goto exit;
     }
 
-    res = kerncalc_set_checkpoint_dir(&ctx, outdir);
+    res = distcalc_set_checkpoint_dir(&ctx, outdir);
     if (res != 0) {
         clg_log_msg_error(log, "ERROR: Can't set output directory.\n");
         retval = -1; goto exit;
@@ -262,35 +259,35 @@ int kernel_main(int argc, char *argv[])
 
 
     for (; optind < argc; optind++) {
-        res = kerncalc_add_sample(&ctx, argv[optind], NULL);
+        res = distcalc_add_sample(&ctx, argv[optind], NULL);
         if (res != 0) {
             clg_log_fmt_error(log, "ERROR: Failed to add sample '%s'.\n", argv[optind]);
             retval = -1; goto exit;
         }
     }
-    res = kerncalc_finalise(&ctx, NULL, NULL);
+    res = distcalc_finalise(&ctx, NULL, NULL);
     if (res != 0) {
-        clg_log_msg_error(log, "ERROR: Failed to finalise kernel calculator.\n");
+        clg_log_msg_error(log, "ERROR: Failed to finalise distance calculator.\n");
         retval = -1; goto exit;
     }
 
     clg_log_fmt_info(log, "Starting pairwise similiarity calculation using %d threads\n",
                      threads);
-    res = kerncalc_pairwise_omp(&ctx, log, threads);
+    res = distcalc_pairwise_omp(&ctx, log, threads);
     if (res != 0) {
         clg_log_msg_error(log, "ERROR: Pairwise comparison failed.\n");
         retval = -1; goto exit;
     }
     clg_log_msg_info(log, "Completed pairwise similiarity calculation\n");
 
-    res = kerncalc_save(&ctx);
+    res = distcalc_save(&ctx);
     if (res != 0) {
-        clg_log_msg_error(log, "ERROR: saving kernel values failed\n");
+        clg_log_msg_error(log, "ERROR: saving distances failed\n");
         retval = -1; goto exit;
     }
 
 exit:
-    kerncalc_destroy(&ctx);
+    distcalc_destroy(&ctx);
     clg_logger_destroy(log);
     kwip_free(outdir);
     kwip_free(metric);
@@ -309,8 +306,8 @@ void global_help(FILE *stream)
     fprintf(stream, "    kwip SUBCOMMAND [options]\n");
     fprintf(stream, "\n");
     fprintf(stream, "Where subcommand is one of:\n\n");
-    fprintf(stream, "  count:     Count kmers into sketches\n");
-    fprintf(stream, "  kernel:    Calculate pairwise similarity between sketches\n");
+    fprintf(stream, "  count:   Count kmers into sketches\n");
+    fprintf(stream, "  dist:    Calculate pairwise similarity between sketches\n");
     fprintf(stream, "\n");
     fprintf(stream, "To obtain help for a subcommand, use \"kwip SUBCOMMAND --help\"\n");
 }
@@ -333,8 +330,8 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[1], "count") == 0) {
         return count_main(argc - 1, argv + 1);
-    } else if (strcmp(argv[1], "kernel") == 0) {
-        return kernel_main(argc - 1, argv + 1);
+    } else if (strcmp(argv[1], "dist") == 0) {
+        return dist_main(argc - 1, argv + 1);
     } else {
         global_help(stderr);
         return EXIT_FAILURE;

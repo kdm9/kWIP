@@ -1,4 +1,4 @@
-#include "kwip_kernelcalc.h"
+#include "kwip_distcalc.h"
 
 #include "kwip_array.h"
 #include "kwip_kmercount.h"
@@ -8,7 +8,7 @@
 #include <assert.h>
 
 int
-kerncalc_init(kwip_kerncalc_t *ctx)
+distcalc_init(kwip_distcalc_t *ctx)
 {
     if (ctx == NULL) return -1;
     memset(ctx, 0, sizeof(*ctx));
@@ -16,7 +16,7 @@ kerncalc_init(kwip_kerncalc_t *ctx)
 }
 
 void
-kerncalc_destroy(kwip_kerncalc_t *ctx)
+distcalc_destroy(kwip_distcalc_t *ctx)
 {
     if (ctx == NULL) return;
     for (size_t i = 0; i < ctx->num_samples; i++) {
@@ -26,13 +26,13 @@ kerncalc_destroy(kwip_kerncalc_t *ctx)
     kwip_free(ctx->files);
     kwip_free(ctx->samplenames);
     kwip_free(ctx->checkpoint_dir);
-    kwip_free(ctx->kernelvalues);
-    kwip_free(ctx->havekernel);
+    kwip_free(ctx->distvalues);
+    kwip_free(ctx->havedist);
 }
 
 
 char *
-kerncalc_filename_to_samplename(const char *filename) {
+distcalc_filename_to_samplename(const char *filename) {
     if (filename == NULL) return NULL;
     const char *start = strrchr(filename, '/');
     if (start == NULL) {
@@ -57,7 +57,7 @@ kerncalc_filename_to_samplename(const char *filename) {
 }
 
 int
-kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samplename)
+distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samplename)
 {
     if (ctx == NULL || filename == NULL) return -1;
 
@@ -81,7 +81,7 @@ kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samp
     if (samplename != NULL) {
         ctx->samplenames[ctx->num_samples] = strdup(samplename);
     } else {
-        ctx->samplenames[ctx->num_samples] = kerncalc_filename_to_samplename(filename);
+        ctx->samplenames[ctx->num_samples] = distcalc_filename_to_samplename(filename);
     }
     if (ctx->samplenames[ctx->num_samples] == NULL) return -1;
         
@@ -89,7 +89,7 @@ kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samp
     return 0;
 }
 
-int kerncalc_set_kernelfunction(kwip_kerncalc_t *ctx, kwip_kern_fn_t kernfunc)
+int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t kernfunc)
 {
     if (ctx == NULL) return -1;
 
@@ -97,7 +97,7 @@ int kerncalc_set_kernelfunction(kwip_kerncalc_t *ctx, kwip_kern_fn_t kernfunc)
     return 0;
 }
 
-int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir)
+int distcalc_set_checkpoint_dir(kwip_distcalc_t *ctx, const char *dir)
 {
     if (ctx == NULL) return -1;
 
@@ -105,8 +105,8 @@ int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir)
     return 0;
 }
 
-// call finalise after adding samples, before calling kerncalc_pairwise
-int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc,
+// call finalise after adding samples, before calling distcalc_pairwise
+int distcalc_finalise(kwip_distcalc_t *ctx, kwip_distcalc_finalise_fn_t prepfunc,
                       void *prepfunc_extra)
 {
     if (ctx == NULL) return -1;
@@ -117,10 +117,10 @@ int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc
     if (n_samp < 2) return -1;
 
     uint64_t n_compares = n_samp * (n_samp + 1) / 2; // Binomial coeff., including diagonal
-    ctx->kernelvalues = calloc(n_compares, sizeof(*ctx->kernelvalues));
-    if (ctx->kernelvalues == NULL) return -1;
-    ctx->havekernel = calloc(n_compares, sizeof(*ctx->havekernel));
-    if (ctx->havekernel == NULL) return -1;
+    ctx->distvalues = calloc(n_compares, sizeof(*ctx->distvalues));
+    if (ctx->distvalues == NULL) return -1;
+    ctx->havedist = calloc(n_compares, sizeof(*ctx->havedist));
+    if (ctx->havedist == NULL) return -1;
     ctx->num_compares = n_compares;
     if (prepfunc != NULL) {
         int ret = prepfunc(ctx, prepfunc_extra);
@@ -133,7 +133,7 @@ int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc
 }
 
 
-int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx)
+int distcalc_compute_dist(kwip_distcalc_t *ctx, size_t idx)
 {
     if (ctx == NULL || ! ctx->have_finalised) return -1;
 
@@ -148,36 +148,36 @@ int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx)
 
     const char *Afile = ctx->files[row];
     const char *Bfile = ctx->files[col];
-    res = ctx->kernfunc(&ctx->kernelvalues[idx], Afile, Bfile, ctx->extra);
+    res = ctx->kernfunc(&ctx->distvalues[idx], Afile, Bfile, ctx->extra);
     if (res != 0) return res;
-    ctx->havekernel[idx] = true;
+    ctx->havedist[idx] = true;
 
     return 0;
 }
 
-int kerncalc_save(kwip_kerncalc_t *ctx)
+int distcalc_save(kwip_distcalc_t *ctx)
 {
     if (ctx == NULL || ctx->checkpoint_dir == NULL) return -1;
 
     char filename[4096] = "";
     int res = 0;
 
-    res = snprintf(filename, 4096, "%s/kernellog.tab", ctx->checkpoint_dir);
+    res = snprintf(filename, 4096, "%s/distlog.tab", ctx->checkpoint_dir);
     if (res >= 4096 || res < 0) return -1;
 
     FILE *fp = fopen(filename, "w");
     if (fp == NULL) return -1;
 
-    fprintf(fp, "# Kernel values generated with kWIP version %s\n", KWIP_VERSION);
+    fprintf(fp, "# dist values generated with kWIP version %s\n", KWIP_VERSION);
     for (size_t i = 0; i < ctx->num_compares; i++) {
         size_t row, col;
         // Get row and col into distance matrix from the comparison index.
         res = kernmatrix_condensed_to_ij(&row, &col, i);
         if (res != 0) return -1;
 
-        if (ctx->havekernel[i]) {
+        if (ctx->havedist[i]) {
             fprintf(fp, "%s\t%s\t%zu\t%0.17g\n", ctx->samplenames[row],
-                    ctx->samplenames[col], i, ctx->kernelvalues[i]);
+                    ctx->samplenames[col], i, ctx->distvalues[i]);
         }
     }
     fclose(fp);

@@ -24,12 +24,12 @@ INCLUDE_DIRECTORIES(SYSTEM
 
 SET(KWIP_SRCS
     kwip_array.c
-    kwip_kernelcalc.c
+    kwip_distcalc.c
     kwip_kmercount.c
     kwip_kmerhash.c
     kwip_metric_ip.c
     kwip_metric_manhattan.c
-    kwip_omp_kernel.c
+    kwip_omp_dist.c
     kwip_utils.c
 )
 

@@ -1,14 +1,14 @@
-#include "kwip_omp_kernel.h"
+#include "kwip_omp_dist.h"
 
 int
-kerncalc_pairwise_omp(kwip_kerncalc_t *ctx, clg_logger_t *log, int nthreads)
+distcalc_pairwise_omp(kwip_distcalc_t *ctx, clg_logger_t *log, int nthreads)
 {
     if (ctx == NULL || ! ctx->have_finalised) return -1;
     int res = 0;
 
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(ctx, res)
     for (size_t idx = 0; idx < ctx->num_compares; idx++) {
-        int tl_res = kerncalc_compute_kernel(ctx, idx);
+        int tl_res = distcalc_compute_dist(ctx, idx);
 
         if (tl_res != 0) {
             #pragma omp critical

@@ -9,7 +9,7 @@
 #include <math.h>
 
 
-typedef int (*kwip_kern_fn_t)(double *outp, const char *file1,
+typedef int (*kwip_dist_fn_t)(double *outp, const char *file1,
                               const char *file2, void *extra);
 
 typedef struct {
@@ -25,36 +25,36 @@ typedef struct {
 
     size_t num_compares;
     // vectors of length num_compares (n * (n+1)/2), condensed pairwise matrix
-    double *kernelvalues;
-    bool *havekernel;
+    double *distvalues;
+    bool *havedist;
 
-    kwip_kern_fn_t kernfunc;
-} kwip_kerncalc_t;
+    kwip_dist_fn_t kernfunc;
+} kwip_distcalc_t;
 
-typedef int (*kwip_kerncalc_finalise_fn_t)(kwip_kerncalc_t *ctx, void *extra);
+typedef int (*kwip_distcalc_finalise_fn_t)(kwip_distcalc_t *ctx, void *extra);
 
 
 // set num_samples to 0 if unknown
-int kerncalc_init(kwip_kerncalc_t *ctx);
-int kerncalc_add_sample(kwip_kerncalc_t *ctx, const char *filename, const char *samplename);
-// call finalise after adding samples, before calling kerncalc_pairwise
-int kerncalc_set_kernelfunction(kwip_kerncalc_t *ctx, kwip_kern_fn_t kernfunc);
+int distcalc_init(kwip_distcalc_t *ctx);
+int distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samplename);
+// call finalise after adding samples, before calling distcalc_pairwise
+int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t kernfunc);
 
-int kerncalc_set_checkpoint_dir(kwip_kerncalc_t *ctx, const char *dir);
+int distcalc_set_checkpoint_dir(kwip_distcalc_t *ctx, const char *dir);
 
-int kerncalc_finalise(kwip_kerncalc_t *ctx, kwip_kerncalc_finalise_fn_t prepfunc, void *prepfunc_extra);
+int distcalc_finalise(kwip_distcalc_t *ctx, kwip_distcalc_finalise_fn_t prepfunc, void *prepfunc_extra);
 
 
-// Computes the idx'th kernel value
-int kerncalc_compute_kernel(kwip_kerncalc_t *ctx, size_t idx);
+// Computes the idx'th dist value
+int distcalc_compute_dist(kwip_distcalc_t *ctx, size_t idx);
 
 
 // Checkpointing serialisation
-int kerncalc_save(kwip_kerncalc_t *ctx);
-//int kerncalc_load(kwip_kerncalc_t *ctx, const char *filename);
+int distcalc_save(kwip_distcalc_t *ctx);
+//int distcalc_load(kwip_distcalc_t *ctx, const char *filename);
 
 
-void kerncalc_destroy(kwip_kerncalc_t *ctx);
+void distcalc_destroy(kwip_distcalc_t *ctx);
 
 
 static inline size_t
@@ -83,4 +83,4 @@ kernmatrix_condensed_to_ij(size_t *i, size_t *j, size_t n)
     return 0;
 }
 
-#endif /* end of include guard: KERNELCALC_H_B3ZZENI2 */
+#endif /* end of include guard: distCALC_H_B3ZZENI2 */

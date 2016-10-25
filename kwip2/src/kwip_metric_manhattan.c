@@ -1,8 +1,8 @@
-#include "kwip_metric_manhattan.h"
+#include "kwip_metrics.h"
 #include <stdlib.h>
 
 int
-metric_manhattan_kernel(double *outp, const char *file1, const char *file2, void *extra)
+metric_manhattan_dist(double *outp, const char *file1, const char *file2, void *extra)
 {
     if (outp == NULL || file1 == NULL || file2 == NULL) return -1;
     (void) extra;
