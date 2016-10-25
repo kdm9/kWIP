@@ -89,11 +89,11 @@ distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samp
     return 0;
 }
 
-int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t kernfunc)
+int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t distfunc)
 {
     if (ctx == NULL) return -1;
 
-    ctx->kernfunc = kernfunc;
+    ctx->distfunc = distfunc;
     return 0;
 }
 
@@ -111,7 +111,7 @@ int distcalc_finalise(kwip_distcalc_t *ctx, kwip_distcalc_finalise_fn_t prepfunc
 {
     if (ctx == NULL) return -1;
 
-    if (ctx->kernfunc == NULL) return -1;
+    if (ctx->distfunc == NULL) return -1;
 
     uint64_t n_samp = ctx->num_samples;
     if (n_samp < 2) return -1;
@@ -141,14 +141,14 @@ int distcalc_compute_dist(kwip_distcalc_t *ctx, size_t idx)
     size_t row, col;
 
     // Get row and col into distance matrix from the comparison index.
-    res = kernmatrix_condensed_to_ij(&row, &col, idx);
+    res = distmatrix_condensed_to_ij(&row, &col, idx);
     if (res != 0) return res;
 
     if (row > ctx->num_samples || col > ctx->num_samples) return -1;
 
     const char *Afile = ctx->files[row];
     const char *Bfile = ctx->files[col];
-    res = ctx->kernfunc(&ctx->distvalues[idx], Afile, Bfile, ctx->extra);
+    res = ctx->distfunc(&ctx->distvalues[idx], Afile, Bfile, ctx->extra);
     if (res != 0) return res;
     ctx->havedist[idx] = true;
 
@@ -172,7 +172,7 @@ int distcalc_save(kwip_distcalc_t *ctx)
     for (size_t i = 0; i < ctx->num_compares; i++) {
         size_t row, col;
         // Get row and col into distance matrix from the comparison index.
-        res = kernmatrix_condensed_to_ij(&row, &col, i);
+        res = distmatrix_condensed_to_ij(&row, &col, i);
         if (res != 0) return -1;
 
         if (ctx->havedist[i]) {

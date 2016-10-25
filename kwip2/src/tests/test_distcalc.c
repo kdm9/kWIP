@@ -27,7 +27,7 @@ void test_distcalc_fn2sn(void **ctx)
     }
 }
 
-void test_kernmatrix_ij_condensed(void **ctx)
+void test_distmatrix_ij_condensed(void **ctx)
 {
     const int8_t matrix[6][6] = {
         {0 ,1 ,3 ,6 ,10,15},
@@ -41,7 +41,7 @@ void test_kernmatrix_ij_condensed(void **ctx)
 
     for (size_t i = 0; i < N; i++) {
         for (size_t j = 0; j < N; j++) {
-            size_t n = kernmatrix_ij_to_condensed(i, j);
+            size_t n = distmatrix_ij_to_condensed(i, j);
             assert_int_equal(n, matrix[i][j]);
         }
     }
@@ -49,10 +49,10 @@ void test_kernmatrix_ij_condensed(void **ctx)
     for (size_t i = 0; i < 100; i++) {
         for (size_t j = 0; j < 100; j++) {
             if (i < j) continue; // Lower triangular matrix
-            size_t n = kernmatrix_ij_to_condensed(i, j);
+            size_t n = distmatrix_ij_to_condensed(i, j);
             size_t i_, j_;
             int ret = 0;
-            ret = kernmatrix_condensed_to_ij(&i_, &j_, n);
+            ret = distmatrix_condensed_to_ij(&i_, &j_, n);
             assert_int_equal(ret, 0);
             assert_int_equal(i_, i);
             assert_int_equal(j_, j);
@@ -66,5 +66,5 @@ void test_kernmatrix_ij_condensed(void **ctx)
 
 static const struct CMUnitTest suite_distcalc[] = {
     cmocka_unit_test(test_distcalc_fn2sn),
-    cmocka_unit_test(test_kernmatrix_ij_condensed),
+    cmocka_unit_test(test_distmatrix_ij_condensed),
 };

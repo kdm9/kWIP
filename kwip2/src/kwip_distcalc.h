@@ -1,5 +1,5 @@
-#ifndef KERNELCALC_H_B3ZZENI2
-#define KERNELCALC_H_B3ZZENI2
+#ifndef KWIP_DISTCALC_H_WVHJB4BU
+#define KWIP_DISTCALC_H_WVHJB4BU
 
 #include "kwip_config.h"
 #include "kwip_utils.h"
@@ -28,7 +28,7 @@ typedef struct {
     double *distvalues;
     bool *havedist;
 
-    kwip_dist_fn_t kernfunc;
+    kwip_dist_fn_t distfunc;
 } kwip_distcalc_t;
 
 typedef int (*kwip_distcalc_finalise_fn_t)(kwip_distcalc_t *ctx, void *extra);
@@ -38,7 +38,7 @@ typedef int (*kwip_distcalc_finalise_fn_t)(kwip_distcalc_t *ctx, void *extra);
 int distcalc_init(kwip_distcalc_t *ctx);
 int distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samplename);
 // call finalise after adding samples, before calling distcalc_pairwise
-int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t kernfunc);
+int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t distfunc);
 
 int distcalc_set_checkpoint_dir(kwip_distcalc_t *ctx, const char *dir);
 
@@ -58,7 +58,7 @@ void distcalc_destroy(kwip_distcalc_t *ctx);
 
 
 static inline size_t
-kernmatrix_ij_to_condensed(size_t i, size_t j)
+distmatrix_ij_to_condensed(size_t i, size_t j)
 {
     if (i < j) {
         size_t tmp = i;
@@ -70,7 +70,7 @@ kernmatrix_ij_to_condensed(size_t i, size_t j)
 }
 
 static inline int
-kernmatrix_condensed_to_ij(size_t *i, size_t *j, size_t n)
+distmatrix_condensed_to_ij(size_t *i, size_t *j, size_t n)
 {
     if (i == NULL || j == NULL) return -1;
 
@@ -83,4 +83,4 @@ kernmatrix_condensed_to_ij(size_t *i, size_t *j, size_t n)
     return 0;
 }
 
-#endif /* end of include guard: distCALC_H_B3ZZENI2 */
+#endif /* end of include guard: KWIP_DISTCALC_H_WVHJB4BU */
