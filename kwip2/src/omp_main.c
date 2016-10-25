@@ -88,7 +88,7 @@ int count_main(int argc, char *argv[])
         }
     }
 
-    if (sketchsize < 1<<10) {
+    if (sketchsize < 1000000) {
         clg_log_msg_error(log, "ERROR: Sketch size far too small. Increase to at least 1M.\n\n");
         count_help(stderr);
         return EXIT_FAILURE;
