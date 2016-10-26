@@ -88,18 +88,20 @@ int count_main(int argc, char *argv[])
         }
     }
 
+    if (optind >= argc) {
+        clg_log_msg_error(log, "ERROR: must provide Output and Input file names\n\n");
+        count_help(stderr);
+        return EXIT_FAILURE;
+    }
+
     if (sketchsize < 1000000) {
         clg_log_msg_error(log, "ERROR: Sketch size far too small. Increase to at least 1M.\n\n");
         count_help(stderr);
         return EXIT_FAILURE;
     }
+
     if (ksize < 10 || ksize > 32) {
         clg_log_msg_error(log, "ERROR: kmer size must be 10 <= k <= 32.\n\n");
-        count_help(stderr);
-        return EXIT_FAILURE;
-    }
-    if (optind >= argc) {
-        clg_log_msg_error(log, "ERROR: must provide Output and Input file names\n\n");
         count_help(stderr);
         return EXIT_FAILURE;
     }
