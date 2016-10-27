@@ -14,6 +14,7 @@ FILE(GLOB DEP_SRCS
     ext/xxhash.c
     ext/clogged/clogged.c
 )
+set_source_files_properties(${DEP_SRCS} PROPERTIES COMPILE_FLAGS -w)
 
 INCLUDE_DIRECTORIES(SYSTEM
     ext/blosc/blosc
