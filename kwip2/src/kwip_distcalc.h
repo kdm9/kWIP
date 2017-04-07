@@ -25,8 +25,8 @@ typedef struct {
     bool have_finalised;
     void *extra;  // Additional info, e.g. weights
 
+    // vectors of length num_compares (n * (n-1)/2), condensed pairwise matrix
     size_t num_compares;
-    // vectors of length num_compares (n * (n+1)/2), condensed pairwise matrix
     double *distvalues;
     bool *havedist;
 
@@ -65,13 +65,14 @@ void distcalc_destroy(kwip_distcalc_t *ctx);
 static inline size_t
 distmatrix_ij_to_condensed(size_t i, size_t j)
 {
+    if (i == j) return -1;
     if (i < j) {
         size_t tmp = i;
         i = j;
         j = tmp;
     }
 
-    return (i * (i + 1) / 2) + j;
+    return (i * (i - 1) / 2) + j;
 }
 
 static inline int
@@ -79,9 +80,9 @@ distmatrix_condensed_to_ij(size_t *i, size_t *j, size_t n)
 {
     if (i == NULL || j == NULL) return -1;
 
-    // This solves (i * (i+1)/2) = n - j for i
-    size_t i_ = (size_t)(sqrt(8. * n + 1.) - 1.)/2;
-    size_t j_ = n - (i_ * (i_ + 1) / 2);
+    // This solves (i * (i-1)/2) = n - j for i
+    size_t i_ = (size_t)(sqrt(8. * n + 1.) + 1.)/2;
+    size_t j_ = n - (i_ * (i_ - 1) / 2);
     *i = i_;
     *j = j_;
 

@@ -119,7 +119,7 @@ int distcalc_finalise(kwip_distcalc_t *ctx, kwip_distcalc_finalise_fn_t prepfunc
     uint64_t n_samp = ctx->num_samples;
     if (n_samp < 2) return -1;
 
-    uint64_t n_compares = n_samp * (n_samp + 1) / 2; // Binomial coeff., including diagonal
+    uint64_t n_compares = n_samp * (n_samp - 1) / 2; // length of lower triang. matrix
     ctx->distvalues = calloc(n_compares, sizeof(*ctx->distvalues));
     if (ctx->distvalues == NULL) return -1;
     ctx->havedist = calloc(n_compares, sizeof(*ctx->havedist));
