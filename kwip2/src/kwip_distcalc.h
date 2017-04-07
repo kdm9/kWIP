@@ -11,6 +11,8 @@
 
 typedef int (*kwip_dist_fn_t)(double *outp, const char *file1,
                               const char *file2, void *extra);
+typedef int (*kwip_norm_fn_t)(double *outp, const char *file, 
+                              void *extra);
 
 typedef struct {
     size_t num_samples;
@@ -29,16 +31,19 @@ typedef struct {
     bool *havedist;
 
     kwip_dist_fn_t distfunc;
+    kwip_norm_fn_t normfunc;
 } kwip_distcalc_t;
+
 
 typedef int (*kwip_distcalc_finalise_fn_t)(kwip_distcalc_t *ctx, void *extra);
 
 
 // set num_samples to 0 if unknown
 int distcalc_init(kwip_distcalc_t *ctx);
+
+int distcalc_set_metric(kwip_distcalc_t *ctx, kwip_dist_fn_t distfunc, kwip_norm_fn_t normfunc);
+
 int distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samplename);
-// call finalise after adding samples, before calling distcalc_pairwise
-int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t distfunc);
 
 int distcalc_set_checkpoint_dir(kwip_distcalc_t *ctx, const char *dir);
 

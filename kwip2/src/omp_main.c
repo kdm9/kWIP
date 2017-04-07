@@ -239,10 +239,12 @@ int dist_main(int argc, char *argv[])
         retval = -1; goto exit;
     }
 
-    if (strcasecmp(metric, "ip") == 0) {
-        res = distcalc_set_distfunction(&ctx, metric_ip_dist);
-    } else if (strcasecmp(metric, "manhattan") == 0) {
-        res = distcalc_set_distfunction(&ctx, metric_manhattan_dist);
+    if (strcasecmp(metric, "ip") == 0 ||
+            strcasecmp(metric, "l2") == 0) {
+        res = distcalc_set_metric(&ctx, metric_l2_dist, metric_l2_norm);
+    } else if (strcasecmp(metric, "manhattan") == 0 ||
+               strcasecmp(metric, "l1") == 0) {
+        res = distcalc_set_metric(&ctx, metric_l1_dist, metric_l1_norm);
     } else {
         clg_log_fmt_error(log, "ERROR: Unknown distance metric '%s'\n", metric);
         retval = -1; goto exit;

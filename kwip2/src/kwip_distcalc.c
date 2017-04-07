@@ -89,11 +89,14 @@ distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samp
     return 0;
 }
 
-int distcalc_set_distfunction(kwip_distcalc_t *ctx, kwip_dist_fn_t distfunc)
+int distcalc_set_metric(kwip_distcalc_t *ctx,
+                        kwip_dist_fn_t distfunc,
+                        kwip_norm_fn_t normfunc)
 {
     if (ctx == NULL) return -1;
 
     ctx->distfunc = distfunc;
+    ctx->normfunc = normfunc;
     return 0;
 }
 
