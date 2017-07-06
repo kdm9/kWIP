@@ -11,4 +11,12 @@ the chunk. I think this is a good balance between speed and the saftey of
 something like [fsum](https://code.activestate.com/recipes/393090/) or [Kahan
 summation](https://en.wikipedia.org/wiki/Kahan_summation_algorithm)
 
+# Distance calculation is broken
 
+We aren't calculating distances properly. We must fix this.
+
+We will need to calculate the norms first (L1 or L2, or weighted L1/L2), then
+element-wise calculate the normed values before calculating distances
+
+Could also calulate L1 & L2 norms, and write into counts file, as part of
+counting.

@@ -84,7 +84,6 @@ distcalc_add_sample(kwip_distcalc_t *ctx, const char *filename, const char *samp
         ctx->samplenames[ctx->num_samples] = distcalc_filename_to_samplename(filename);
     }
     if (ctx->samplenames[ctx->num_samples] == NULL) return -1;
-        
     ctx->num_samples += 1;
     return 0;
 }
