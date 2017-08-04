@@ -27,11 +27,13 @@ typedef struct {
 
     // vectors of length num_compares (n * (n-1)/2), condensed pairwise matrix
     size_t num_compares;
+    double *normvalues;
+    double *havenorm;
     double *distvalues;
     bool *havedist;
 
-    kwip_dist_fn_t distfunc;
     kwip_norm_fn_t normfunc;
+    kwip_dist_fn_t distfunc;
 } kwip_distcalc_t;
 
 

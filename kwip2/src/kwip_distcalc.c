@@ -123,6 +123,12 @@ int distcalc_finalise(kwip_distcalc_t *ctx, kwip_distcalc_finalise_fn_t prepfunc
     if (ctx->distvalues == NULL) return -1;
     ctx->havedist = calloc(n_compares, sizeof(*ctx->havedist));
     if (ctx->havedist == NULL) return -1;
+
+    ctx->normvalues = calloc(n_samp, sizeof(*ctx->normvalues));
+    if (ctx->normvalues == NULL) return -1;
+    ctx->havenorm = calloc(n_samp, sizeof(*ctx->havenorm));
+    if (ctx->havenorm == NULL) return -1;
+
     ctx->num_compares = n_compares;
     if (prepfunc != NULL) {
         int ret = prepfunc(ctx, prepfunc_extra);

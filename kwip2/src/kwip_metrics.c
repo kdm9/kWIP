@@ -32,8 +32,7 @@ metric_l1_norm(double *outp, const char *file1, void *extra)
         }
         norm += _norm;
     }
-    double normdist = norm / sqrt(norm);
-    *outp = normdist;
+    *outp = norm;
     return 0;
 }
 
@@ -89,7 +88,7 @@ metric_l1_dist(double *outp, const char *file1, const char *file2, void *extra)
         *outp = normdist;
         return 0;
     } else {
-        *outp = 0.0;
+        *outp = -1.0;
         return -1;
     }
 }
@@ -125,8 +124,7 @@ metric_l2_norm(double *outp, const char *file1, void *extra)
         }
         norm += _norm;
     }
-    double normdist = norm / sqrt(norm);
-    *outp = normdist;
+    *outp = norm;
     return 0;
 }
 
@@ -183,7 +181,7 @@ metric_l2_dist(double *outp, const char *file1, const char *file2, void *extra)
         *outp = normdist;
         return 0;
     } else {
-        *outp = 0.0;
+        *outp = -1.0;
         return -1;
     }
 }
