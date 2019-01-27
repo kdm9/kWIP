@@ -46,5 +46,4 @@ License version 3 (or any later version).
 Publication
 ===========
 
-A publication describing kWIP has been [submitted to
-PLOS Computational Biology](http://biorxiv.org/content/early/2016/10/04/075481).
+A publication describing kWIP has been [published in PLOS Computational Biology](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005727)
