@@ -25,6 +25,12 @@ from os import path
 from sys import stderr, stdout
 from multiprocessing import Pool
 from functools import partial
+import argparse
+from argparse import (
+    ArgumentParser,
+    RawDescriptionHelpFormatter as RawFormatter,
+)
+from textwrap import dedent
 
 from .arrayio import (
     read_array,
@@ -56,6 +62,43 @@ from .utils import (
     print_lsmat,
 )
 
+
+
+def count_args():
+    desc = dedent("""\
+    Counts k-mers into individual count vectors, parallelised using MPI.""")
+    epilog = dedent('''\
+    Will use about 6 * CVLEN bytes of RAM per file (or 2x with --no-cms).
+
+    An optional pre-counting command for e.g. QC or SRA dumping can be given
+    with `-p`. The pre-command can be a shell pipeline combining the effects of
+    multiple programs. Interleaved or single ended reads must be printed on
+    stdout by the command(s). The pre-command uses the find/xargs/GNU Parallel
+    convention of using a pair of '{}' to mark where the filename should be
+    placed. Examples of a pre-command include:
+
+        --precmd 'fastq-dump --split-spot --stdout {}'
+        --precmd 'zcat {} | trimit'
+    ''')
+
+    parser = ArgumentParser(description=desc, epilog=epilog,
+                            formatter_class=RawFormatter)
+
+    parser.add_argument(
+        '-k', '--ksize', type=int, default=20,
+        help='K-mer length')
+    parser.add_argument(
+        '-v', '--cvsize', type=float, default=5e8,
+        help='Count vector length')
+    parser.add_argument(
+        '-p', '--precmd', required=False,
+        help='Shell pipeline to run on input files before hashing')
+    parser.add_argument(
+        '--no-cms', action='store_false', dest='use_cms',
+        help='Disable the CMS counter, use only a count vector')
+    parser.add_argument('outfile', help='Output file/directory')
+    parser.add_argument('readfiles', nargs='+', help='Read files')
+    return parser
 
 def count_main():
     parser = cliargs.count_args()

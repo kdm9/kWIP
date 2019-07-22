@@ -16,6 +16,7 @@
 from __future__ import print_function, division
 
 import numpy as np
+from fastqandfurious import fastqandfurious as fqf, _fastqandfurious as _fqf
 
 from glob import glob
 import itertools as itl
@@ -31,11 +32,6 @@ from .arrayio import (
     write_array,
     iter_blocks,
 )
-from .fastx import FastxReader
-from .internals import (
-    wipkernel,
-)
-from .kernelmath import is_psd
 from .logging import (
     info,
     warn,
@@ -134,10 +130,10 @@ def rmmkdir(directory):
             rmtree(directory)
     except OSError:
         pass
-    os.mkdir(directory)
+    mkdir(directory)
 
 
-def parse_reads(filename, precmd=None):
+def chunked_fastq_iterator(filename, precmd=None):
     if precmd is not None:
         cmd = precmd.format(' "{}"'.format(filename))
         with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
@@ -163,61 +159,4 @@ def count_reads(counter, readfiles, precmd=None, interval=50000):
                                ". The error was:\n\t", str(exc))
 
 
-def calc_kernel(weightsfile, ab):
-    afile, bfile = ab
-    abase = path.basename(afile)
-    bbase = path.basename(bfile)
 
-    A = iter_blocks(afile, name='counts')
-    B = iter_blocks(bfile, name='counts')
-    W = iter_blocks(weightsfile, name='weights')
-
-    kernel = 0.0
-
-    # A/B/W all are generators returning a tuple of (i, block) where i is the
-    # index in the big array of block[0].
-    # Hence, ai == a's i, aa = a's array and so on.
-    for (ai, aa), (bi, ba), (wi, wa) in zip(A, B, W):
-        assert ai == bi == wi
-        kernel += wipkernel(aa, ba, wa, aa.shape[0])
-    return abase, bbase, kernel
-
-
-def read_kernlog(outdir):
-    kernlines = []
-    kernlogs = glob(path.join(outdir, 'kernellog*'))
-    for kfn in kernlogs:
-        with open(kfn) as fh:
-            kernlines.extend(fh.readlines())
-    kernels = {}
-    for line in kernlines:
-        a, b, k = line.strip().split()
-        kernels[(a, b)] = float(k)
-    return kernels
-
-
-def kernlog_to_kernmatrix(kernels_raw, namere):
-    kernels = {}
-    samples = set()
-    for (a, b), kern in kernels_raw.items():
-        a = file_to_name(a, namere)
-        b = file_to_name(b, namere)
-        samples.add(a)
-        samples.add(b)
-        try:
-            kernels[a][b] = kern
-        except KeyError:
-            kernels[a] = {b: kern}
-
-    # Make an ordered array
-    num_samples = len(samples)
-    kernmat = np.zeros((num_samples, num_samples), dtype=float)
-    samples = list(sorted(samples))
-    sample_idx = {s: i for i, s in enumerate(samples)}
-    # square up the dictionary
-    for a, b in itl.combinations_with_replacement(samples, 2):
-        ai = sample_idx[a]
-        bi = sample_idx[b]
-        kernmat[ai, bi] = kernels[a][b]
-        kernmat[bi, ai] = kernels[a][b]
-    return samples, kernmat

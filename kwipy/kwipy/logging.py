@@ -15,18 +15,20 @@
 
 from __future__ import print_function, division, absolute_import
 
-
 from sys import stdout, stderr
+
+__all__ = ['progress', 'info', 'warn', 'error']
 
 
 class MockTerm(object):
     def __getattr__(self, key):
         return ""
 
+
 try:
     from blessings import Terminal
     term = Terminal()
-except:
+except Exception as exc:
     term = MockTerm()
 
 

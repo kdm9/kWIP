@@ -17,9 +17,9 @@ from __future__ import print_function, division
 
 import pytest
 import numpy as np
-from kwipy.counter import (
+from kwipy._counter import (
     iter_kmers,
-    Counter
+    KmerCounter,
 )
 
 # de Bruijn DNA sequences of k={2,3}, i.e. contain all 2/3-mers once
@@ -79,7 +79,7 @@ def test_iter_kmers_err():
 def test_counter_behaviour():
     '''Basic test of counting'''
     k = 3
-    ctr = Counter(k=k, cvsize=1e5)
+    ctr = KmerCounter(k=k, cvsize=1e5)
     ctr.consume(K3_DBS)
     for i in range(4**k):
         assert ctr.get(i) >= 1
@@ -93,7 +93,7 @@ def test_counter_behaviour():
 def test_counter_nocms():
     '''Basic test of counting *without* a CMS'''
     k = 3
-    ctr = Counter(k=k, cvsize=10, use_cms=False)
+    ctr = KmerCounter(k=k, cvsize=10, use_cms=False)
     ctr.consume(K3_DBS)
 
     # The sum of the CV **IS* the number of k-mers here, as the CMS is not used.

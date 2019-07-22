@@ -56,37 +56,27 @@ setup(
     name="kwipy",
     packages=['kwipy', ],
     version=versioneer.get_version(),
-    entry_points={
-        'console_scripts': [
-            'kwipy-count = kwipy.scripts:count_main',
-            'kwipy-weight = kwipy.scripts:weight_main',
-            'kwipy-kernel = kwipy.scripts:kernel_main',
-            'kwipy-distmat = kwipy.scripts:distmat_main',
-            'kwipy-kernel-mpi = kwipy.mpiui:kernel_mpi_main [mpi]',
-            'kwipy-count-mpi = kwipy.mpiui:count_mpi_main [mpi]',
-            'kwipy-weight-mpi = kwipy.mpiui:weight_mpi_main [mpi]',
-        ],
-    },
-    extras_require={
-        "mpi": ["mpi4py", ],
-    },
+    # entry_points={
+    #     'console_scripts': [
+    #         'kwipy-count = kwipy.scripts:count_main',
+    #         'kwipy-weight = kwipy.scripts:weight_main',
+    #         'kwipy-kernel = kwipy.scripts:kernel_main',
+    #         'kwipy-distmat = kwipy.scripts:distmat_main',
+    #         'kwipy-kernel-mpi = kwipy.mpiui:kernel_mpi_main [mpi]',
+    #         'kwipy-count-mpi = kwipy.mpiui:count_mpi_main [mpi]',
+    #         'kwipy-weight-mpi = kwipy.mpiui:weight_mpi_main [mpi]',
+    #     ],
+    # },
+    # extras_require={
+    #     "mpi": ["mpi4py", ],
+    # },
     ext_modules=cythonize([
         Extension(
-            'kwipy.counter',
-            ['kwipy/counter.{}'.format(EXT), ],
+            'kwipy._counter',
+            ['kwipy/_counter.{}'.format(EXT), ],
             include_dirs=[numpy.get_include(), ],
             extra_compile_args=compilerargs,
-        ),
-        # Extension(
-        #     'kwipy._fastx',
-        #     ['kwipy/_fastx.{}'.format(EXT), ],
-        #     extra_compile_args=compilerargs,
-        # ),
-        Extension(
-            'kwipy.internals',
-            ['kwipy/internals.{}'.format(EXT), ],
-            include_dirs=[numpy.get_include(), ],
-            extra_compile_args=compilerargs,
+            language="c++",
         ),
     ]),
     cmdclass=command_classes,
@@ -95,7 +85,7 @@ setup(
     setup_requires=setup_requires,
     description=desc,
     author="Kevin Murray",
-    author_email="spam@kdmurray.id.au",
+    author_email="kdmfoss@gmail.com",
     url="https://github.com/kdmurray91/kwip",
     keywords=[
         "bioinformatics",
