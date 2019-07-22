@@ -23,7 +23,7 @@ import itertools as itl
 def is_psd(matrix):
     '''Test if ``matrix`` is posititve semi-definite.'''
     v, w = linalg.eig(matrix)
-    return (v >= 0.0).all()
+    return (v >= -1e-6).all()
 
 
 def normalise_kernel(K):

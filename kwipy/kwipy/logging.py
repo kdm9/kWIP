@@ -15,10 +15,8 @@
 
 from __future__ import print_function, division, absolute_import
 
-from blessings import Terminal
 
 from sys import stdout, stderr
-
 
 
 class MockTerm(object):
@@ -26,6 +24,7 @@ class MockTerm(object):
         return ""
 
 try:
+    from blessings import Terminal
     term = Terminal()
 except:
     term = MockTerm()
