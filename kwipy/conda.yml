@@ -1,0 +1,13 @@
+name: kwipy
+channels:
+    - bioconda
+    - conda-forge
+dependencies:
+    - python=3.*
+    - scipy
+    - numpy
+    - cython
+    - zarr
+    - zict
+    - lmdb
+    - click

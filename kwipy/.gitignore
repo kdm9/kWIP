@@ -1,7 +1,4 @@
 *.bak
-*.yaml
-*.yml
-!.travis.yml
 *.swp
 
 # Python junk
