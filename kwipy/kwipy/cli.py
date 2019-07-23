@@ -15,7 +15,6 @@
 
 from __future__ import print_function, division, absolute_import
 
-from docopt import docopt
 import numpy as np
 
 import itertools as itl
@@ -32,95 +31,76 @@ from argparse import (
 )
 from textwrap import dedent
 
-from .arrayio import (
-    read_array,
-    write_array,
-    iter_blocks,
-)
-from . import cliargs
-from .counter import Counter
-from .kernelmath import (
-    normalise_kernel,
-    kernel_to_distance,
-)
-from .internals import (
-    popfreq_add_sample,
-    popfreq_to_weights
-)
-from .logging import (
-    info,
-    warn,
-)
-from .utils import (
-    calc_kernel,
-    check_psd,
-    count_reads,
-    file_to_name,
-    kernlog_to_kernmatrix,
-    mkdir,
-    read_kernlog,
-    print_lsmat,
-)
+from kmkm import KmerCollection, KmerCounter
+from .logging import *
 
 
 
-def count_args():
-    desc = dedent("""\
-    Counts k-mers into individual count vectors, parallelised using MPI.""")
-    epilog = dedent('''\
+
+def count_main():
+    desc = "Counts k-mers into an aggregated kmer count matrix."
+    epilog = dedent("""\
     Will use about 6 * CVLEN bytes of RAM per file (or 2x with --no-cms).
+    """)
+    #An optional pre-counting command for e.g. QC or SRA dumping can be given
+    #with `-p`. The pre-command can be a shell pipeline combining the effects of
+    #multiple programs. Interleaved or single ended reads must be printed on
+    #stdout by the command(s). The pre-command uses the find/xargs/GNU Parallel
+    #convention of using a pair of '{}' to mark where the filename should be
+    #placed. Examples of a pre-command include:
 
-    An optional pre-counting command for e.g. QC or SRA dumping can be given
-    with `-p`. The pre-command can be a shell pipeline combining the effects of
-    multiple programs. Interleaved or single ended reads must be printed on
-    stdout by the command(s). The pre-command uses the find/xargs/GNU Parallel
-    convention of using a pair of '{}' to mark where the filename should be
-    placed. Examples of a pre-command include:
+    #    --precmd 'fastq-dump --split-spot --stdout {}'
+    #    --precmd 'zcat {} | trimit'
 
-        --precmd 'fastq-dump --split-spot --stdout {}'
-        --precmd 'zcat {} | trimit'
-    ''')
 
     parser = ArgumentParser(description=desc, epilog=epilog,
                             formatter_class=RawFormatter)
-
     parser.add_argument(
-        '-k', '--ksize', type=int, default=20,
+        '-k', '--ksize', type=int, default=21,
         help='K-mer length')
     parser.add_argument(
         '-v', '--cvsize', type=float, default=5e8,
         help='Count vector length')
     parser.add_argument(
-        '-p', '--precmd', required=False,
-        help='Shell pipeline to run on input files before hashing')
+        '-j', '--jobs', default=1, type=int,
+        help='Number of parallel jobs')
+    #parser.add_argument(
+    #    '-p', '--precmd', required=False,
+    #    help='Shell pipeline to run on input files before hashing')
     parser.add_argument(
         '--no-cms', action='store_false', dest='use_cms',
         help='Disable the CMS counter, use only a count vector')
     parser.add_argument('outfile', help='Output file/directory')
     parser.add_argument('readfiles', nargs='+', help='Read files')
-    return parser
-
-def count_main():
-    parser = cliargs.count_args()
     args = parser.parse_args()
 
-    mkdir(path.dirname(args.outfile))
-    counter = Counter(k=args.ksize, cvsize=args.cvsize, use_cms=args.use_cms)
-    try:
-        count_reads(counter, args.readfiles, precmd=args.precmd)
-        info("Writing counts to", args.outfile)
-        counter.save(args.outfile)
-    except Exception:
-        pass
+    info("Counting sequence files...")
+    #mode = "a" if args.append else "w"
+    mode = "w"
+    tables = 3 if args.use_cms else 0
+    counttable = KmerCollection(
+        args.outfile, mode=mode, ksize=args.ksize, cvsize=args.cvsize,
+        cbf_tables=tables)
+
+
+    if args.jobs > 1:
+        pool = Pool(args.jobs)
+        mapper = pool.imap_unordered
+    else:
+        mapper = map
+
+    def countone(reads):
+        kc = KmerCounter(ksize=args.ksize, cvsize=args.cvsize, cbf_tables=tables)
+        kc.count_file(reads)
+        return reads, kc
+
+    for readfile, kc in mapper(countone, args.readfiles):
+        counttable.add_counter(kc, readfile)
+        progress(readfile, kc.nnz)
+    info("All done!")
 
 
 def weight_main():
-    cli = '''
-    USAGE:
-        kwipy-weight WEIGHTFILE COUNTFILES ...
-    '''
-
-    opts = docopt(cli)
     outfile = opts['WEIGHTFILE']
     countfiles = opts['COUNTFILES']
 

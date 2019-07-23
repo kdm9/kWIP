@@ -1,8 +1,10 @@
+from __future__ import print_function, division, absolute_import
 
 import numpy as np
 from numpy import linalg
 import itertools as itl
-
+import zarr
+import functools
 
 
 def is_psd(matrix):
@@ -31,61 +33,43 @@ def kernel_to_distance(K):
         D[i, j] = (K[i, i] + K[j, j]) - 2*K[i, j]
     return D
 
-def calc_kernel(weightsfile, ab):
-    afile, bfile = ab
-    abase = path.basename(afile)
-    bbase = path.basename(bfile)
 
-    A = iter_blocks(afile, name='counts')
-    B = iter_blocks(bfile, name='counts')
-    W = iter_blocks(weightsfile, name='weights')
-
-    kernel = 0.0
-
-    # A/B/W all are generators returning a tuple of (i, block) where i is the
-    # index in the big array of block[0].
-    # Hence, ai == a's i, aa = a's array and so on.
-    for (ai, aa), (bi, ba), (wi, wa) in zip(A, B, W):
-        assert ai == bi == wi
-        kernel += wipkernel(aa, ba, wa, aa.shape[0])
-    return abase, bbase, kernel
+def wipkernel(X):
+    n, p = X.shape
+    f = ((X>1).sum(axis=0).astype(float) /  n)
+    #import numexpr as ne
+    #h = ne.evaluate("-(f * log2(f) + (1-f) * log2(1-f))")
+    h = np.nan_to_num(-(f * np.log2(f) + (1-f) * np.log2(1-f)))
+    #K = X @ np.diag(h) @ X.T
+    W = X * h
+    K = W @ W.T
+    return K
 
 
-def read_kernlog(outdir):
-    kernlines = []
-    kernlogs = glob(path.join(outdir, 'kernellog*'))
-    for kfn in kernlogs:
-        with open(kfn) as fh:
-            kernlines.extend(fh.readlines())
-    kernels = {}
-    for line in kernlines:
-        a, b, k = line.strip().split()
-        kernels[(a, b)] = float(k)
-    return kernels
+def ipkernel(X):
+    return X @ X.T
 
 
-def kernlog_to_kernmatrix(kernels_raw, namere):
-    kernels = {}
-    samples = set()
-    for (a, b), kern in kernels_raw.items():
-        a = file_to_name(a, namere)
-        b = file_to_name(b, namere)
-        samples.add(a)
-        samples.add(b)
-        try:
-            kernels[a][b] = kern
-        except KeyError:
-            kernels[a] = {b: kern}
+def chunked_calc(idx, arrayfile, kernel):
+    start, end = idx
+    arr = zarr.open(arrayfile)
+    X = arr[:, start:end].astype(float)
+    K =  kernel(X)
+    return K
 
-    # Make an ordered array
-    num_samples = len(samples)
-    kernmat = np.zeros((num_samples, num_samples), dtype=float)
-    samples = list(sorted(samples))
-    sample_idx = {s: i for i, s in enumerate(samples)}
-    # square up the dictionary
-    for a, b in itl.combinations_with_replacement(samples, 2):
-        ai = sample_idx[a]
-        bi = sample_idx[b]
-        kernmat[ai, bi] = kernels[a][b]
-        kernmat[bi, ai] = kernels[a][b]
-    return samples, kernmat
+
+def eval_kernel(array, kernel, maxp=None, mapper=map, chunksize=None):
+    X = zarr.open(array)
+    c = X.chunks[1] if chunksize is None else chunksize
+    n, p = X.shape
+    if maxp is None or maxp > p:
+        maxp = p
+    indicies = [(s, min(maxp, s+c)) for s in range(0, maxp, c)]
+    f = functools.partial(chunked_calc, arrayfile=array, kernel=kernel)
+    K = None
+    for k in mapper(f, indicies):
+        if K is None:
+            K = k
+            continue
+        K += k
+    return K

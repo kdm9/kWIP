@@ -32,14 +32,14 @@ except Exception as exc:
     term = MockTerm()
 
 
-def progress(*args, file=stdout, end='\n'):
+def progress(*args, file=stderr, end='\n'):
     file.write(term.cyan)
     print("  ... ", *args, end=end, file=file)
     file.write(term.normal)
     file.flush()
 
 
-def info(*args, file=stdout, end='\n'):
+def info(*args, file=stderr, end='\n'):
     file.write(term.blue)
     print(*args, file=file, end=end)
     file.write(term.normal)
