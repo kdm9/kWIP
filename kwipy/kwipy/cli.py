@@ -35,7 +35,10 @@ from kmkm import KmerCollection, KmerCounter
 from .logging import *
 
 
-
+def countone(reads, ksize, cvsize, tables):
+    kc = KmerCounter(ksize=ksize, cvsize=cvsize, cbf_tables=tables)
+    kc.count_file(reads)
+    return reads, kc
 
 def count_main():
     desc = "Counts k-mers into an aggregated kmer count matrix."
@@ -82,19 +85,14 @@ def count_main():
         args.outfile, mode=mode, ksize=args.ksize, cvsize=args.cvsize,
         cbf_tables=tables)
 
-
     if args.jobs > 1:
         pool = Pool(args.jobs)
         mapper = pool.imap_unordered
     else:
         mapper = map
 
-    def countone(reads):
-        kc = KmerCounter(ksize=args.ksize, cvsize=args.cvsize, cbf_tables=tables)
-        kc.count_file(reads)
-        return reads, kc
-
-    for readfile, kc in mapper(countone, args.readfiles):
+    f = partial(countone, ksize=args.ksize, cvsize=args.cvsize, tables=tables)
+    for readfile, kc in mapper(f, args.readfiles):
         counttable.add_counter(kc, readfile)
         progress(readfile, kc.nnz)
     info("All done!")
