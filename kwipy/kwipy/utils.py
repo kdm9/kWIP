@@ -27,11 +27,6 @@ import shlex
 from shutil import rmtree
 from subprocess import DEVNULL, PIPE, Popen
 
-from .arrayio import (
-    read_array,
-    write_array,
-    iter_blocks,
-)
 from .logging import (
     info,
     warn,

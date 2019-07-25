@@ -38,7 +38,7 @@ from .logging import *
 def countone(reads, ksize, cvsize, tables):
     kc = KmerCounter(ksize=ksize, cvsize=cvsize, cbf_tables=tables)
     kc.count_file(reads)
-    return reads, kc
+    return reads, kc.counts().copy()
 
 def count_main():
     desc = "Counts k-mers into an aggregated kmer count matrix."
@@ -93,8 +93,8 @@ def count_main():
 
     f = partial(countone, ksize=args.ksize, cvsize=args.cvsize, tables=tables)
     for readfile, kc in mapper(f, args.readfiles):
-        counttable.add_counter(kc, readfile)
-        progress(readfile, kc.nnz)
+        counttable.add_counts(kc, readfile)
+        progress(readfile, kc.sum())
     info("All done!")
 
 
