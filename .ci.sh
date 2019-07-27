@@ -13,6 +13,8 @@ conda init
 # prepare env
 conda create -q -n test-environment numpy cython pytables
 conda activate test-environment
+pip3 install -e git+https://github.com/kmerkmer/kmkm.git#egg=kmkm
+
 
 # build & run tests
 python3 setup.py install
