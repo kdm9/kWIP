@@ -46,7 +46,7 @@ kwipy-kernel -D samples_distance.tsv -K samples_kernel.tsv -j $NCPUS samples.kc
 
 Do `kwipy-count --help` or `kwipy-kernel --help` for more info. Again, actual
 real documentation will happen at some point. Poke me if "some point" becomes
-unhelfully far into the future. No question is too small or large.
+unhelpfully far into the future. No question is too small or large.
 
 
 # How it works
