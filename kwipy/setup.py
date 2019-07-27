@@ -60,6 +60,7 @@ setup(
     entry_points={
         'console_scripts': [
             'kwipy-count = kwipy.cli:count_main',
+            'kwipy-kernel = kwipy.cli:kernel_main',
             #'kwipy-weight = kwipy.scripts:weight_main',
             #'kwipy-kernel = kwipy.scripts:kernel_main',
             #'kwipy-distmat = kwipy.scripts:distmat_main',

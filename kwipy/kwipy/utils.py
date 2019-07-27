@@ -1,22 +1,11 @@
-# Copyright 2016 Kevin Murray <spam@kdmurray.id.au>
+# Copyright (c) 2015-2019 Kevin Murray <foss@kdmurray.id.au>
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from __future__ import print_function, division
 
 import numpy as np
-from fastqandfurious import fastqandfurious as fqf, _fastqandfurious as _fqf
 
 from glob import glob
 import itertools as itl
@@ -25,13 +14,14 @@ from os import path
 import re
 import shlex
 from shutil import rmtree
-from subprocess import DEVNULL, PIPE, Popen
+from sys import stdin, stdout, stderr
+import functools
+from multiprocessing import Pool
 
 from .logging import (
     info,
     warn,
 )
-from .progress import ProgressLogger
 
 
 READFILE_EXTS = ['gz', 'bz2', 'fa', 'fq', 'fasta', 'fastq', 'sra']
@@ -97,16 +87,8 @@ def check_psd(matrix, name):
         warn(name, "matrix is NOT positive semi-definite")
 
 
-def file_to_name(filename, namere=r'(.*)(\.[^.]+)?'):
-    filename = path.basename(filename)
-    try:
-        return re.search(namere, filename).groups()[0]
-    except (TypeError, AttributeError):
-        warn("Name regex did not match", filename, "using basename")
-        return filename
 
-
-def print_lsmat(matrix, ids, file=None):
+def print_lsmat(matrix, ids, file=stdin):
     print('', *ids, sep='\t', file=file)
     for rowidx, id in enumerate(ids):
         print(id, *list(matrix[rowidx, :]), sep='\t', file=file)
@@ -128,30 +110,13 @@ def rmmkdir(directory):
     mkdir(directory)
 
 
-def chunked_fastq_iterator(filename, precmd=None):
-    if precmd is not None:
-        cmd = precmd.format(' "{}"'.format(filename))
-        with Popen(cmd, shell=True, executable='/bin/bash', stdin=DEVNULL,
-                   stdout=PIPE, stderr=None, universal_newlines=False) as proc:
-            for read in FastxReader(proc.stdout):
-                yield read
-        if proc.returncode != 0:
-            raise RuntimeError("Precommand exited with non-zero status.")
-    else:
-        with open(filename, 'rb') as fh:
-            for read in FastxReader(fh):
-                yield read
+class Mapper(object):
+    def __init__(self, njobs, chunksize=1):
+        if njobs > 1:
+            self.pool = Pool(njobs)
+            self.mapper = functools.partial(self.pool.imap_unordered, chunksize=chunksize)
+        else:
+            self.mapper = map
 
-
-def count_reads(counter, readfiles, precmd=None, interval=50000):
-    for readfile in readfiles:
-        try:
-            reads = parse_reads(readfile, precmd=precmd)
-            for read in ProgressLogger(reads, 'reads', interval=interval):
-                counter.consume(read.sequence)
-        except IOError as exc:
-            raise RuntimeError("An error occured while reading from", readfile,
-                               ". The error was:\n\t", str(exc))
-
-
-
+    def __call__(self, *args, **kwargs):
+        yield from self.mapper(*args, **kwargs)
