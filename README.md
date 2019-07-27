@@ -1,5 +1,4 @@
-kWIP
-====
+# kWIP
 
 The k-mer Weighted Inner Product.
 
@@ -20,8 +19,8 @@ made -- please create a github issue to ask questions or if something seems
 wrong.
 
 
-Installation
-============
+# Installation
+
 
 In a month or two when the code has stablised, I'll make conda packages for
 kwipy and kmkm. For now, sorry, but you have to do the following. If you want
@@ -36,8 +35,21 @@ pip3 install -e git+https://github.com/kdmurray91/kwip.git@version2#egg=kwipy
 ```
 
 
-How it works
-============
+# Usage
+
+Something along the lines of:
+
+```bash
+kwipy-count -k 21 -v 1e9 -j $NCPUS samples.kc path/to/reads/*.fastq*
+kwipy-kernel -D samples_distance.tsv -K samples_kernel.tsv -j $NCPUS samples.kc
+```
+
+Do `kwipy-count --help` or `kwipy-kernel --help` for more info. Again, actual
+real documentation will happen at some point. Poke me if "some point" becomes
+unhelfully far into the future. No question is too small or large.
+
+
+# How it works
 
 kWIP works by decomposing sequencing reads to short
 [k-mers](https://en.wikipedia.org/wiki/K-mer),
@@ -58,16 +70,13 @@ kWIP distances should be identical to the human eye, but kwip distances from
 version 0.2.0 and version 2 might not be exactly the same.)
 
 
-License
-=======
+# License
 
-Mozilla Public Licence V2. Note that some code from the old kWIP (somewhere in
+ Public Licence V2. Note that some code from the old kWIP (somewhere in
 ./graveyard) is GPLv3+. If this is an issue, create a github issue.
 
-Publication
-===========
+# Publication
 
 A publication describing kWIP has been [published in PLOS Computational
 Biology](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005727).
 Please cite this, regardless of the kWIP version you use.
-
