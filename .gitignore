@@ -36,5 +36,19 @@ tags
 *.Rhistory
 
 doc/_build/
+*.bak
+.*.swp
+
+# Python junk
+*.pyc
+.ipynb_checkpoints
+*.so
+.eggs
+*.egg-info
+.coverage
 build
-src/kwip-config.hh
+dist
+.ropeproject
+.cache
+htmlcov
+kwipy/*.c*
