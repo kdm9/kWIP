@@ -1,0 +1,131 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(kwip2)
+
+# Find the modules
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.cmake")
+
+# Set sane output paths
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
+
+
+ENABLE_TESTING()
+
+# Default to Release builds
+IF (NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
+
+
+# Version jiggery-pokery
+IF (NOT "${KWIP_VERSION}")  # Manually set the version
+# git describe as versioning
+EXECUTE_PROCESS(COMMAND git describe --always
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE KWIP_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+ENDIF()
+
+MESSAGE("${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${KWIP_VERSION}")
+
+############################
+## User-definable options ##
+############################
+
+OPTION(USE_ASAN "Build with AddressSanitizer" OFF)
+OPTION(USE_TSAN "Build with ThreadSanitizer" OFF)
+OPTION(USE_OPENMP "Use OpenMP for parallelism" ON)
+OPTION(USE_BLOSC "Use BLOSC for HDF5 compression" ON)
+
+# Sets the chunk size in MiB
+if (NOT CHUNKSIZE)
+    SET(CHUNKSIZE 1)
+endif()
+math(EXPR KWIP_CHUNKSIZE "${CHUNKSIZE} * 1048576")
+
+
+###############################
+## Find Packages and Headers ##
+###############################
+
+FIND_PACKAGE(PkgConfig REQUIRED)
+
+#SET(HDF5_USE_STATIC_LIBRARIES ON)
+FIND_PACKAGE(HDF5 1.8.16 REQUIRED)
+SET(KWIP_DEP_INCLUDES ${KWIP_DEP_INCLUDES} ${HDF5_INCLUDE_DIRS})
+SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${HDF5_C_LIBRARIES})
+
+FIND_PACKAGE(ZLIB 1.2.0 REQUIRED)
+SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${ZLIB_C_FLAGS}")
+SET(KWIP_DEP_INCLUDES ${KWIP_DEP_INCLUDES} ${ZLIB_INCLUDE_DIRS})
+SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${ZLIB_LIBRARIES})
+
+FIND_PACKAGE(GSL REQUIRED)
+SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${GSL_C_FLAGS}")
+SET(KWIP_DEP_INCLUDES ${KWIP_DEP_INCLUDES} ${GSL_INCLUDE_DIRS})
+SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${GSL_LIBRARIES})
+
+FIND_PACKAGE(Threads REQUIRED)
+SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+FIND_PACKAGE(OpenMP REQUIRED)
+SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${OpenMP_C_FLAGS}")
+
+FIND_PACKAGE(CMocka REQUIRED)
+SET(KWIP_DEP_CFLAGS "${KWIP_DEP_CFLAGS} ${CMOCKA_DEFINITIONS}")
+SET(KWIP_DEP_INCLUDES ${KWIP_DEP_INCLUDES} ${CMOCKA_INCLUDE_DIRS})
+SET(KWIP_DEP_LIBS ${KWIP_DEP_LIBS} ${CMOCKA_LIBRARIES})
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${KWIP_DEP_CFLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KWIP_DEP_CFLAGS}")
+
+
+##########################
+## Set Compiler Options ##
+##########################
+
+# Set CFLAGS
+SET(CMAKE_C_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 11)
+SET(WARN_FLAGS "${WARN_FLAGS} -Wall -Wextra -Wpedantic")
+SET(OPT_FLAGS "-O3 -march=native -funroll-loops -ffast-math")
+
+
+IF(USE_ASAN AND USE_TSAN)
+    MESSAGE(FATAL_ERROR "Cannot enable both ThreadSanitizer and AddressSanitizer")
+ENDIF()
+
+IF(USE_ASAN)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+    MESSAGE(STATUS "Enabling Address Sanitizer")
+ENDIF()
+
+IF(USE_TSAN)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
+ENDIF()
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARN_FLAGS}")
+SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_FLAGS}")
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
+
+#Compiler lang features
+include(CheckFunctionExists)
+include(CheckSymbolExists)
+
+
+# Headers occur in these dirs
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
+                    ${CMAKE_SOURCE_DIR}/src
+                    ${KWIP_DEP_INCLUDES})
+
+# Finally, configure the config header
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/kwip_config.h.in
+               ${CMAKE_BINARY_DIR}/kwip_config.h)
+
+
+# Libary sources
+ADD_SUBDIRECTORY(src)

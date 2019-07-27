@@ -1,0 +1,16 @@
+*.bak
+*.swp
+
+# Python junk
+*.pyc
+.ipynb_checkpoints
+*.so
+.eggs
+*.egg-info
+.coverage
+build
+dist
+.ropeproject
+.cache
+htmlcov
+kwipy/*.c

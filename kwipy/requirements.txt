@@ -1,0 +1,8 @@
+blessings
+cython
+docopt
+numpy
+pytest
+pytest-runner
+screed>=0.9
+tables>=3

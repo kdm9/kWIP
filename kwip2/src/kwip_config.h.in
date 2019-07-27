@@ -1,0 +1,19 @@
+#ifndef KWIP_CONFIG_H_IN_IGJZGN83
+#define KWIP_CONFIG_H_IN_IGJZGN83
+
+#ifndef kc_eltype_t
+    #define kc_eltype_t uint8_t
+    #define H5T_KMERCOUNT H5T_NATIVE_UINT8
+#endif
+
+#cmakedefine KWIP_VERSION "@KWIP_VERSION@"
+#cmakedefine KWIP_CHUNKSIZE @KWIP_CHUNKSIZE@
+#cmakedefine USE_BLOSC
+
+
+#ifndef KWIP_CHUNKSIZE
+    #define KWIP_CHUNKSIZE 1048576 // 1 mebibyte
+#endif
+
+
+#endif /* end of include guard: KWIP_CONFIG_H_IN_IGJZGN83 */
