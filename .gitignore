@@ -52,3 +52,4 @@ dist
 .cache
 htmlcov
 kwipy/*.c*
+src/

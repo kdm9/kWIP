@@ -37,7 +37,6 @@ kwip in python
 setup_requires = [
     'cython',
     'numpy',
-    'kmkm',
     'pytest-runner',
 ]
 

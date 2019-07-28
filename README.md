@@ -30,8 +30,8 @@ adds recipies youself if I'm being too slow!
 
 
 ```bash
-pip3 install -e git+https://github.com/kmerkmer/kmkm.git#egg=kmkm
-pip3 install -e git+https://github.com/kdmurray91/kwip.git@version2#egg=kwipy
+pip3 install -e 'git+https://github.com/kmerkmer/kmkm.git#egg=kmkm'
+pip3 install -e 'git+https://github.com/kdmurray91/kwip.git@version2#egg=kwipy'
 ```
 
 
